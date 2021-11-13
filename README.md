@@ -1,1 +1,7 @@
-展信佳App Flutter
+# 展信佳App Flutter
+
+A new Flutter project.
+
+## Getting Started 
+
+start develop
