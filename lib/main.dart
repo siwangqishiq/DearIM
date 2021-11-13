@@ -1,5 +1,8 @@
-import 'package:dearim/Pages/MainPage.dart';
+import 'package:dearim/pages/LoginPage.dart';
+import 'package:dearim/user/UserManager.dart';
 import 'package:flutter/material.dart';
+
+import 'Pages/MainPage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,11 +15,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'dearIM',
-      theme: ThemeData(
-        primarySwatch: Colors.lightGreen
-      ),
-      home: const MainPage(),
-    );
+        title: 'dearIM',
+        theme: ThemeData(primarySwatch: Colors.lightGreen),
+        home: homepage());
+  }
+
+  Widget homepage() {
+    if (UserManager().hasUser()) {
+      return MainPage();
+    }
+    return LoginPage();
   }
 }
