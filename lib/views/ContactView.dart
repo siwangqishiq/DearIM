@@ -1,6 +1,6 @@
 // ignore_for_file: file_names
 
-import 'package:dearim/Pages/ContactModel.dart';
+import 'package:dearim/models/ContactModel.dart';
 import 'package:dearim/Pages/RedPoint.dart';
 import 'package:flutter/material.dart';
 
