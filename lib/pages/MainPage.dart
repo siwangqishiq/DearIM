@@ -1,10 +1,11 @@
 // ignore_for_file: file_names
 
 import 'package:dearim/models/ContactModel.dart';
+import 'package:dearim/network/Request.dart';
 import 'package:dearim/user/UserManager.dart';
 import 'package:dearim/views/ContactView.dart';
+import 'package:dearim/views/ToastShowUtils.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -25,9 +26,10 @@ class _MainPageState extends State<MainPage> {
               color: Colors.white,
             ),
             onPressed: () {
-              UserManager().logout();
-              Navigator.of(context).pop();
-              Navigator.of(context).pushNamed("/login");
+              ToastShowUtils.showAlert("确定登出吗", "", context, () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pushNamed("/login");
+              }, () {});
             },
           )
         ],

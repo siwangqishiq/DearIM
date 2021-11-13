@@ -21,6 +21,9 @@ class RequestManager {
   }
 
   String hostName() {
+    if (this.networkEnv == NetworkEnvironment.Online) {
+      return "http://47.99.103.133:9090/";
+    }
     return _hostName;
   }
 }

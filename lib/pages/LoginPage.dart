@@ -1,6 +1,6 @@
 // ignore_for_file: file_names
 
-import 'package:dearim/Views/ToastUtils.dart';
+import 'package:dearim/views/ToastShowUtils.dart';
 import 'package:dearim/network/Request.dart';
 import 'package:dearim/user/UserManager.dart';
 import 'package:flutter/material.dart';
@@ -83,20 +83,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void login() {
-    Map<String, Object> map = Map();
-    // http://192.168.31.230:9090/login?username=wenmingyan&pwd=111111
-    map["username"] = this.username;
-    map["pwd"] = this.password;
-    Request().postRequest(
-        "login",
-        map,
+    UserManager().login(
+        this.username,
+        this.password,
         Callback(successCallback: (data) {
-          Logger().d("success = ($data)");
-          UserManager().login(data["token"], data["uid"]);
           Navigator.of(context).pop();
           Navigator.of(context).pushNamed("/main");
         }, failureCallback: (code, errorStr, data) {
-          Logger().d("success = ($errorStr)");
+          ToastShowUtils.show(errorStr, context);
         }));
   }
 }

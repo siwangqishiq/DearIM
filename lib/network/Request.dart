@@ -52,13 +52,10 @@ class Request {
         }
       }
     } catch (e) {
-      // Logger().d("catch e" + e.toString());
-      // if (callback.failureCallback != null) {
-      //   if (e.response != null) {
-      //     callback.failureCallback!(e.response.data["code"],
-      //         e.response.data["message"], e.response.data["data"]);
-      //   }
-      // }
+      Logger().d("catch e" + e.toString());
+      if (callback.failureCallback != null) {
+        callback.failureCallback!(500, "server failure", {});
+      }
     }
   }
 
@@ -97,13 +94,10 @@ class Request {
         }
       }
     } catch (e) {
-      // Logger().d("catch e" + e);
-      // if (callback.failureCallback != null) {
-      //   if (e.response != null) {
-      //     callback.failureCallback(e.response.data["code"],
-      //         e.response.data["message"], e.response.data["data"]);
-      //   }
-      // }
+      Logger().d("catch e" + e.toString());
+      if (callback.failureCallback != null) {
+        callback.failureCallback!(500, "server failure", {});
+      }
     }
     return null;
   }
