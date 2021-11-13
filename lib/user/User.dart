@@ -1,5 +1,11 @@
 class User {
-  int? uid;
-  String? name;
-  String? token;
+  int uid = 0;
+  String name = "";
+  String token = "";
+
+  void clear() {
+    this.uid = 0;
+    this.name = "";
+    this.token = "";
+  }
 }

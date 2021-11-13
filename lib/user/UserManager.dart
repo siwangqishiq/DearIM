@@ -5,15 +5,24 @@ class UserManager {
 
   static final UserManager _instance = UserManager._privateConstructor();
 
-  User? user;
+  User user = User();
   factory UserManager() {
     return _instance;
   }
 
   bool hasUser() {
-    if (this.user != null && this.user!.uid != 0) {
+    if (this.user.uid != 0) {
       return true;
     }
     return false;
+  }
+
+  void login(String token, int uid) {
+    this.user.token = token;
+    this.user.uid = uid;
+  }
+
+  void logout() {
+    this.user.clear();
   }
 }
