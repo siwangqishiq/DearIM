@@ -29,8 +29,11 @@ class UserManager {
         map,
         Callback(successCallback: (data) {
           Logger().d("success = ($data)");
+          // 配置登录参数
           this.user.token = data["token"];
           this.user.uid = data["uid"];
+          this.user.tcpParam.imPort = data["imPort"];
+          this.user.tcpParam.imServer = data["imServer"];
           if (callback != null && callback.successCallback != null) {
             callback.successCallback!(data);
           }
