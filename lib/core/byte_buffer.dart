@@ -46,19 +46,19 @@ class ByteBuf {
     _data = Uint8List(_initSize);
   }
 
-  get readIndex => _readIndex;
+  int get readIndex => _readIndex;
 
-  get writeIndex => _writeIndex;
+  int get writeIndex => _writeIndex;
 
-  get couldReadableSize => _writeIndex - _readIndex;
+  int get couldReadableSize => _writeIndex - _readIndex;
 
-  get data => _data;
+  Uint8List get data => _data;
 
   //
-  get limit => _data.length;
+  int get limit => _data.length;
 
   //是否内部还有可读内容
-  get hasReadContent => couldReadableSize > 0;
+  bool get hasReadContent => couldReadableSize > 0;
 
   //取值 不移动读写指针
   int getValue(final int index) {

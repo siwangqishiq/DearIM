@@ -1,12 +1,25 @@
+import 'dart:typed_data';
 
-class Utils{
+class Utils {
   static const double epsiod = 0.000001;
 
-  static bool floatEqual(num d1 , num d2){
+  static bool floatEqual(num d1, num d2) {
     return abs(d1 - d2) < epsiod;
   }
 
-  static num abs(num v){
-    return v>=0 ?v:-v;
+  static num abs(num v) {
+    return v >= 0 ? v : -v;
+  }
+
+  //string to Uint8List
+  static Uint8List convertStringToUint8List(String str) {
+    final List<int> codeUnits = str.codeUnits;
+    final Uint8List unit8List = Uint8List.fromList(codeUnits);
+    return unit8List;
+  }
+
+  //Uint8List to string
+  static String convertUint8ListToString(Uint8List uint8list) {
+    return String.fromCharCodes(uint8list);
   }
 }

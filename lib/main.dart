@@ -5,8 +5,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'Pages/MainPage.dart';
+import 'core/imcore.dart';
 
 void main() {
+  initIM();
   runApp(const MyApp());
 }
 
@@ -40,4 +42,11 @@ class MyApp extends StatelessWidget {
     }
     return LoginPage();
   }
+}
+
+void initIM() {
+  int uid = 1001;
+  String token =
+      "eyJ0eXAiOiJKV1QiLCJfdWlkIjoiMTAwMSIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE2MzY4MzY5Nzh9.SDvudzHirrbwWvNopPd1JS3eY6PYZYaidE8_1083cxk";
+  IMClient.instance.imLogin(uid, token);
 }
