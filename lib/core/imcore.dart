@@ -24,7 +24,7 @@ enum State {
 }
 
 //im登录回调
-typedef IMLoginCallback = Function(Result result);
+typedef IMLoginCallback = Function(Result result, int code);
 
 //im注销回调
 typedef IMLoginOutCallback = Function(Result result);
@@ -106,7 +106,11 @@ class IMClient {
         _onSocketFirstContected();
       }
     }).catchError((error) {
-      LogUtil.errorLog("socket 连接失败");
+      LogUtil.errorLog("socket 连接失败 ${error.toString()}");
+      _onSocketClose();
+      _changeState(State.unconnect);
+    }).whenComplete(() {
+      _onSocketClose();
       _changeState(State.unconnect);
     });
   }
@@ -118,6 +122,9 @@ class IMClient {
     _sendData(loginReqMsg.encode());
   }
 
+  //socket被关闭
+  void _onSocketClose() {}
+
   //接收到远端数据
   void _receiveRemoteData(Uint8List data) {
     LogUtil.log("received data  len : ${data.length}");
@@ -125,7 +132,7 @@ class IMClient {
 
   //发送数据
   void _sendData(ByteBuf buf) {
-    LogUtil.log("发送数据 size = ${buf.couldReadableSize}");
+    LogUtil.log("send data size = ${buf.couldReadableSize}");
     if (buf.couldReadableSize <= 0) {
       return;
     }
