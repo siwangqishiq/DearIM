@@ -13,7 +13,7 @@ class BodyEncodeTypes {
 }
 
 class ProtocolConfig {
-  static const int MagicNumber = 100; //yoki
+  static const int MagicNumber = 900523; //yoki
   static const int Version = 1;
 }
 
