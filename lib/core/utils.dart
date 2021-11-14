@@ -22,4 +22,11 @@ class Utils {
   static String convertUint8ListToString(Uint8List uint8list) {
     return String.fromCharCodes(uint8list);
   }
+
+  static String intToHex(int value){
+    if(value >=0 && value <16){
+      return "0" + value.toRadixString(16);
+    }
+    return value.toRadixString(16);
+  }
 }

@@ -31,7 +31,8 @@ typedef IMLoginOutCallback = Function(Result result);
 
 class IMClient {
   // static const String _serverAddress = "10.242.142.129"; //
-  static const String _serverAddress = "192.168.31.230"; //
+  // static const String _serverAddress = "192.168.31.230"; //
+  static const String _serverAddress = "192.168.31.37";
 
   static const int _port = 1013;
 
@@ -54,6 +55,10 @@ class IMClient {
   IMLoginCallback? _loginCallback;
 
   Socket? _socket;
+
+  ByteBuf _dataBuf = ByteBuf.allocator();//
+
+  final List _todoList = [];//缓存要发送的消息
 
   IMClient() {
     _state = State.unconnect;
@@ -120,6 +125,7 @@ class IMClient {
     //todo 发送请求登录消息
     IMLoginReqMessage loginReqMsg = IMLoginReqMessage(_uid, _token);
     _sendData(loginReqMsg.encode());
+
   }
 
   //socket被关闭
@@ -127,12 +133,23 @@ class IMClient {
 
   //接收到远端数据
   void _receiveRemoteData(Uint8List data) {
+    ByteBuf recvBuf = ByteBuf.allocator(size : data.length);
+    recvBuf.writeUint8List(data);
     LogUtil.log("received data  len : ${data.length}");
+    recvBuf.debugHexPrint();
+
+
+  }
+
+  void _parseData(ByteBuf buf){
+
   }
 
   //发送数据
   void _sendData(ByteBuf buf) {
     LogUtil.log("send data size = ${buf.couldReadableSize}");
+    buf.debugHexPrint();
+
     if (buf.couldReadableSize <= 0) {
       return;
     }
@@ -143,3 +160,9 @@ class IMClient {
     //_socket?.writeAll(buf.readAllUint8List());
   }
 } //end class
+
+//handler抽象类
+abstract class MessageHandler<T> {
+
+  void handle(IMClient client , T msg);
+}

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:dearim/core/byte_buffer.dart';
 import 'package:dearim/core/log.dart';
 import '../utils.dart';
+import 'message.dart';
 import 'protocol.dart';
 
 //登录请求

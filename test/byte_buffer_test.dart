@@ -10,7 +10,7 @@ void main() {
     ByteBuf buf = ByteBuf.allocator(size: 2);
     LogUtil.log("limit : ${buf.limit}");
 
-    expect(2, buf.limit);
+    expect(ByteBuf.initMinSize, buf.limit);
   });
 
   test("debug print", () {
@@ -298,5 +298,78 @@ void main() {
       expect(data[i], readBufData[i - 1]);
     } //end for
     expect(7, readBuf.readIndex);
+  });
+
+  test("test compact", (){
+    var data = <int>[1, 2, 3, 4, 5, 6, 7, 8];
+    ByteBuf buf = ByteBuf.allocator();
+    buf.writeUint8List(Uint8List.fromList(data));
+    int originDataLen = buf.limit;
+    buf.compact();
+    expect(buf.limit, originDataLen);
+
+    buf.readInt8();
+
+    buf.compact();
+    buf.debugPrint();
+    expect(buf.readIndex, 0);
+    expect(buf.writeIndex, 7);
+
+
+    buf.readInt8();
+    buf.readInt8();
+    buf.readInt8();
+    buf.readInt8();
+    buf.readInt8();
+    buf.readInt8();
+    buf.readInt8();
+    buf.compact();
+
+    buf.debugPrint();
+
+    expect(buf.limit, originDataLen - data.length);
+
+    buf.writeInt(100);
+    buf.writeInt(200);
+    buf.writeInt(300);
+    buf.compact();
+    buf.debugPrint();
+    expect(buf.readIndex, 0);
+    expect(buf.writeIndex ,12);
+
+    buf.readInt();
+    buf.compact();
+    expect(buf.readIndex, 0);
+    expect(buf.writeIndex ,8);
+
+    buf.readInt();
+    buf.compact();
+    buf.debugPrint();
+    expect(buf.readIndex, 0);
+    expect(buf.writeIndex ,4);
+
+    buf.readInt();
+    buf.writeInt64(100);
+    buf.readInt64();
+
+    buf.compact();
+
+    buf.writeInt(100);
+    buf.readInt();
+
+    buf.debugPrint();
+    buf.writeInt8(12);
+    buf.readInt8();
+    buf.compact();
+    buf.debugPrint();
+    expect(ByteBuf.initMinSize, buf.limit);
+  });
+
+  test("show debug" , (){
+    ByteBuf buf = ByteBuf.allocator(size:100);
+    for(int i = 0 ; i< 100 ;i++){
+      buf.writeInt8(i);
+    }
+    buf.debugHexPrint(columSize: 16);
   });
 }
