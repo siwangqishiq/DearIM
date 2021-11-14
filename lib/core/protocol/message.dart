@@ -1,4 +1,3 @@
-
 import 'package:uuid/uuid.dart';
 
 import '../byte_buffer.dart';
@@ -10,10 +9,25 @@ class Message {
   int magicNumber = ProtocolConfig.MagicNumber;
   int version = ProtocolConfig.Version;
   int length = 0;
+  int type = MessageTyps.UNDEF;
   int bodyEncode = BodyEncodeTypes.JSON;
   int uniqueId = 0;
 
   int bodyLength = 0;
+
+  //build from bytebuf
+  factory Message.fromBytebuf(ByteBuf buf) {
+    final Message msg = Message();
+    msg.magicNumber = buf.readInt32();
+    msg.version = buf.readInt32();
+    msg.length = buf.readInt64();
+    msg.type = buf.readInt32();
+    msg.bodyEncode = buf.readInt32();
+    msg.uniqueId = buf.readInt64();
+
+    msg.bodyLength = msg.length - headerSize();
+    return msg;
+  }
 
   Message() {
     uniqueId = genUniqueId();
@@ -25,7 +39,16 @@ class Message {
 
   //消息类型 子类继承
   int getType() {
-    return MessageTyps.UNDEF;
+    return type;
+  }
+
+  void fill(Message otherMsg) {
+    magicNumber = otherMsg.magicNumber;
+    version = otherMsg.version;
+    length = otherMsg.length;
+    type = otherMsg.type;
+    bodyEncode = otherMsg.bodyEncode;
+    uniqueId = otherMsg.uniqueId;
   }
 
   //默认实现 由子类继承
@@ -33,7 +56,12 @@ class Message {
     return ByteBuf.allocator();
   }
 
-  int headerSize() {
+  //解码消息体 子类实现
+  dynamic decodeBody(ByteBuf buf, int bodySize) {
+    return null;
+  }
+
+  static int headerSize() {
     return 4 + 4 + 8 + 4 + 4 + 8;
   }
 
@@ -58,3 +86,9 @@ class Message {
     return buf;
   }
 } //end class
+
+class Result {
+  int code = 0;
+  bool result = false;
+  String? reason;
+}

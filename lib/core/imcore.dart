@@ -4,14 +4,14 @@ import 'dart:typed_data';
 import 'package:dearim/core/byte_buffer.dart';
 import 'package:dearim/core/log.dart';
 import 'package:dearim/core/protocol/login.dart';
+import 'package:dearim/core/protocol/protocol.dart';
+
+import 'protocol/message.dart';
 
 ///
 /// IM服务网络收发
 ///
 ///
-
-//接口执行结果
-enum Result { success, failed }
 
 //客户端状态
 enum State {
@@ -21,6 +21,15 @@ enum State {
   logined, //登录成功
   unloging, //注销中
   undef, //未定义
+}
+
+enum DataStatus {
+  errorMagicNumber, //协议解析错误
+  errorVersion,
+  errorBodyEncode,
+  errorOther,
+  errorLength, //数据长度不足
+  success, //成功
 }
 
 //im登录回调
@@ -56,9 +65,9 @@ class IMClient {
 
   Socket? _socket;
 
-  ByteBuf _dataBuf = ByteBuf.allocator();//
+  ByteBuf _dataBuf = ByteBuf.allocator(); //
 
-  final List _todoList = [];//缓存要发送的消息
+  final List _todoList = []; //缓存要发送的消息
 
   IMClient() {
     _state = State.unconnect;
@@ -125,7 +134,6 @@ class IMClient {
     //todo 发送请求登录消息
     IMLoginReqMessage loginReqMsg = IMLoginReqMessage(_uid, _token);
     _sendData(loginReqMsg.encode());
-
   }
 
   //socket被关闭
@@ -133,16 +141,88 @@ class IMClient {
 
   //接收到远端数据
   void _receiveRemoteData(Uint8List data) {
-    ByteBuf recvBuf = ByteBuf.allocator(size : data.length);
+    ByteBuf recvBuf = ByteBuf.allocator(size: data.length);
     recvBuf.writeUint8List(data);
     LogUtil.log("received data  len : ${data.length}");
-    recvBuf.debugHexPrint();
+    //recvBuf.debugHexPrint();
 
+    _dataBuf.writeByteBuf(recvBuf);
+    _dataBuf.debugHexPrint();
 
+    while (_dataBuf.hasReadContent) {
+      final DataStatus checkResult =
+          _checkDataStatus(_dataBuf.copy()); //使用备份来做检测
+
+      if (checkResult == DataStatus.success) {
+        final Message? msg = parseByteBufToMessage(_dataBuf);
+        _dataBuf.compact();
+
+        //hand
+        _handleMsg(msg);
+      } else if (checkResult == DataStatus.errorLength) {
+        break;
+      } else {
+        // _socket?.close();
+        break;
+      }
+    } //end while
   }
 
-  void _parseData(ByteBuf buf){
+  //将原始数据解码成message
+  Message? parseByteBufToMessage(ByteBuf buf) {
+    Message msgHead = Message.fromBytebuf(buf);
+    Message? result;
+    switch (msgHead.type) {
+      case MessageTyps.LOGIN_RESP:
+        result = IMLoginRespMessage();
+        result.decodeBody(buf, msgHead.bodyLength);
+        break;
+    }
+    return result;
+  }
 
+  //针对不同message 做不同业务处理
+  void _handleMsg(Message? msg) {
+    MessageHandler? handler;
+
+    switch (msg?.type) {
+      case MessageTyps.LOGIN_RESP:
+        handler = IMLoginRespHandler();
+        break;
+    }
+
+    handler?.handle(this, msg);
+  }
+
+  //检测数据状态
+  DataStatus _checkDataStatus(ByteBuf buf) {
+    if (buf.couldReadableSize < Message.headerSize()) {
+      return DataStatus.errorLength;
+    }
+
+    int magicNumber = buf.readInt32();
+    if (magicNumber != ProtocolConfig.MagicNumber) {
+      return DataStatus.errorMagicNumber;
+    }
+
+    int version = buf.readInt32();
+    if (version != ProtocolConfig.Version) {
+      return DataStatus.errorVersion;
+    }
+
+    int length = buf.readInt64();
+    int lastLength = length - 16; //剩余长度
+    if (buf.couldReadableSize < lastLength) {
+      return DataStatus.errorLength;
+    }
+
+    buf.readInt32();
+    int encodeType = buf.readInt32();
+    if (encodeType != ProtocolConfig.BodyEncodeType) {
+      return DataStatus.errorBodyEncode;
+    }
+
+    return DataStatus.success;
   }
 
   //发送数据
@@ -163,6 +243,5 @@ class IMClient {
 
 //handler抽象类
 abstract class MessageHandler<T> {
-
-  void handle(IMClient client , T msg);
+  void handle(IMClient client, T msg);
 }

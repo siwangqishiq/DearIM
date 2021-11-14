@@ -1,7 +1,4 @@
 //消息类型
-import 'package:dearim/core/byte_buffer.dart';
-import 'package:uuid/uuid.dart';
-
 class MessageTyps {
   static const int UNDEF = 0;
   static const int LOGIN_REQ = 1; //登录请求
@@ -13,7 +10,12 @@ class BodyEncodeTypes {
 }
 
 class ProtocolConfig {
-  static const int MagicNumber = 900523; //yoki
+  static const int MagicNumber = 900523; //
   static const int Version = 1;
+  static const int BodyEncodeType = BodyEncodeTypes.JSON;
 }
 
+class Codes {
+  static const int success = 200; //
+  static const int error = 500;
+}
