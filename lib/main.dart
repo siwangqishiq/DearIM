@@ -47,8 +47,8 @@ class MyApp extends StatelessWidget {
 
 //im client test
 void initIM() {
-  int uid = 3;
+  int uid = 1;
   String token =
-      "eyJ0eXAiOiJKV1QiLCJfdWlkIjoiMyIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE2MzY5MjI3NzR9.M9wBPGYsji5qO3wrbnGxSfGBOlVR1hPxvGE4hvEmL_s";
+      "eyJ0eXAiOiJKV1QiLCJfdWlkIjoiMSIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE2MzcwMjI3NTl9.B2yT4X5gQVo80RExbZZd2QZECwtC5a073Rv2wQhglFM";
   IMClient.instance.imLogin(uid, token);
 }

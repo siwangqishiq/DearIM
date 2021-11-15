@@ -49,6 +49,8 @@ class Message {
     type = otherMsg.type;
     bodyEncode = otherMsg.bodyEncode;
     uniqueId = otherMsg.uniqueId;
+
+    bodyLength = otherMsg.bodyLength;
   }
 
   //默认实现 由子类继承

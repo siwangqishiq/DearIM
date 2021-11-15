@@ -33,7 +33,7 @@ enum DataStatus {
 }
 
 //im登录回调
-typedef IMLoginCallback = Function(Result result, int code);
+typedef IMLoginCallback = Function(Result result);
 
 //im注销回调
 typedef IMLoginOutCallback = Function(Result result);
@@ -41,7 +41,8 @@ typedef IMLoginOutCallback = Function(Result result);
 class IMClient {
   // static const String _serverAddress = "10.242.142.129"; //
   // static const String _serverAddress = "192.168.31.230"; //
-  static const String _serverAddress = "192.168.31.37";
+  // static const String _serverAddress = "192.168.31.37";
+  static const String _serverAddress = "10.242.142.129";
 
   static const int _port = 1013;
 
@@ -60,10 +61,12 @@ class IMClient {
   String? _token;
 
   State _state = State.undef;
-
-  IMLoginCallback? _loginCallback;
+  
+  IMLoginCallback? loginCallback;
 
   Socket? _socket;
+
+  int _receivedPacketCount = 0;
 
   ByteBuf _dataBuf = ByteBuf.allocator(); //
 
@@ -82,7 +85,7 @@ class IMClient {
   void imLogin(int uid, String token, {IMLoginCallback? loginCb}) {
     _uid = uid;
     _token = token;
-    _loginCallback = loginCb;
+    loginCallback = loginCb;
 
     _socketConnect();
   }
@@ -174,8 +177,7 @@ class IMClient {
     Message? result;
     switch (msgHead.type) {
       case MessageTyps.LOGIN_RESP:
-        result = IMLoginRespMessage();
-        result.decodeBody(buf, msgHead.bodyLength);
+        result = IMLoginRespMessage.from(msgHead, buf);
         break;
     }
     return result;
@@ -183,6 +185,8 @@ class IMClient {
 
   //针对不同message 做不同业务处理
   void _handleMsg(Message? msg) {
+    _receivedPacketCount++;
+
     MessageHandler? handler;
 
     switch (msg?.type) {
@@ -192,6 +196,8 @@ class IMClient {
     }
 
     handler?.handle(this, msg);
+
+    LogUtil.log("packetCount : $_receivedPacketCount");
   }
 
   //检测数据状态
@@ -225,6 +231,12 @@ class IMClient {
     return DataStatus.success;
   }
 
+  //登录成功
+  void onLoginSuccess(){
+    LogUtil.log("login success");
+  }
+  
+
   //发送数据
   void _sendData(ByteBuf buf) {
     LogUtil.log("send data size = ${buf.couldReadableSize}");
@@ -237,7 +249,6 @@ class IMClient {
 
     _socket?.add(buf.readAllUint8List());
     _socket?.flush();
-    //_socket?.writeAll(buf.readAllUint8List());
   }
 } //end class
 

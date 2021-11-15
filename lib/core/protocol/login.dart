@@ -40,32 +40,50 @@ class IMLoginRespMessage extends Message {
 
   factory IMLoginRespMessage.from(Message head, ByteBuf buf) {
     IMLoginRespMessage respMessage = IMLoginRespMessage();
-
+    respMessage.fill(head);
+    respMessage.decodeBody(buf, respMessage.bodyLength);
     return respMessage;
   }
 
   Result? _result;
 
+  Result? get result => _result;
+
   @override
   dynamic decodeBody(ByteBuf buf, int bodySize) {
     Uint8List rawData = buf.readUint8List(bodySize);
-    var jsonMap = jsonDecode(Utils.convertUint8ListToString(rawData));
-    
-    _result = Result();
-    _result?.code = jsonMap["code"]??0;
-    _result?.result = jsonMap["result"];
-    _result?.reason = jsonMap["reason"];
 
+    String originJsonStr = Utils.convertUint8ListToString(rawData);
+    LogUtil.log(originJsonStr);
+
+    try{
+      var jsonMap = jsonDecode(Utils.convertUint8ListToString(rawData));
+    
+      _result = Result();
+      _result?.code = jsonMap["code"]??0;
+      _result?.result = jsonMap["result"];
+      _result?.reason = jsonMap["reason"];
+    }catch(e){
+      LogUtil.errorLog(e.toString());
+    }
     return _result;
   }
   
-  IMLoginRespMessage() 
+  IMLoginRespMessage();
 }
 
 //处理
 class IMLoginRespHandler extends MessageHandler<IMLoginRespMessage> {
   @override
   void handle(IMClient client, IMLoginRespMessage msg) {
-    LogUtil.log("handle login resp ${msg.uniqueId}");
+    LogUtil.log("handle login resp unique ${msg.uniqueId} ");
+    //todo
+
+    if(msg.result != null && msg.result!.result){
+      client.onLoginSuccess();
+    }
+
+    //callback
+    client.loginCallback!(msg.result!);
   }
-}
+}//end IMLoginRespHandler class
