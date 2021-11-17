@@ -45,20 +45,19 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 //im client test
 void initIM() {
-  int uid = 1;
+  int uid = 1001;
   String token =
-      "eyJ0eXAiOiJKV1QiLCJfdWlkIjoiMSIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE2MzcxOTY1NDF9.lYcmRbvOCLJXNqDn7ZyIcjprKO0s7SUitxwg1fg0Rh0";
-  IMClient.getInstance()?.registerStateObserver((oldState, newState){
+      "eyJ0eXAiOiJKV1QiLCJfdWlkIjoiMTAwMSIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE2MzcyMDcwMTN9.z8HzkXOJeIid7PJ6kIeez2vFJ0eREsviSYyIL-XglZA";
+  IMClient.getInstance()?.registerStateObserver((oldState, newState) {
     print("change state $oldState to $newState");
   }, true);
 
-  IMClient.getInstance()?.imLogin(uid, token , loginCallback: (result){
-    if(result.result){
+  IMClient.getInstance()?.imLogin(uid, token, loginCallback: (result) {
+    if (result.result) {
       print("IM登录成功");
-    }else{
+    } else {
       print("IM登录失败 原因: ${result.reason}");
     }
   });

@@ -18,7 +18,7 @@ import 'protocol/message.dart';
 enum State {
   unconnect, //未连接
   connecting, //连接中
-  unlogin,//已连接 未登录
+  unlogin, //已连接 未登录
   loging, //登录中
   logined, //登录成功
   unloging, //注销中
@@ -41,7 +41,7 @@ typedef IMLoginCallback = Function(Result loginResult);
 typedef IMLoginOutCallback = Function(Result result);
 
 //状态改变回调
-typedef StateChangeCallback = Function(State oldState , State newState);
+typedef StateChangeCallback = Function(State oldState, State newState);
 
 //handler抽象类
 abstract class MessageHandler<T> {
@@ -50,9 +50,9 @@ abstract class MessageHandler<T> {
 
 class IMClient {
   // static const String _serverAddress = "10.242.142.129"; //
-  // static const String _serverAddress = "192.168.31.230"; //
+  static const String _serverAddress = "192.168.31.230"; //
   // static const String _serverAddress = "192.168.31.37";
-  static const String _serverAddress = "10.242.142.129";
+  // static const String _serverAddress = "10.242.142.129";
 
   static const int _port = 1013;
 
@@ -69,7 +69,7 @@ class IMClient {
   String? _token;
 
   State _state = State.undef;
-  
+
   IMLoginCallback? loginCallback;
 
   Socket? _socket;
@@ -78,7 +78,8 @@ class IMClient {
 
   final ByteBuf _dataBuf = ByteBuf.allocator(); //
 
-  final List<StateChangeCallback> _stateChangeCallbackList = <StateChangeCallback>[];
+  final List<StateChangeCallback> _stateChangeCallbackList =
+      <StateChangeCallback>[];
 
   final List _todoList = []; //缓存要发送的消息
 
@@ -87,9 +88,9 @@ class IMClient {
     LogUtil.log("imclient instance create");
   }
 
-  static IMClient? getInstance(){
+  static IMClient? getInstance() {
     // ignore: prefer_conditional_assignment
-    if(_instance == null){
+    if (_instance == null) {
       _instance = IMClient();
     }
     return _instance;
@@ -108,8 +109,6 @@ class IMClient {
     _socketConnect();
   }
 
-
-
   //im退出登录
   void imLoginOut(String token, {IMLoginOutCallback? loginOutCb}) {}
 
@@ -119,16 +118,16 @@ class IMClient {
       final State oldState = _state;
       _state = newState;
       //LogUtil.log("state change : $_state");
-      _fireStateChangeCallback(oldState , _state);
+      _fireStateChangeCallback(oldState, _state);
     }
   }
 
   //触发状态改变回调
-  void _fireStateChangeCallback(State oldState , State newState){
-    LogUtil.log("_stateChangeCallbackList size ${_stateChangeCallbackList.length} ${_stateChangeCallbackList.hashCode.hashCode}");
-    for(StateChangeCallback cb in _stateChangeCallbackList){
-      LogUtil.log("callback $cb");
-      cb(oldState , newState);
+  void _fireStateChangeCallback(State oldState, State newState) {
+    // LogUtil.log(
+    //     "_stateChangeCallbackList size ${_stateChangeCallbackList.length} ${_stateChangeCallbackList.hashCode.hashCode}");
+    for (StateChangeCallback cb in _stateChangeCallbackList) {
+      cb(oldState, newState);
     }
   }
 
@@ -172,7 +171,7 @@ class IMClient {
 
   //socket被关闭 清理socket连接
   void _onSocketClose() {
-    _dataBuf.reset();//buf清空
+    _dataBuf.reset(); //buf清空
     _changeState(State.unconnect);
     _socket = null;
   }
@@ -188,8 +187,9 @@ class IMClient {
     _dataBuf.debugHexPrint();
 
     while (_dataBuf.hasReadContent) {
-      final DataStatus checkResult = 
-        _checkDataStatus(_dataBuf.copyWithSize(Message.headerSize()) ,_dataBuf.couldReadableSize); //使用备份来做检测 节省资源 仅取前32个协议头字节
+      final DataStatus checkResult = _checkDataStatus(
+          _dataBuf.copyWithSize(Message.headerSize()),
+          _dataBuf.couldReadableSize); //使用备份来做检测 节省资源 仅取前32个协议头字节
       LogUtil.log("checkResult $checkResult");
 
       if (checkResult == DataStatus.success) {
@@ -237,7 +237,7 @@ class IMClient {
   }
 
   //检测数据状态
-  DataStatus _checkDataStatus(ByteBuf buf , int bufRealSize) {
+  DataStatus _checkDataStatus(ByteBuf buf, int bufRealSize) {
     if (buf.couldReadableSize < Message.headerSize()) {
       return DataStatus.errorLength;
     }
@@ -268,16 +268,15 @@ class IMClient {
   }
 
   //登录成功
-  void loginSuccess(){
+  void loginSuccess() {
     LogUtil.log("login success");
     _changeState(State.logined);
   }
 
-  void loginFailed(){
+  void loginFailed() {
     LogUtil.log("login failed");
     _changeState(State.unlogin);
   }
-  
 
   //发送数据
   void _sendData(ByteBuf buf) {
@@ -294,14 +293,16 @@ class IMClient {
   }
 
   //
-  bool registerStateObserver(StateChangeCallback callback , bool register){
-    if(register){//注册
-      if(!Utils.listContainObj(_stateChangeCallbackList, callback)){
+  bool registerStateObserver(StateChangeCallback callback, bool register) {
+    if (register) {
+      //注册
+      if (!Utils.listContainObj(_stateChangeCallbackList, callback)) {
         _stateChangeCallbackList.add(callback);
         return true;
       }
-    }else{//解绑
-       if(Utils.listContainObj(_stateChangeCallbackList, callback)){
+    } else {
+      //解绑
+      if (Utils.listContainObj(_stateChangeCallbackList, callback)) {
         _stateChangeCallbackList.remove(callback);
         return true;
       }
