@@ -9,7 +9,7 @@ import 'package:dearim/core/protocol/protocol.dart';
 import 'protocol/message.dart';
 
 ///
-/// IM服务网络收发
+/// IM服务
 ///
 ///
 
@@ -37,6 +37,11 @@ typedef IMLoginCallback = Function(Result result);
 
 //im注销回调
 typedef IMLoginOutCallback = Function(Result result);
+
+//handler抽象类
+abstract class MessageHandler<T> {
+  void handle(IMClient client, T msg);
+}
 
 class IMClient {
   // static const String _serverAddress = "10.242.142.129"; //
@@ -140,7 +145,9 @@ class IMClient {
   }
 
   //socket被关闭
-  void _onSocketClose() {}
+  void _onSocketClose() {
+    _dataBuf.reset();//buf清空
+  }
 
   //接收到远端数据
   void _receiveRemoteData(Uint8List data) {
@@ -153,8 +160,8 @@ class IMClient {
     _dataBuf.debugHexPrint();
 
     while (_dataBuf.hasReadContent) {
-      final DataStatus checkResult =
-          _checkDataStatus(_dataBuf.copy()); //使用备份来做检测
+      final DataStatus checkResult = 
+        _checkDataStatus(_dataBuf.copyWithSize(Message.headerSize())); //使用备份来做检测 节省资源 仅取前32个协议头字节
 
       if (checkResult == DataStatus.success) {
         final Message? msg = parseByteBufToMessage(_dataBuf);
@@ -252,7 +259,3 @@ class IMClient {
   }
 } //end class
 
-//handler抽象类
-abstract class MessageHandler<T> {
-  void handle(IMClient client, T msg);
-}

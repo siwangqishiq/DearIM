@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'log.dart';
@@ -298,6 +299,18 @@ class ByteBuf {
     copyBuf._data = data.sublist(0);
     copyBuf._readIndex = readIndex;
     copyBuf._writeIndex = writeIndex;
+    return copyBuf;
+  }
+
+  //拷贝指定字节数量 到 ByteBuf
+  ByteBuf copyWithSize(int copySize){
+    if(copySize <= initMinSize){
+      copySize = initMinSize;
+    }
+
+    final ByteBuf copyBuf = ByteBuf.allocator(size:copySize);
+    Uint8List cpData = _data.sublist(_readIndex , min(_readIndex + copySize , writeIndex));
+    copyBuf.writeUint8List(cpData);
     return copyBuf;
   }
 

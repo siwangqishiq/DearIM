@@ -372,4 +372,29 @@ void main() {
     }
     buf.debugHexPrint(columSize: 16);
   });
+
+  test("read size bytebuf" , (){
+    var data = <int>[1, 2, 3, 4, 5, 6, 7, 8];
+    ByteBuf originBuf  = ByteBuf.allocator();
+    originBuf.writeUint8List(Uint8List.fromList(data));
+
+    originBuf.readInt32();
+
+    ByteBuf buf = originBuf.copyWithSize(3);
+    expect(5, buf.readInt8());
+    expect(6, buf.readInt8());
+    expect(7, buf.readInt8());
+
+    expect(4, originBuf.readIndex);
+
+    originBuf.reset();
+    originBuf.writeUint8List(Uint8List.fromList(data));
+    originBuf.debugPrint();
+
+    ByteBuf buf2 = originBuf.copyWithSize(100);
+    expect(8, buf2.writeIndex);
+    buf2.debugPrint();
+
+    expect(0, originBuf.readIndex);
+  });
 }
