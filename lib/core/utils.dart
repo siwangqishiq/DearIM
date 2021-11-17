@@ -29,4 +29,19 @@ class Utils {
     }
     return value.toRadixString(16);
   }
+
+  //检测list中是否包含重复元素
+  static bool listContainObj(List<Object> list , Object obj){
+    if(list.isEmpty){
+      return false;
+    }
+
+    for(Object lObj in list){
+      if(lObj == obj){
+        return true;
+      }
+    }    
+      
+    return false;
+  }
 }

@@ -58,7 +58,7 @@ class IMLoginRespMessage extends Message {
 
     try{
       var jsonMap = jsonDecode(Utils.convertUint8ListToString(rawData));
-    
+
       _result = Result();
       _result?.code = jsonMap["code"]??0;
       _result?.result = jsonMap["result"];
@@ -76,14 +76,18 @@ class IMLoginRespMessage extends Message {
 class IMLoginRespHandler extends MessageHandler<IMLoginRespMessage> {
   @override
   void handle(IMClient client, IMLoginRespMessage msg) {
-    LogUtil.log("handle login resp unique ${msg.uniqueId} ");
+    LogUtil.log("login resp unique(${msg.uniqueId}) ");
     //todo
 
     if(msg.result != null && msg.result!.result){
-      client.onLoginSuccess();
+      client.loginSuccess();
+    }else{
+      client.loginFailed();
     }
 
     //callback
-    client.loginCallback!(msg.result!);
+    if(client.loginCallback != null){
+      client.loginCallback!(msg.result!);
+    }
   }
 }//end IMLoginRespHandler class

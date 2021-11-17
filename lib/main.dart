@@ -1,3 +1,4 @@
+import 'package:dearim/core/protocol/message.dart';
 import 'package:dearim/pages/LoginPage.dart';
 import 'package:dearim/routers/routers.dart';
 import 'package:dearim/user/UserManager.dart';
@@ -49,6 +50,16 @@ class MyApp extends StatelessWidget {
 void initIM() {
   int uid = 1;
   String token =
-      "eyJ0eXAiOiJKV1QiLCJfdWlkIjoiMSIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE2MzcwMjI3NTl9.B2yT4X5gQVo80RExbZZd2QZECwtC5a073Rv2wQhglFM";
-  IMClient.instance.imLogin(uid, token);
+      "eyJ0eXAiOiJKV1QiLCJfdWlkIjoiMSIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE2MzcxOTY1NDF9.lYcmRbvOCLJXNqDn7ZyIcjprKO0s7SUitxwg1fg0Rh0";
+  IMClient.getInstance()?.registerStateObserver((oldState, newState){
+    print("change state $oldState to $newState");
+  }, true);
+
+  IMClient.getInstance()?.imLogin(uid, token , loginCallback: (result){
+    if(result.result){
+      print("IM登录成功");
+    }else{
+      print("IM登录失败 原因: ${result.reason}");
+    }
+  });
 }

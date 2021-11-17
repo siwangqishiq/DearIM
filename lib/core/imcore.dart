@@ -5,6 +5,7 @@ import 'package:dearim/core/byte_buffer.dart';
 import 'package:dearim/core/log.dart';
 import 'package:dearim/core/protocol/login.dart';
 import 'package:dearim/core/protocol/protocol.dart';
+import 'package:dearim/core/utils.dart';
 
 import 'protocol/message.dart';
 
@@ -17,6 +18,7 @@ import 'protocol/message.dart';
 enum State {
   unconnect, //未连接
   connecting, //连接中
+  unlogin,//已连接 未登录
   loging, //登录中
   logined, //登录成功
   unloging, //注销中
@@ -33,10 +35,13 @@ enum DataStatus {
 }
 
 //im登录回调
-typedef IMLoginCallback = Function(Result result);
+typedef IMLoginCallback = Function(Result loginResult);
 
 //im注销回调
 typedef IMLoginOutCallback = Function(Result result);
+
+//状态改变回调
+typedef StateChangeCallback = Function(State oldState , State newState);
 
 //handler抽象类
 abstract class MessageHandler<T> {
@@ -52,8 +57,6 @@ class IMClient {
   static const int _port = 1013;
 
   static IMClient? _instance;
-
-  static IMClient get instance => _instance ?? IMClient();
 
   static String get ServerAddress => _serverAddress;
 
@@ -73,7 +76,9 @@ class IMClient {
 
   int _receivedPacketCount = 0;
 
-  ByteBuf _dataBuf = ByteBuf.allocator(); //
+  final ByteBuf _dataBuf = ByteBuf.allocator(); //
+
+  final List<StateChangeCallback> _stateChangeCallbackList = <StateChangeCallback>[];
 
   final List _todoList = []; //缓存要发送的消息
 
@@ -82,18 +87,28 @@ class IMClient {
     LogUtil.log("imclient instance create");
   }
 
+  static IMClient? getInstance(){
+    // ignore: prefer_conditional_assignment
+    if(_instance == null){
+      _instance = IMClient();
+    }
+    return _instance;
+  }
+
   void debugStatus() {
     LogUtil.log("imclent state : $_state");
   }
 
   //im登录
-  void imLogin(int uid, String token, {IMLoginCallback? loginCb}) {
+  void imLogin(int uid, String token, {IMLoginCallback? loginCallback}) {
     _uid = uid;
     _token = token;
-    loginCallback = loginCb;
+    this.loginCallback = loginCallback;
 
     _socketConnect();
   }
+
+
 
   //im退出登录
   void imLoginOut(String token, {IMLoginOutCallback? loginOutCb}) {}
@@ -101,9 +116,20 @@ class IMClient {
   //状态切换
   void _changeState(State newState) {
     if (_state != newState) {
+      final State oldState = _state;
       _state = newState;
+      //LogUtil.log("state change : $_state");
+      _fireStateChangeCallback(oldState , _state);
     }
-    LogUtil.log("state change : $_state");
+  }
+
+  //触发状态改变回调
+  void _fireStateChangeCallback(State oldState , State newState){
+    LogUtil.log("_stateChangeCallbackList size ${_stateChangeCallbackList.length} ${_stateChangeCallbackList.hashCode.hashCode}");
+    for(StateChangeCallback cb in _stateChangeCallbackList){
+      LogUtil.log("callback $cb");
+      cb(oldState , newState);
+    }
   }
 
   //连接服务器socket
@@ -144,9 +170,11 @@ class IMClient {
     _sendData(loginReqMsg.encode());
   }
 
-  //socket被关闭
+  //socket被关闭 清理socket连接
   void _onSocketClose() {
     _dataBuf.reset();//buf清空
+    _changeState(State.unconnect);
+    _socket = null;
   }
 
   //接收到远端数据
@@ -161,7 +189,8 @@ class IMClient {
 
     while (_dataBuf.hasReadContent) {
       final DataStatus checkResult = 
-        _checkDataStatus(_dataBuf.copyWithSize(Message.headerSize())); //使用备份来做检测 节省资源 仅取前32个协议头字节
+        _checkDataStatus(_dataBuf.copyWithSize(Message.headerSize()) ,_dataBuf.couldReadableSize); //使用备份来做检测 节省资源 仅取前32个协议头字节
+      LogUtil.log("checkResult $checkResult");
 
       if (checkResult == DataStatus.success) {
         final Message? msg = parseByteBufToMessage(_dataBuf);
@@ -172,7 +201,7 @@ class IMClient {
       } else if (checkResult == DataStatus.errorLength) {
         break;
       } else {
-        // _socket?.close();
+        _socket?.close();
         break;
       }
     } //end while
@@ -208,7 +237,7 @@ class IMClient {
   }
 
   //检测数据状态
-  DataStatus _checkDataStatus(ByteBuf buf) {
+  DataStatus _checkDataStatus(ByteBuf buf , int bufRealSize) {
     if (buf.couldReadableSize < Message.headerSize()) {
       return DataStatus.errorLength;
     }
@@ -224,8 +253,8 @@ class IMClient {
     }
 
     int length = buf.readInt64();
-    int lastLength = length - 16; //剩余长度
-    if (buf.couldReadableSize < lastLength) {
+    int lastLength = length; //剩余长度
+    if (bufRealSize < lastLength) {
       return DataStatus.errorLength;
     }
 
@@ -239,8 +268,14 @@ class IMClient {
   }
 
   //登录成功
-  void onLoginSuccess(){
+  void loginSuccess(){
     LogUtil.log("login success");
+    _changeState(State.logined);
+  }
+
+  void loginFailed(){
+    LogUtil.log("login failed");
+    _changeState(State.unlogin);
   }
   
 
@@ -256,6 +291,22 @@ class IMClient {
 
     _socket?.add(buf.readAllUint8List());
     _socket?.flush();
+  }
+
+  //
+  bool registerStateObserver(StateChangeCallback callback , bool register){
+    if(register){//注册
+      if(!Utils.listContainObj(_stateChangeCallbackList, callback)){
+        _stateChangeCallbackList.add(callback);
+        return true;
+      }
+    }else{//解绑
+       if(Utils.listContainObj(_stateChangeCallbackList, callback)){
+        _stateChangeCallbackList.remove(callback);
+        return true;
+      }
+    }
+    return false;
   }
 } //end class
 
