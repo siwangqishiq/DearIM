@@ -1,4 +1,3 @@
-import 'package:dearim/core/protocol/message.dart';
 import 'package:dearim/pages/LoginPage.dart';
 import 'package:dearim/routers/routers.dart';
 import 'package:dearim/user/UserManager.dart';
@@ -6,11 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'Pages/MainPage.dart';
-import 'core/imcore.dart';
+import 'core/core_test.dart';
 
 void main() {
-  initIM();
-  runApp(const MyApp());
+  //runApp(const MyApp());
+  coreTestRun();
 }
 
 class MyApp extends StatelessWidget {
@@ -45,20 +44,3 @@ class MyApp extends StatelessWidget {
   }
 }
 
-//im client test
-void initIM() {
-  int uid = 1001;
-  String token =
-      "eyJ0eXAiOiJKV1QiLCJfdWlkIjoiMTAwMSIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE2MzcyMDcwMTN9.z8HzkXOJeIid7PJ6kIeez2vFJ0eREsviSYyIL-XglZA";
-  IMClient.getInstance()?.registerStateObserver((oldState, newState) {
-    print("change state $oldState to $newState");
-  }, true);
-
-  IMClient.getInstance()?.imLogin(uid, token, loginCallback: (result) {
-    if (result.result) {
-      print("IM登录成功");
-    } else {
-      print("IM登录失败 原因: ${result.reason}");
-    }
-  });
-}

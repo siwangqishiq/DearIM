@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+
 import '../byte_buffer.dart';
 import '../imcore.dart';
 import '../log.dart';
@@ -7,17 +8,19 @@ import '../utils.dart';
 import 'message.dart';
 import 'protocol.dart';
 
-//登录请求
-class IMLoginReqMessage extends Message {
-  int? uid;
+///
+///退出登录
+///
+
+//退出登录请求
+class LogoutReqMessage extends Message {
   String? token;
 
-  IMLoginReqMessage(this.uid, this.token);
+  LogoutReqMessage(this.token);
 
   @override
   ByteBuf encodeBody() {
     Map body = {};
-    body["uid"] = uid;
     body["token"] = token;
 
     String jsonBody = jsonEncode(body);
@@ -32,14 +35,15 @@ class IMLoginReqMessage extends Message {
 
   @override
   int getType() {
-    return MessageTyps.LOGIN_REQ;
+    return MessageTyps.LOGOUT_REQ;
   }
 } //end class
 
-class IMLoginRespMessage extends Message {
+//退出登录服务端返回
+class LogoutRespMessage extends Message {
 
-  factory IMLoginRespMessage.from(Message head, ByteBuf buf) {
-    IMLoginRespMessage respMessage = IMLoginRespMessage();
+  factory LogoutRespMessage.from(Message head, ByteBuf buf) {
+    LogoutRespMessage respMessage = LogoutRespMessage();
     respMessage.fill(head);
     respMessage.decodeBody(buf, respMessage.bodyLength);
     return respMessage;
@@ -52,13 +56,13 @@ class IMLoginRespMessage extends Message {
   @override
   dynamic decodeBody(ByteBuf buf, int bodySize) {
     Uint8List rawData = buf.readUint8List(bodySize);
-
+    
     String originJsonStr = Utils.convertUint8ListToString(rawData);
     LogUtil.log(originJsonStr);
 
     try{
       var jsonMap = jsonDecode(Utils.convertUint8ListToString(rawData));
-
+      
       _result = Result();
       _result?.code = jsonMap["code"]??0;
       _result?.result = jsonMap["result"];
@@ -69,25 +73,22 @@ class IMLoginRespMessage extends Message {
     return _result;
   }
   
-  IMLoginRespMessage();
+  LogoutRespMessage();
 }
 
-//处理
-class IMLoginRespHandler extends MessageHandler<IMLoginRespMessage> {
+//退出登录处理
+class LogoutRespHandler extends MessageHandler<LogoutRespMessage> {
   @override
-  void handle(IMClient client, IMLoginRespMessage msg) {
-    LogUtil.log("login resp unique(${msg.uniqueId}) ");
-    //todo
+  void handle(IMClient client, LogoutRespMessage msg) {
+    LogUtil.log("logout resp unique(${msg.uniqueId}) ");
 
     if(msg.result != null && msg.result!.result){
-      client.loginSuccess();
-    }else{
-      client.loginFailed();
+      client.afterLogout(msg.result!.result);
     }
 
     //callback
-    if(client.loginCallback != null){
-      client.loginCallback!(msg.result!);
+    if(client.logoutCallback != null){
+      client.logoutCallback!(msg.result!);
     }
   }
 }//end IMLoginRespHandler class

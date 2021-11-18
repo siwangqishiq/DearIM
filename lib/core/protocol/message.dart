@@ -90,6 +90,27 @@ class Message {
 } //end class
 
 class Result {
+  factory Result.Error(String _msg){
+    final Result result = Result();
+    result.result = false;
+    result.reason = _msg;
+    result.code = Codes.error;
+    return result;
+  }
+
+  factory Result.Success(){
+    final Result error = Result();
+    error.result = true;
+    error.code = Codes.success;
+    return error;
+  }
+
+  Result(){
+    code = 0;
+    result = false;
+    reason = null;
+  }
+
   int code = 0;
   bool result = false;
   String? reason;

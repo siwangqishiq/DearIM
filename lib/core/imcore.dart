@@ -7,6 +7,7 @@ import 'package:dearim/core/protocol/login.dart';
 import 'package:dearim/core/protocol/protocol.dart';
 import 'package:dearim/core/utils.dart';
 
+import 'protocol/logout.dart';
 import 'protocol/message.dart';
 
 ///
@@ -15,21 +16,21 @@ import 'protocol/message.dart';
 ///
 
 //客户端状态
-enum State {
+enum ClientState {
   unconnect, //未连接
   connecting, //连接中
-  unlogin, //已连接 未登录
+  unlogin, //已连接 但未登录
   loging, //登录中
   logined, //登录成功
-  unloging, //注销中
+  logouting, //注销中
   undef, //未定义
 }
 
 enum DataStatus {
   errorMagicNumber, //协议解析错误
-  errorVersion,
-  errorBodyEncode,
-  errorOther,
+  errorVersion,//版本错误
+  errorBodyEncode, //消息体编码方式不兼容
+  errorOther, //其他错误
   errorLength, //数据长度不足
   success, //成功
 }
@@ -38,10 +39,10 @@ enum DataStatus {
 typedef IMLoginCallback = Function(Result loginResult);
 
 //im注销回调
-typedef IMLoginOutCallback = Function(Result result);
+typedef IMLogOutCallback = Function(Result result);
 
 //状态改变回调
-typedef StateChangeCallback = Function(State oldState, State newState);
+typedef StateChangeCallback = Function(ClientState oldState, ClientState newState);
 
 //handler抽象类
 abstract class MessageHandler<T> {
@@ -49,10 +50,9 @@ abstract class MessageHandler<T> {
 }
 
 class IMClient {
-  // static const String _serverAddress = "10.242.142.129"; //
-  static const String _serverAddress = "192.168.31.230"; //
+  static const String _serverAddress = "10.242.142.129"; //
+  // static const String _serverAddress = "192.168.31.230"; //
   // static const String _serverAddress = "192.168.31.37";
-  // static const String _serverAddress = "10.242.142.129";
 
   static const int _port = 1013;
 
@@ -62,15 +62,21 @@ class IMClient {
 
   static int get Port => _port;
 
+  IMLoginCallback? get loginCallback => _loginCallback;
+
+  IMLogOutCallback? get logoutCallback => _logoutCallback;
+
   //用户id
   int _uid = -1;
 
   //注册token
   String? _token;
 
-  State _state = State.undef;
+  ClientState _state = ClientState.undef;
 
-  IMLoginCallback? loginCallback;
+  IMLoginCallback? _loginCallback;
+
+  IMLogOutCallback? _logoutCallback;
 
   Socket? _socket;
 
@@ -81,10 +87,10 @@ class IMClient {
   final List<StateChangeCallback> _stateChangeCallbackList =
       <StateChangeCallback>[];
 
-  final List _todoList = []; //缓存要发送的消息
+  //final List _todoList = []; //缓存要发送的消息
 
   IMClient() {
-    _state = State.unconnect;
+    _state = ClientState.unconnect;
     LogUtil.log("imclient instance create");
   }
 
@@ -104,18 +110,31 @@ class IMClient {
   void imLogin(int uid, String token, {IMLoginCallback? loginCallback}) {
     _uid = uid;
     _token = token;
-    this.loginCallback = loginCallback;
+    _loginCallback = loginCallback;
 
     _socketConnect();
   }
 
   //im退出登录
-  void imLoginOut(String token, {IMLoginOutCallback? loginOutCb}) {}
+  void imLoginOut({IMLogOutCallback? loginOutCallback}) {
+    _logoutCallback = loginOutCallback;
+
+    if(_state == ClientState.logined){//已经登录的 才能退出登录
+      final LogoutReqMessage logoutReq = LogoutReqMessage(_token);
+      _sendData(logoutReq.encode());
+      _changeState(ClientState.logouting);
+    }else{
+      if(_logoutCallback != null){
+        _logoutCallback!(Result.Error("Current state is not logined"));
+      }
+      return;
+    }
+  }
 
   //状态切换
-  void _changeState(State newState) {
+  void _changeState(ClientState newState) {
     if (_state != newState) {
-      final State oldState = _state;
+      final ClientState oldState = _state;
       _state = newState;
       //LogUtil.log("state change : $_state");
       _fireStateChangeCallback(oldState, _state);
@@ -123,7 +142,7 @@ class IMClient {
   }
 
   //触发状态改变回调
-  void _fireStateChangeCallback(State oldState, State newState) {
+  void _fireStateChangeCallback(ClientState oldState, ClientState newState) {
     // LogUtil.log(
     //     "_stateChangeCallbackList size ${_stateChangeCallbackList.length} ${_stateChangeCallbackList.hashCode.hashCode}");
     for (StateChangeCallback cb in _stateChangeCallbackList) {
@@ -133,7 +152,7 @@ class IMClient {
 
   //连接服务器socket
   void _socketConnect() {
-    _changeState(State.connecting);
+    _changeState(ClientState.connecting);
 
     Future<Socket> socketFuture = Socket.connect(ServerAddress, Port,
         timeout: const Duration(seconds: 20));
@@ -149,16 +168,15 @@ class IMClient {
         _receiveRemoteData(data);
       });
 
+      _changeState(ClientState.unlogin);
+
       if (_socket != null) {
         _onSocketFirstContected();
       }
     }).catchError((error) {
       LogUtil.errorLog("socket 连接失败 ${error.toString()}");
       _onSocketClose();
-      _changeState(State.unconnect);
-    }).whenComplete(() {
-      _onSocketClose();
-      _changeState(State.unconnect);
+      _changeState(ClientState.unconnect);
     });
   }
 
@@ -167,12 +185,13 @@ class IMClient {
     //todo 发送请求登录消息
     IMLoginReqMessage loginReqMsg = IMLoginReqMessage(_uid, _token);
     _sendData(loginReqMsg.encode());
+    _changeState(ClientState.loging);
   }
 
   //socket被关闭 清理socket连接
   void _onSocketClose() {
     _dataBuf.reset(); //buf清空
-    _changeState(State.unconnect);
+    _changeState(ClientState.unconnect);
     _socket = null;
   }
 
@@ -195,13 +214,13 @@ class IMClient {
       if (checkResult == DataStatus.success) {
         final Message? msg = parseByteBufToMessage(_dataBuf);
         _dataBuf.compact();
-
-        //hand
+        
+        //execute hand
         _handleMsg(msg);
       } else if (checkResult == DataStatus.errorLength) {
         break;
       } else {
-        _socket?.close();
+        _socket?.destroy();
         break;
       }
     } //end while
@@ -212,10 +231,15 @@ class IMClient {
     Message msgHead = Message.fromBytebuf(buf);
     Message? result;
     switch (msgHead.type) {
-      case MessageTyps.LOGIN_RESP:
+      case MessageTyps.LOGIN_RESP://登录消息响应
         result = IMLoginRespMessage.from(msgHead, buf);
         break;
-    }
+      case MessageTyps.LOGOUT_RESP://退出登录 消息响应 
+        result = LogoutRespMessage.from(msgHead, buf);
+        break;
+      default:
+        break;
+    }//end switch
     return result;
   }
 
@@ -229,7 +253,12 @@ class IMClient {
       case MessageTyps.LOGIN_RESP:
         handler = IMLoginRespHandler();
         break;
-    }
+      case MessageTyps.LOGOUT_RESP:
+        handler = LogoutRespHandler();
+        break;
+      default:
+        break;
+    }//end switch
 
     handler?.handle(this, msg);
 
@@ -270,12 +299,24 @@ class IMClient {
   //登录成功
   void loginSuccess() {
     LogUtil.log("login success");
-    _changeState(State.logined);
+    _changeState(ClientState.logined);
   }
 
   void loginFailed() {
     LogUtil.log("login failed");
-    _changeState(State.unlogin);
+    _changeState(ClientState.unlogin);
+  }
+
+  //退出登录
+  void afterLogout(bool logoutSuccess){
+    if(logoutSuccess){
+      LogUtil.log("login out");
+      _changeState(ClientState.unlogin);//状态改为未登录
+      _socket?.destroy();//主动关闭socket
+      _onSocketClose();
+    }else{
+      _changeState(ClientState.logined);
+    }
   }
 
   //发送数据
@@ -292,7 +333,7 @@ class IMClient {
     _socket?.flush();
   }
 
-  //
+  //注册 或 解绑 状态改变事件监听
   bool registerStateObserver(StateChangeCallback callback, bool register) {
     if (register) {
       //注册
@@ -309,5 +350,6 @@ class IMClient {
     }
     return false;
   }
+
 } //end class
 
