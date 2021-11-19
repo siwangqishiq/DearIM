@@ -43,7 +43,7 @@ class TestCoreMainState extends State<TestCoreMain>{
   void initIM() {
     int uid = 1001;
     String token =
-        "eyJ0eXAiOiJKV1QiLCJfdWlkIjoiMTAwMSIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE2MzcyODIxMzF9.nOeb6UDybwFv_VDi9NnGdrwalZsw1wExpJp4AxsFPlQ";
+        "eyJ0eXAiOiJKV1QiLCJfdWlkIjoiMTAwMSIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE2MzczNjc5OTV9.9WYRyVnNwEfEi-U0Yfd83SMjhUnkW0QXzpvTbO2yv-k";
     IMClient.getInstance()?.registerStateObserver((oldState, newState) {
       LogUtil.log("change state $oldState to $newState");
     }, true);

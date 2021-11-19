@@ -44,4 +44,9 @@ class Utils {
       
     return false;
   }
+
+  //获取当前毫秒
+  static int currentTime(){
+    return DateTime.now().millisecondsSinceEpoch;
+  }
 }

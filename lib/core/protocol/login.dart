@@ -32,7 +32,7 @@ class IMLoginReqMessage extends Message {
 
   @override
   int getType() {
-    return MessageTyps.LOGIN_REQ;
+    return MessageTypes.LOGIN_REQ;
   }
 } //end class
 

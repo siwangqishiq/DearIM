@@ -35,7 +35,7 @@ class LogoutReqMessage extends Message {
 
   @override
   int getType() {
-    return MessageTyps.LOGOUT_REQ;
+    return MessageTypes.LOGOUT_REQ;
   }
 } //end class
 

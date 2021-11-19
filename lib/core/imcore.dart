@@ -2,9 +2,11 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dearim/core/byte_buffer.dart';
+import 'package:dearim/core/immessage.dart';
 import 'package:dearim/core/log.dart';
 import 'package:dearim/core/protocol/login.dart';
 import 'package:dearim/core/protocol/protocol.dart';
+import 'package:dearim/core/protocol/send_immessage.dart';
 import 'package:dearim/core/utils.dart';
 
 import 'protocol/logout.dart';
@@ -41,6 +43,9 @@ typedef IMLoginCallback = Function(Result loginResult);
 //im注销回调
 typedef IMLogOutCallback = Function(Result result);
 
+//发送IM消息 回调
+typedef SendIMMessageCallback = Function(IMMessage imMessage , Result result);
+
 //状态改变回调
 typedef StateChangeCallback = Function(ClientState oldState, ClientState newState);
 
@@ -50,9 +55,9 @@ abstract class MessageHandler<T> {
 }
 
 class IMClient {
-  static const String _serverAddress = "10.242.142.129"; //
+  // static const String _serverAddress = "10.242.142.129"; //
   // static const String _serverAddress = "192.168.31.230"; //
-  // static const String _serverAddress = "192.168.31.37";
+  static const String _serverAddress = "192.168.31.37";
 
   static const int _port = 1013;
 
@@ -65,6 +70,8 @@ class IMClient {
   IMLoginCallback? get loginCallback => _loginCallback;
 
   IMLogOutCallback? get logoutCallback => _logoutCallback;
+
+  Map<String , SendIMMessageCallback> get sendIMMessageCallbackMap => _sendIMMessageCallbackMap;
 
   //用户id
   int _uid = -1;
@@ -81,6 +88,9 @@ class IMClient {
   Socket? _socket;
 
   int _receivedPacketCount = 0;
+
+  //发送IM消息回调
+  Map<String , SendIMMessageCallback> _sendIMMessageCallbackMap = <String , SendIMMessageCallback>{};
 
   final ByteBuf _dataBuf = ByteBuf.allocator(); //
 
@@ -129,6 +139,26 @@ class IMClient {
       }
       return;
     }
+  }
+
+  //发送IM消息
+  void sendIMMessage(IMMessage imMessage,{SendIMMessageCallback? callback}){
+    if(_state != ClientState.logined){
+      callback?.call(imMessage , Result.Error("error im client stauts"));
+      return;
+    }
+
+    imMessage.from = _uid;
+    var time = Utils.currentTime();
+    imMessage.createTime = time;
+    imMessage.updateTime = time;
+
+    if(callback != null){
+      _sendIMMessageCallbackMap[imMessage.msgId] = callback;
+    }
+
+    //发送
+    _sendData(SendIMMessageReqMsg(imMessage).encode());
   }
 
   //状态切换
@@ -231,11 +261,14 @@ class IMClient {
     Message msgHead = Message.fromBytebuf(buf);
     Message? result;
     switch (msgHead.type) {
-      case MessageTyps.LOGIN_RESP://登录消息响应
+      case MessageTypes.LOGIN_RESP://登录消息响应
         result = IMLoginRespMessage.from(msgHead, buf);
         break;
-      case MessageTyps.LOGOUT_RESP://退出登录 消息响应 
+      case MessageTypes.LOGOUT_RESP://退出登录 消息响应 
         result = LogoutRespMessage.from(msgHead, buf);
+        break;
+      case MessageTypes.SEND_IMMESSAGE_RESP://发送消息获取响应
+        result = SendIMMessageRespMsg.from(msgHead, buf);
         break;
       default:
         break;
@@ -250,11 +283,14 @@ class IMClient {
     MessageHandler? handler;
 
     switch (msg?.type) {
-      case MessageTyps.LOGIN_RESP:
+      case MessageTypes.LOGIN_RESP:
         handler = IMLoginRespHandler();
         break;
-      case MessageTyps.LOGOUT_RESP:
+      case MessageTypes.LOGOUT_RESP:
         handler = LogoutRespHandler();
+        break;
+      case MessageTypes.SEND_IMMESSAGE_RESP:
+        handler = SendIMMessageHandler();
         break;
       default:
         break;

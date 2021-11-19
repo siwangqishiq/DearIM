@@ -9,7 +9,7 @@ class Message {
   int magicNumber = ProtocolConfig.MagicNumber;
   int version = ProtocolConfig.Version;
   int length = 0;
-  int type = MessageTyps.UNDEF;
+  int type = MessageTypes.UNDEF;
   int bodyEncode = BodyEncodeTypes.JSON;
   int uniqueId = 0;
 
@@ -114,4 +114,7 @@ class Result {
   int code = 0;
   bool result = false;
   String? reason;
-}
+
+  //是否成功
+  bool isSuccess() => code == Codes.success;
+}//end class
