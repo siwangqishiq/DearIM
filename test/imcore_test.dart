@@ -5,10 +5,22 @@ import 'dart:typed_data';
 import 'package:dearim/core/byte_buffer.dart';
 import 'package:dearim/core/imcore.dart';
 import 'package:dearim/core/log.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  // test("run imclient", () {
+
+  // });
+
+  int uid = 1001;
+  String token =
+      "eyJ0eXAiOiJKV1QiLCJfdWlkIjoiMTAwMSIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE2MzY4MzY5Nzh9.SDvudzHirrbwWvNopPd1JS3eY6PYZYaidE8_1083cxk";
+  IMClient.getInstance()?.imLogin(uid, token);
+}
+
+void testSocket() {
   Future<Socket> socketFuture = Socket.connect(
-      IMClient.SERVER_ADDRESS, IMClient.PORT,
+      IMClient.ServerAddress, IMClient.Port,
       timeout: const Duration(seconds: 10));
   socketFuture.then((socket) {
     LogUtil.log("连接成功! server ${socket.remoteAddress} : ${socket.remotePort}");
@@ -38,7 +50,4 @@ void main() {
   }).catchError((error) {
     print("Error 连接socket失败");
   });
-
-  // var inputLine = stdin.readLineSync();
-  // print("input: $inputLine");
 }

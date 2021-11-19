@@ -1,6 +1,9 @@
+import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'log.dart';
+import 'utils.dart';
 
 ///
 ///
@@ -9,7 +12,7 @@ import 'log.dart';
 ///
 class ByteBuf {
   static const int initSize = 32;
-  static const int initMinSize = 2;
+  static const int initMinSize = 8;
 
   static const int bigSize = 4 * 1024; //4k 扩容分配策略 阈值
 
@@ -46,19 +49,19 @@ class ByteBuf {
     _data = Uint8List(_initSize);
   }
 
-  get readIndex => _readIndex;
+  int get readIndex => _readIndex;
 
-  get writeIndex => _writeIndex;
+  int get writeIndex => _writeIndex;
 
-  get couldReadableSize => _writeIndex - _readIndex;
+  int get couldReadableSize => _writeIndex - _readIndex;
 
-  get data => _data;
+  Uint8List get data => _data;
 
   //
-  get limit => _data.length;
+  int get limit => _data.length;
 
   //是否内部还有可读内容
-  get hasReadContent => couldReadableSize > 0;
+  bool get hasReadContent => couldReadableSize > 0;
 
   //取值 不移动读写指针
   int getValue(final int index) {
@@ -299,6 +302,18 @@ class ByteBuf {
     return copyBuf;
   }
 
+  //拷贝指定字节数量 到 ByteBuf
+  ByteBuf copyWithSize(int copySize){
+    if(copySize <= initMinSize){
+      copySize = initMinSize;
+    }
+
+    final ByteBuf copyBuf = ByteBuf.allocator(size:copySize);
+    Uint8List cpData = _data.sublist(_readIndex , min(_readIndex + copySize , writeIndex));
+    copyBuf.writeUint8List(cpData);
+    return copyBuf;
+  }
+
   //写入ByteBuf
   void writeByteBuf(ByteBuf buf) {
     Uint8List bufUList = buf._data.sublist(buf.readIndex, buf.writeIndex);
@@ -322,8 +337,43 @@ class ByteBuf {
     return ByteBuf.allocator(size: initMinSize);
   }
 
+  //重新调整buf 舍弃已读过的数据 释放原有数据节约内存使用
+  void compact(){
+    if(_readIndex <= 0) {
+      return;
+    }
+    
+    int originReadIndex = _readIndex;
+    _readIndex = 0;
+    _writeIndex -= originReadIndex;
+    _data = _data.sublist(originReadIndex);
+
+    if(_data.length < initMinSize){
+      ByteBuf newBuf = ByteBuf.allocator(size:initMinSize);
+      newBuf.writeByteBuf(this);
+      _deepCopySelf(newBuf);
+    }
+  }
+
+  void _deepCopySelf(ByteBuf buf){
+    _readIndex = buf.readIndex;
+    _writeIndex = buf.writeIndex;
+    _data = buf.data;
+  }
+
   void debugPrint() {
     final String str = "[${_data.join(" ")}]";
     LogUtil.log("$str  r = $_readIndex ,w = $_writeIndex");
+  }
+
+  void debugHexPrint({int columSize = 32}){
+    stdout.write("rdx = $_readIndex ,wdx = $_writeIndex \n");
+    for(int i = 0 ; i< _writeIndex;i++){
+      if(i != 0 && i % columSize ==0){
+        stdout.write("\n");
+      }
+      stdout.write(Utils.intToHex(_data[i]) +" ");
+    }
+    stdout.write("\n" + ("="*columSize));
   }
 } //end class

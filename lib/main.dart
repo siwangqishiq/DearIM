@@ -5,9 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'Pages/MainPage.dart';
+import 'core/core_test.dart';
 
 void main() {
-  runApp(const MyApp());
+  //runApp(const MyApp());
+  coreTestRun();
 }
 
 class MyApp extends StatelessWidget {
@@ -41,3 +43,4 @@ class MyApp extends StatelessWidget {
     return LoginPage();
   }
 }
+
