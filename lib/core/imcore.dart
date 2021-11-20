@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -6,6 +8,7 @@ import 'package:dearim/core/immessage.dart';
 import 'package:dearim/core/log.dart';
 import 'package:dearim/core/protocol/login.dart';
 import 'package:dearim/core/protocol/protocol.dart';
+import 'package:dearim/core/protocol/push_immessage.dart';
 import 'package:dearim/core/protocol/send_immessage.dart';
 import 'package:dearim/core/utils.dart';
 
@@ -49,6 +52,9 @@ typedef SendIMMessageCallback = Function(IMMessage imMessage , Result result);
 //状态改变回调
 typedef StateChangeCallback = Function(ClientState oldState, ClientState newState);
 
+//接收到新消息
+typedef IMMessageIncomingCallback = Function(List<IMMessage> incomingIMMessageList);
+
 //handler抽象类
 abstract class MessageHandler<T> {
   void handle(IMClient client, T msg);
@@ -57,9 +63,9 @@ abstract class MessageHandler<T> {
 class IMClient {
   // static const String _serverAddress = "10.242.142.129"; //
   // static const String _serverAddress = "192.168.31.230"; //
-  static const String _serverAddress = "192.168.31.37";
+  static String _serverAddress = "192.168.31.37";
 
-  static const int _port = 1013;
+  static int _port = 1013;
 
   static IMClient? _instance;
 
@@ -71,7 +77,11 @@ class IMClient {
 
   IMLogOutCallback? get logoutCallback => _logoutCallback;
 
+  int get uid => _uid;
+
   Map<String , SendIMMessageCallback> get sendIMMessageCallbackMap => _sendIMMessageCallbackMap;
+
+  
 
   //用户id
   int _uid = -1;
@@ -90,12 +100,13 @@ class IMClient {
   int _receivedPacketCount = 0;
 
   //发送IM消息回调
-  Map<String , SendIMMessageCallback> _sendIMMessageCallbackMap = <String , SendIMMessageCallback>{};
+  final Map<String , SendIMMessageCallback> _sendIMMessageCallbackMap = <String , SendIMMessageCallback>{};
+
+  final List<IMMessageIncomingCallback> _imMessageIncomingCallbackList = <IMMessageIncomingCallback>[];
 
   final ByteBuf _dataBuf = ByteBuf.allocator(); //
 
-  final List<StateChangeCallback> _stateChangeCallbackList =
-      <StateChangeCallback>[];
+  final List<StateChangeCallback> _stateChangeCallbackList = <StateChangeCallback>[];
 
   //final List _todoList = []; //缓存要发送的消息
 
@@ -117,7 +128,15 @@ class IMClient {
   }
 
   //im登录
-  void imLogin(int uid, String token, {IMLoginCallback? loginCallback}) {
+  void imLogin(int uid, String token, {IMLoginCallback? loginCallback , String? host , int? port}) {
+    if(host != null){
+      _serverAddress = host;
+    }
+    
+    if(port != null){
+      _port = port;
+    }
+
     _uid = uid;
     _token = token;
     _loginCallback = loginCallback;
@@ -143,12 +162,16 @@ class IMClient {
 
   //发送IM消息
   void sendIMMessage(IMMessage imMessage,{SendIMMessageCallback? callback}){
+    imMessage.from = _uid;   
+    if(Utils.isTextEmpty(imMessage.msgId)){
+      imMessage.msgId = Utils.genUniqueMsgId();
+    }
+
     if(_state != ClientState.logined){
       callback?.call(imMessage , Result.Error("error im client stauts"));
       return;
     }
 
-    imMessage.from = _uid;
     var time = Utils.currentTime();
     imMessage.createTime = time;
     imMessage.updateTime = time;
@@ -159,6 +182,43 @@ class IMClient {
 
     //发送
     _sendData(SendIMMessageReqMsg(imMessage).encode());
+  }
+
+  
+  //注册 或 解绑 状态改变事件监听
+  bool registerStateObserver(StateChangeCallback callback, bool register) {
+    if(register) {
+      //注册
+      if (!Utils.listContainObj(_stateChangeCallbackList, callback)) {
+        _stateChangeCallbackList.add(callback);
+        return true;
+      }
+    } else {
+      //解绑
+      if (Utils.listContainObj(_stateChangeCallbackList, callback)) {
+        _stateChangeCallbackList.remove(callback);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  //注册接收IM消息
+  bool registerIMMessageIncomingObserver(IMMessageIncomingCallback callback , bool register) {
+    if(register) {
+      //注册
+      if (!Utils.listContainObj(_imMessageIncomingCallbackList, callback)) {
+        _imMessageIncomingCallbackList.add(callback);
+        return true;
+      }
+    } else {
+      //解绑
+      if (Utils.listContainObj(_imMessageIncomingCallbackList, callback)) {
+        _imMessageIncomingCallbackList.remove(callback);
+        return true;
+      }
+    }
+    return false;
   }
 
   //状态切换
@@ -270,6 +330,9 @@ class IMClient {
       case MessageTypes.SEND_IMMESSAGE_RESP://发送消息获取响应
         result = SendIMMessageRespMsg.from(msgHead, buf);
         break;
+      case MessageTypes.PUSH_IMMESSAGE_REQ://发送过来的IMMessage
+        result = PushIMMessageReqMsg.from(msgHead, buf);
+        break;
       default:
         break;
     }//end switch
@@ -291,6 +354,9 @@ class IMClient {
         break;
       case MessageTypes.SEND_IMMESSAGE_RESP:
         handler = SendIMMessageHandler();
+        break;
+      case MessageTypes.PUSH_IMMESSAGE_REQ://发送过来的IMMessage
+        
         break;
       default:
         break;
@@ -368,24 +434,5 @@ class IMClient {
     _socket?.add(buf.readAllUint8List());
     _socket?.flush();
   }
-
-  //注册 或 解绑 状态改变事件监听
-  bool registerStateObserver(StateChangeCallback callback, bool register) {
-    if (register) {
-      //注册
-      if (!Utils.listContainObj(_stateChangeCallbackList, callback)) {
-        _stateChangeCallbackList.add(callback);
-        return true;
-      }
-    } else {
-      //解绑
-      if (Utils.listContainObj(_stateChangeCallbackList, callback)) {
-        _stateChangeCallbackList.remove(callback);
-        return true;
-      }
-    }
-    return false;
-  }
-
 } //end class
 

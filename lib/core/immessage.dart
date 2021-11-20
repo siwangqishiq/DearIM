@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dearim/core/log.dart';
 import 'package:dearim/core/protocol/message.dart';
 
 ///
@@ -112,9 +113,20 @@ class IMMessageResult extends Result{
 
 //构造消息体
 class IMMessageBuilder{
+  static const int TEXT_MAX_LENGHT = 300;
 
   //创建文本消息
-  static IMMessage createText(int toUid , int sessionType , String content){
+  static IMMessage? createText(int toUid , int sessionType , String content){
+    if(toUid <= 0){
+      LogUtil.errorLog("error uid for $toUid");
+      return null;
+    }
+
+    if(content.length >= TEXT_MAX_LENGHT){
+      LogUtil.errorLog("content too long for text immessage");
+      return null;
+    }
+    
     IMMessage imMessage = IMMessage();
 
     imMessage.to = toUid;

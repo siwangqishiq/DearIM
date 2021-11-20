@@ -1,6 +1,9 @@
 import 'dart:typed_data';
 
+import 'package:uuid/uuid.dart';
+
 class Utils {
+  static Uuid uuid = const Uuid();
   static const double epsiod = 0.000001;
 
   static bool floatEqual(num d1, num d2) {
@@ -48,5 +51,14 @@ class Utils {
   //获取当前毫秒
   static int currentTime(){
     return DateTime.now().millisecondsSinceEpoch;
+  }
+
+  static bool isTextEmpty(String? text){
+    return text == null || text == "";
+  }
+
+  //生成消息唯一标识码
+  static String genUniqueMsgId() {
+    return uuid.v1();
   }
 }

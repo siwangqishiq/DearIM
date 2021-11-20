@@ -24,7 +24,7 @@ class Message {
     msg.type = buf.readInt32();
     msg.bodyEncode = buf.readInt32();
     msg.uniqueId = buf.readInt64();
-
+    
     msg.bodyLength = msg.length - headerSize();
     return msg;
   }
