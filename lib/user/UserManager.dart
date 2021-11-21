@@ -1,4 +1,5 @@
 import 'package:dearim/network/Request.dart';
+import 'package:dearim/tcp/TCPManager.dart';
 import 'package:dearim/user/User.dart';
 import 'package:logger/logger.dart';
 
@@ -36,6 +37,8 @@ class UserManager {
           this.user.tcpParam.imServer = data["imServer"];
           if (callback != null && callback.successCallback != null) {
             callback.successCallback!(data);
+            // 连接TCP
+            TCPManager().connect(this.user.uid, this.user.token);
           }
         }, failureCallback: (code, errorStr, data) {
           Logger().d("login failure : ($errorStr)");
@@ -49,6 +52,8 @@ class UserManager {
     this.user.clear();
     if (callback != null && callback.successCallback != null) {
       callback.successCallback!(null);
+      // 断连TCP
+      TCPManager().disconnect();
     }
   }
 }

@@ -6,7 +6,8 @@ enum NetworkEnvironment {
 }
 
 class RequestManager {
-  NetworkEnvironment networkEnv = NetworkEnvironment.Online;
+  //TODO: 线上环境变化
+  NetworkEnvironment networkEnv = NetworkEnvironment.Daily;
   String _hostName = "";
   RequestManager._privateConstructor();
 
@@ -15,7 +16,8 @@ class RequestManager {
   factory RequestManager() {
     if (kDebugMode) {
       _instance.networkEnv = NetworkEnvironment.Daily;
-      _instance._hostName = "http://192.168.31.230:9090/";
+      // _instance._hostName = "http://192.168.31.230:9090/";// mac
+      _instance._hostName = "http://192.168.31.37:9090/";
     }
     return _instance;
   }
