@@ -45,7 +45,7 @@ class _ChatPageState extends State<ChatPage> {
           FlatButton(
             onPressed: () {
               log("message = " + text);
-              TCPManager().sendMessage(text, 1001);
+              TCPManager().sendMessage(text, this.model.userId);
             },
             child: Container(
               color: Colors.red,

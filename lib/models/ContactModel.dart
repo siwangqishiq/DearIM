@@ -1,6 +1,6 @@
 class ContactModel {
   String name = "";
-  String userId = "";
+  int userId = 0;
   String message = "";
   ContactModel(this.name, this.userId);
 }

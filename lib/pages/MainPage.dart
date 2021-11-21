@@ -17,6 +17,11 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   @override
+  List<ContactModel> models = [
+    ContactModel("wenmingyan", 1002),
+    ContactModel("panyi", 1001),
+  ];
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -42,9 +47,10 @@ class _MainPageState extends State<MainPage> {
         ),
       ),
       body: ListView.builder(
-        itemCount: 20,
+        itemCount: this.models.length,
         itemBuilder: (BuildContext context, int index) {
-          ContactModel contactModel = ContactModel("name", "userId");
+          ContactModel contactModel = this.models[index];
+          //TODO: wmy test
           contactModel.message = "message";
           return ContactView(contactModel, () {
             //跳转传参
