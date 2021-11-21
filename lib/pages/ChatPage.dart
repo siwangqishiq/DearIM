@@ -20,7 +20,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    TCPManager().registerMessageCommingCallbck((incomingIMMessageList) => {
+    TCPManager().registerMessageCommingCallbck((incomingIMMessageList) {
       this.receiveText = incomingIMMessageList.last.content;
     });
   }
