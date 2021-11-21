@@ -242,6 +242,8 @@ class IMClient {
 
   //连接服务器socket
   void _socketConnect() {
+    _socket?.destroy();
+
     _changeState(ClientState.connecting);
 
     Future<Socket> socketFuture = Socket.connect(ServerAddress, Port,
