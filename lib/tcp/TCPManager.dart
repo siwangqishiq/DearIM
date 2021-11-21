@@ -2,6 +2,8 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:dearim/core/imcore.dart';
+import 'package:dearim/core/immessage.dart';
+import 'package:dearim/core/utils.dart';
 
 class TCPManager {
   TCPManager._privateConstructor();
@@ -51,5 +53,15 @@ class TCPManager {
     IMClient.getInstance()?.imLoginOut(loginOutCallback: (r) {
       log("退出登录: ${r.result}");
     });
+  }
+
+  void sendMessage(String content, int toUid) {
+    IMMessage? msg =
+        IMMessageBuilder.createText(toUid, IMMessageSessionType.P2P, content);
+    if (msg != null) {
+      IMClient.getInstance()?.sendIMMessage(msg, callback: (imMessage, result) {
+        log("send im message ${result.code}");
+      });
+    }
   }
 }

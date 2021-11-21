@@ -2,6 +2,7 @@
 
 import 'package:dearim/models/ContactModel.dart';
 import 'package:dearim/network/Request.dart';
+import 'package:dearim/pages/ChatPage.dart';
 import 'package:dearim/user/UserManager.dart';
 import 'package:dearim/views/ContactView.dart';
 import 'package:dearim/views/ToastShowUtils.dart';
@@ -41,11 +42,23 @@ class _MainPageState extends State<MainPage> {
         ),
       ),
       body: ListView.builder(
-          itemCount: 20,
-          itemBuilder: (BuildContext context, int index) {
-            var contactModel = ContactModel("name", "userId");
-            return ContactView(contactModel);
-          }),
+        itemCount: 20,
+        itemBuilder: (BuildContext context, int index) {
+          ContactModel contactModel = ContactModel("name", "userId");
+          contactModel.message = "message";
+          return ContactView(contactModel, () {
+            //跳转传参
+            Navigator.of(context).push(
+              new PageRouteBuilder(
+                pageBuilder: (BuildContext context, Animation<double> animation,
+                    Animation<double> secondaryAnimation) {
+                  return ChatPage(contactModel);
+                },
+              ),
+            );
+          });
+        },
+      ),
     );
   }
 }

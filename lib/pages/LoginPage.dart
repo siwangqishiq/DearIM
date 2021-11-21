@@ -89,6 +89,7 @@ class _LoginPageState extends State<LoginPage> {
         Callback(successCallback: (data) {
           Navigator.of(context).pop();
           Navigator.of(context).pushNamed("/main");
+          FocusManager.instance.primaryFocus!.unfocus();
         }, failureCallback: (code, errorStr, data) {
           ToastShowUtils.show(errorStr, context);
         }));

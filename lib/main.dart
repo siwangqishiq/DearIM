@@ -4,6 +4,7 @@ import 'package:dearim/user/UserManager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'Pages/ChatPage.dart';
 import 'Pages/MainPage.dart';
 import 'core/core_test.dart';
 
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     Routers().addRouter("/login", (context) => LoginPage());
     Routers().addRouter("/main", (context) => MainPage());
+    // Routers().addRouter("/chat", (context, {model}) => ChatPage(model: model));
     return MaterialApp(
       title: 'dearIM',
       debugShowCheckedModeBanner: isNeedShowDebug(),
