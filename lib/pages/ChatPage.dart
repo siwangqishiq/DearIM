@@ -21,7 +21,10 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     TCPManager().registerMessageCommingCallbck((incomingIMMessageList) {
-      this.receiveText = incomingIMMessageList.last.content;
+      log(this.receiveText!);
+      setState(() {
+        this.receiveText = incomingIMMessageList.last.content;
+      });
     });
   }
 
@@ -49,7 +52,7 @@ class _ChatPageState extends State<ChatPage> {
               child: Text("send"),
             ),
           ),
-          Text(this.receiveText)
+          Text(this.receiveText!),
         ],
       )),
     );
