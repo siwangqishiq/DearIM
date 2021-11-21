@@ -21,7 +21,7 @@ class SendIMMessageReqMsg extends Message {
 
   @override
   ByteBuf encodeBody() {
-    Map<String , dynamic> body = imMessage?.endcodeMap()??{};
+    Map<String , dynamic> body = imMessage?.encodeMap()??{};
 
     String jsonBody = jsonEncode(body);
     LogUtil.log("jsonBody:$jsonBody");

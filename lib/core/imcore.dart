@@ -221,6 +221,17 @@ class IMClient {
     return false;
   }
 
+  //接收到新IM消息
+  void receivedIMMessage(List<IMMessage> receivedMessageList){
+    _fireMmMessageIncomingCallback(receivedMessageList);
+  }
+
+  void _fireMmMessageIncomingCallback(List<IMMessage> receivedMessageList){
+    for(IMMessageIncomingCallback callback in _imMessageIncomingCallbackList){
+      callback.call(receivedMessageList);
+    }//end for each
+  }
+
   //状态切换
   void _changeState(ClientState newState) {
     if (_state != newState) {
@@ -358,7 +369,7 @@ class IMClient {
         handler = SendIMMessageHandler();
         break;
       case MessageTypes.PUSH_IMMESSAGE_REQ://发送过来的IMMessage
-        
+        handler = PushIMMessageHandler();
         break;
       default:
         break;

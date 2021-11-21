@@ -30,7 +30,11 @@ class CoreTestApp extends StatelessWidget {
 class TestCoreMainState extends State<TestCoreMain>{
   String mClientStatus = "";
 
+  String mIncomingMessage = "";
+
   StateChangeCallback? _stateChangeCallback;
+
+  IMMessageIncomingCallback? _imMessageIncomingCallback;
 
   @override
   void initState() {
@@ -49,6 +53,14 @@ class TestCoreMainState extends State<TestCoreMain>{
     };
 
     IMClient.getInstance()?.registerStateObserver(_stateChangeCallback!, true);
+
+    _imMessageIncomingCallback??=(incomingIMMessageList){
+       setState(() {
+        mIncomingMessage = incomingIMMessageList.first.content!;
+      });
+    };
+
+    IMClient.getInstance()?.registerIMMessageIncomingObserver(_imMessageIncomingCallback!, true);
   }
 
   void login1001(){
@@ -117,6 +129,8 @@ class TestCoreMainState extends State<TestCoreMain>{
                  onPressed: ()=> imLogout(), 
                  child: const Text("退出IM登录"),
                 ),
+                const SizedBox(height: 20,),
+                Text("接收消息 : $mIncomingMessage"),
             ],
           ),
         ),

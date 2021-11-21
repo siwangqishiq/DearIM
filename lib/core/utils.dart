@@ -1,6 +1,7 @@
+import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:uuid/uuid.dart';
+import 'dart:convert' show utf8;
 
 class Utils {
   static Uuid uuid = const Uuid();
@@ -16,14 +17,15 @@ class Utils {
 
   //string to Uint8List
   static Uint8List convertStringToUint8List(String str) {
-    final List<int> codeUnits = str.codeUnits;
+    final List<int> codeUnits = utf8.encode(str);;
     final Uint8List unit8List = Uint8List.fromList(codeUnits);
     return unit8List;
   }
 
   //Uint8List to string
   static String convertUint8ListToString(Uint8List uint8list) {
-    return String.fromCharCodes(uint8list);
+    return utf8.decode(uint8list);
+    //return String.fromCharCodes(uint8list);
   }
 
   static String intToHex(int value){

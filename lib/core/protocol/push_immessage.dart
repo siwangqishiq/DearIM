@@ -54,13 +54,17 @@ class PushIMMessageHandler extends MessageHandler<PushIMMessageReqMsg> {
   void handle(IMClient client, PushIMMessageReqMsg msg) {
     LogUtil.log("send immessage resp unique(${msg.uniqueId}) ");
 
-    //callback
     if(msg.imMessage == null){
       return;
     }
 
     IMMessage imMessage = msg.imMessage!;
     LogUtil.log("received msg ${imMessage.content}");
+    
+    List<IMMessage> incomingIMList = <IMMessage>[];
+    incomingIMList.add(imMessage);
+
+    client.receivedIMMessage(incomingIMList);
   }
 }//end class
 

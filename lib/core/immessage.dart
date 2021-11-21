@@ -49,7 +49,7 @@ class IMMessage{
     msg.fromClient = map["fromClient"]??0;
     msg.toClient = map["toClient"]??0;
 
-    msg.createTime = map["content"];
+    msg.content = map["content"];
     msg.url = map["url"];
     msg.attachState = map["attachState"]??0;
     msg.attachInfo = map["attachInfo"];
@@ -59,7 +59,7 @@ class IMMessage{
   }
 
   //encode编码为Map
-  Map<String , dynamic> endcodeMap(){
+  Map<String , dynamic> encodeMap(){
     final Map<String,dynamic> body = <String , dynamic>{};
     body["size"] = size;
     body["msgId"] = msgId;
