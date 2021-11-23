@@ -9,8 +9,8 @@ import 'Pages/MainPage.dart';
 import 'core/core_test.dart';
 
 void main() {
-  // runApp(const MyApp());
-  coreTestRun();
+  runApp(const MyApp());
+  // coreTestRun();
 }
 
 class MyApp extends StatelessWidget {
@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
   }
 
   Widget homepage() {
-    if (UserManager().hasUser()) {
+    if (UserManager.getInstance().hasUser()) {
       return MainPage();
     }
     return LoginPage();

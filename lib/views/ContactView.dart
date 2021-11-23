@@ -3,7 +3,7 @@
 import 'dart:developer';
 
 import 'package:dearim/models/ContactModel.dart';
-import 'package:dearim/Pages/RedPoint.dart';
+import 'package:dearim/views/RedPoint.dart';
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
@@ -29,6 +29,11 @@ class _ContactViewState extends State<ContactView> {
 
   @override
   Widget build(BuildContext context) {
+    String imageURL =
+        "https://seopic.699pic.com/photo/50046/5562.jpg_wh1200.jpg";
+    if (this.model.avatar.length > 0) {
+      imageURL = this.model.avatar;
+    }
     return FlatButton(
       onPressed: this.onPress,
       child: Container(
@@ -46,10 +51,10 @@ class _ContactViewState extends State<ContactView> {
                   child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.network(
-                        'https://seopic.699pic.com/photo/50046/5562.jpg_wh1200.jpg',
+                        imageURL,
                         width: imageWidth,
                         height: imageWidth,
-                        fit: BoxFit.fill,
+                        fit: BoxFit.cover,
                       )),
                   number: 12,
                   pointStyle: RedPointStyle.number,

@@ -64,18 +64,20 @@ class Request {
     Response response;
     Map<String, dynamic> param = new Map<String, dynamic>();
     param.addAll(map);
-    String? token = UserManager().user.token;
+    String? token = UserManager.getInstance().user.token;
 
     if (token.length != 0) {
-      print(UserManager().user.token);
-      param["token"] = UserManager().user.token;
+      print(UserManager.getInstance().user.token);
+      param["token"] = UserManager.getInstance().user.token;
     }
     try {
       FormData formData = FormData.fromMap(param);
       String address = host + apiName;
       Logger().d("address = " + address);
       Logger().i(map);
-      response = await Dio().post(address, data: formData);
+      Dio dio = Dio();
+      dio.options.headers.addAll(systemParam());
+      response = await dio.post(address, data: formData);
 
       Map<String, dynamic> responseMap = response.data;
       Logger().d(responseMap);
@@ -88,7 +90,7 @@ class Request {
         }
       } else {
         if (callback.successCallback != null) {
-          dynamic data = responseMap["data"];
+          var data = responseMap["data"];
           callback.successCallback!(data);
           print(data);
         }
@@ -100,5 +102,11 @@ class Request {
       }
     }
     return null;
+  }
+
+  Map<String, dynamic> systemParam() {
+    Map<String, dynamic> systemParam = Map<String, dynamic>();
+    systemParam["token"] = UserManager.getInstance().user.token;
+    return systemParam;
   }
 }

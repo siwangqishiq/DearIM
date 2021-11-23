@@ -4,12 +4,15 @@ import 'package:dearim/user/User.dart';
 import 'package:logger/logger.dart';
 
 class UserManager {
-  UserManager._privateConstructor();
-
-  static final UserManager _instance = UserManager._privateConstructor();
+  static late final UserManager _instance;
 
   User user = User();
-  factory UserManager() {
+
+  static UserManager getInstance() {
+    // ignore: unnecessary_null_comparison
+    if (_instance == null) {
+      _instance = UserManager();
+    }
     return _instance;
   }
 

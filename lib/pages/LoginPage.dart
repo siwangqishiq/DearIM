@@ -83,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void login() {
-    UserManager().login(
+    UserManager.getInstance().login(
         this.username,
         this.password,
         Callback(successCallback: (data) {
