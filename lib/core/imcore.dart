@@ -12,6 +12,7 @@ import 'package:dearim/core/protocol/push_immessage.dart';
 import 'package:dearim/core/protocol/send_immessage.dart';
 import 'package:dearim/core/utils.dart';
 
+import 'protocol/heart_beat.dart';
 import 'protocol/logout.dart';
 import 'protocol/message.dart';
 
@@ -61,9 +62,9 @@ abstract class MessageHandler<T> {
 }
 
 class IMClient {
-  // static const String _serverAddress = "10.242.142.129"; //
+  static String _serverAddress = "10.242.142.129"; //
   // static const String _serverAddress = "192.168.31.230"; //
-  static String _serverAddress = "192.168.31.37";
+  // static String _serverAddress = "192.168.31.37";
 
   static int _port = 1013;
 
@@ -81,7 +82,6 @@ class IMClient {
 
   Map<String , SendIMMessageCallback> get sendIMMessageCallbackMap => _sendIMMessageCallbackMap;
 
-  
 
   //用户id
   int _uid = -1;
@@ -110,9 +110,13 @@ class IMClient {
 
   //final List _todoList = []; //缓存要发送的消息
 
+  late HeartBeat _heartBeat;
+
   IMClient() {
     _state = ClientState.unconnect;
     LogUtil.log("imclient instance create");
+
+    _heartBeat = HeartBeat(this);
   }
 
   static IMClient? getInstance() {
@@ -296,6 +300,8 @@ class IMClient {
     _dataBuf.reset(); //buf清空
     _changeState(ClientState.unconnect);
     _socket = null;
+
+    _heartBeat.stopHeartBeat();
   }
 
   //接收到远端数据
@@ -303,6 +309,8 @@ class IMClient {
     ByteBuf recvBuf = ByteBuf.allocator(size: data.length);
     recvBuf.writeUint8List(data);
     LogUtil.log("received data  len : ${data.length}");
+    
+    _heartBeat.recordTime();
     //recvBuf.debugHexPrint();
 
     _dataBuf.writeByteBuf(recvBuf);
@@ -415,6 +423,8 @@ class IMClient {
   void loginSuccess() {
     LogUtil.log("login success");
     _changeState(ClientState.logined);
+
+    _heartBeat.startHeartBeat();
   }
 
   void loginFailed() {

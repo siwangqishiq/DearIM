@@ -36,9 +36,15 @@ class TestCoreMainState extends State<TestCoreMain>{
 
   IMMessageIncomingCallback? _imMessageIncomingCallback;
 
+  late TextEditingController _editController;
+  late FocusNode _focusNode;
+
   @override
   void initState() {
     super.initState();
+    _editController = TextEditingController(text: "你好世界");
+    _focusNode = FocusNode();
+    
     initIM();
   }
 
@@ -78,7 +84,7 @@ class TestCoreMainState extends State<TestCoreMain>{
 
   void login1(){
     int uid = 1;
-    String token = "eyJ0eXAiOiJKV1QiLCJfdWlkIjoiMSIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE2Mzg4NzA4NzJ9.fPfkY8h37LNKxICpq_45ZubNc6GznIs1GZM057N2m9Y";
+    String token = "eyJ0eXAiOiJKV1QiLCJfdWlkIjoiMSIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE2MzkxMjk0MzB9.Bw-FLGm6y5ZHPsnmzNspY92_xLLLqlcks7_N71gRoZM";
 
     IMClient.getInstance()?.imLogin(uid, token, loginCallback: (result) {
       if (result.result) {
@@ -115,6 +121,20 @@ class TestCoreMainState extends State<TestCoreMain>{
                  child: const Text("登录1001"),
                 ),
                 const SizedBox(height: 20,),
+                SizedBox(
+                  width: 200,
+                  child: TextField(
+                    controller: _editController, 
+                    style:const TextStyle(
+                      color: Colors.black,
+                      fontSize: 18.0,
+                    ), 
+                    cursorColor: Colors.black, 
+                    decoration: const InputDecoration(border: OutlineInputBorder()),
+                    focusNode: _focusNode,
+                  ),
+                ),
+                const SizedBox(height: 20,),
                 ElevatedButton(
                  onPressed: ()=> sendTextMessage(1), 
                  child: const Text("发送文本消息给1"),
@@ -138,6 +158,13 @@ class TestCoreMainState extends State<TestCoreMain>{
     );
   }
 
+  @override
+  void dispose() {
+    _editController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
   void imLogout(){
     IMClient.getInstance()?.imLoginOut(loginOutCallback:(r){
       LogUtil.log("退出登录: ${r.result}");
@@ -145,7 +172,7 @@ class TestCoreMainState extends State<TestCoreMain>{
   }
 
   void sendTextMessage(int toId){
-    String content = "你好 世界 时间:${Utils.currentTime()}";
+    String content = _editController.text;
 
     IMMessage? msg = IMMessageBuilder.createText(toId, IMMessageSessionType.P2P, content);
     if(msg != null){

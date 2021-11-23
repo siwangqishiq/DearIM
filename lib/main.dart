@@ -9,8 +9,8 @@ import 'Pages/MainPage.dart';
 import 'core/core_test.dart';
 
 void main() {
-  runApp(const MyApp());
-  // coreTestRun();
+  // runApp(const MyApp());
+  coreTestRun();
 }
 
 class MyApp extends StatelessWidget {
