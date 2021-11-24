@@ -1,16 +1,13 @@
-import 'dart:developer';
+import 'package:dearim/models/contact_model.dart';
 
-import 'package:dearim/models/ContactModel.dart';
-import 'package:dearim/network/Request.dart';
-import 'package:dearim/network/RequestManager.dart';
-import 'package:dearim/views/ContactView.dart';
+import 'package:dearim/views/contact_view.dart';
 import 'package:flutter/material.dart';
 
-import 'ChatPage.dart';
+import 'chat_page.dart';
 
 // ignore: must_be_immutable
 class ChatListPage extends StatefulWidget {
-  ChatListPage({Key? key}) : super(key: key);
+  const ChatListPage({Key? key}) : super(key: key);
 
   @override
   _ChatListPageState createState() => _ChatListPageState();
@@ -29,15 +26,15 @@ class _ChatListPageState extends State<ChatListPage> {
       //   title: Text("聊天"),
       // ),
       body: ListView.builder(
-        itemCount: this.models.length,
+        itemCount: models.length,
         itemBuilder: (BuildContext context, int index) {
-          ContactModel contactModel = this.models[index];
+          ContactModel contactModel = models[index];
           //TODO: wmy test
           contactModel.message = "message";
           return ContactView(contactModel, () {
             //跳转传参
             Navigator.of(context).push(
-              new PageRouteBuilder(
+              PageRouteBuilder(
                 pageBuilder: (BuildContext context, Animation<double> animation,
                     Animation<double> secondaryAnimation) {
                   return ChatPage(contactModel);

@@ -1,8 +1,8 @@
 // ignore_for_file: file_names
 
-import 'package:dearim/views/ToastShowUtils.dart';
-import 'package:dearim/network/Request.dart';
-import 'package:dearim/user/UserManager.dart';
+import 'package:dearim/views/toast_show_utils.dart';
+import 'package:dearim/network/request.dart';
+import 'package:dearim/user/user_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
@@ -32,30 +32,30 @@ class _LoginPageState extends State<LoginPage> {
             ),
             TextField(
               keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(hintText: "input login"),
+              decoration: const InputDecoration(hintText: "input login"),
               onChanged: (String text) {
-                this.username = text;
+                username = text;
                 Logger().d(text);
               },
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             TextField(
               keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(hintText: "input password"),
+              decoration: const InputDecoration(hintText: "input password"),
               obscureText: true,
               onChanged: (String text) {
                 this.password = text;
                 Logger().d(text);
               },
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             MaterialButton(
                 onPressed: () {
-                  if (this.username.length == 0 || this.password.length == 0) {
+                  if (username.isEmpty || password.isEmpty) {
                     ToastShowUtils.show("用户名或密码为空", context);
                     return;
                   }
@@ -66,8 +66,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Container(
                     width: 400,
                     height: 40,
-                    color: Colors.red,
-                    child: Center(
+                    child: const Center(
                       child: Text(
                         "Login",
                         textAlign: TextAlign.center,
@@ -83,9 +82,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void login() {
-    UserManager.getInstance().login(
-        this.username,
-        this.password,
+    UserManager.getInstance()!.login(
+        username,
+        password,
         Callback(successCallback: (data) {
           Navigator.of(context).pop();
           Navigator.of(context).pushNamed("/main");

@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:dearim/models/ContactModel.dart';
-import 'package:dearim/tcp/TCPManager.dart';
+import 'package:dearim/models/contact_model.dart';
+import 'package:dearim/tcp/tcp_manager.dart';
 import 'package:flutter/material.dart';
 
 class ChatPage extends StatefulWidget {

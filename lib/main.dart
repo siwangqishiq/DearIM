@@ -1,12 +1,11 @@
-import 'package:dearim/pages/LoginPage.dart';
+import 'package:dearim/pages/login_page.dart';
+import 'package:dearim/pages/main_page.dart';
 import 'package:dearim/routers/routers.dart';
-import 'package:dearim/user/UserManager.dart';
+import 'package:dearim/user/user_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'Pages/ChatPage.dart';
-import 'Pages/MainPage.dart';
-import 'core/core_test.dart';
+// import 'core/core_test.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,8 +18,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    Routers().addRouter("/login", (context) => LoginPage());
-    Routers().addRouter("/main", (context) => MainPage());
+    Routers().addRouter("/login", (context) => const LoginPage());
+    Routers().addRouter("/main", (context) => const MainPage());
     // Routers().addRouter("/chat", (context, {model}) => ChatPage(model: model));
     return MaterialApp(
       title: 'dearIM',
@@ -39,9 +38,9 @@ class MyApp extends StatelessWidget {
   }
 
   Widget homepage() {
-    if (UserManager.getInstance().hasUser()) {
-      return MainPage();
+    if (UserManager.getInstance()!.hasUser()) {
+      return const MainPage();
     }
-    return LoginPage();
+    return const LoginPage();
   }
 }

@@ -1,9 +1,7 @@
-// ignore_for_file: file_names
+// ignore_for_file: no_logic_in_create_state
 
-import 'dart:developer';
-
-import 'package:dearim/models/ContactModel.dart';
-import 'package:dearim/views/RedPoint.dart';
+import 'package:dearim/models/contact_model.dart';
+import 'package:dearim/views/red_point.dart';
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
@@ -13,8 +11,7 @@ class ContactView extends StatefulWidget {
   ContactView(this.model, this.onPress, {Key? key}) : super(key: key);
 
   @override
-  _ContactViewState createState() =>
-      _ContactViewState(this.model, this.onPress);
+  _ContactViewState createState() => _ContactViewState(model, onPress);
 }
 
 class _ContactViewState extends State<ContactView> {
@@ -31,11 +28,11 @@ class _ContactViewState extends State<ContactView> {
   Widget build(BuildContext context) {
     String imageURL =
         "https://seopic.699pic.com/photo/50046/5562.jpg_wh1200.jpg";
-    if (this.model.avatar.length > 0) {
-      imageURL = this.model.avatar;
+    if (model.avatar.isNotEmpty) {
+      imageURL = model.avatar;
     }
     return FlatButton(
-      onPressed: this.onPress,
+      onPressed: onPress,
       child: Container(
         width: MediaQuery.of(context).size.width,
         child: Column(
@@ -67,13 +64,13 @@ class _ContactViewState extends State<ContactView> {
                   // ignore: prefer_const_literals_to_create_immutables
                   children: [
                     Text(
-                      this.model.name,
-                      style: TextStyle(
+                      model.name,
+                      style: const TextStyle(
                           color: Colors.black,
                           fontSize: 15,
                           fontWeight: FontWeight.bold),
                     ),
-                    Text(this.model.message),
+                    Text(model.message),
                   ],
                 ),
               ],

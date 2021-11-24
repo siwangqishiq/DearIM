@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 class User {
   int uid = 0;
   String name = "";
@@ -5,9 +7,9 @@ class User {
   TCPParam tcpParam = TCPParam();
 
   void clear() {
-    this.uid = 0;
-    this.name = "";
-    this.token = "";
+    uid = 0;
+    name = "";
+    token = "";
     tcpParam.imPort = 0;
     tcpParam.imServer = "";
   }

@@ -1,11 +1,8 @@
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:dearim/core/imcore.dart';
 import 'package:dearim/core/immessage.dart';
-import 'package:dearim/core/utils.dart';
-import 'package:dearim/user/User.dart';
-import 'package:dearim/user/userManager.dart';
+import 'package:dearim/user/user_manager.dart';
 
 class TCPManager {
   TCPManager._privateConstructor();
@@ -41,8 +38,8 @@ class TCPManager {
 
   // 连接tcp
   void connect(int uid, String token) {
-    String host = UserManager.getInstance().user.tcpParam.imServer;
-    int port = UserManager.getInstance().user.tcpParam.imPort;
+    String host = UserManager.getInstance()!.user!.tcpParam.imServer;
+    int port = UserManager.getInstance()!.user!.tcpParam.imPort;
     IMClient.getInstance()?.imLogin(uid, token, host: host, port: port,
         loginCallback: (result) {
       if (result.result) {

@@ -8,9 +8,9 @@ class Routers {
     return _instance;
   }
 
-  var routers = new Map<String, WidgetBuilder>();
+  var routers = <String, WidgetBuilder>{};
   void addRouter(String router, WidgetBuilder operation) {
-    if (router.length > 0) {
+    if (router.isNotEmpty) {
       routers[router] = operation;
     }
   }

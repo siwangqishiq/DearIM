@@ -1,7 +1,10 @@
-import 'package:dearim/network/RequestManager.dart';
-import 'package:dearim/user/UserManager.dart';
+// ignore_for_file: file_names
+
+import 'dart:developer';
+
+import 'package:dearim/network/request_manager.dart';
+import 'package:dearim/user/user_manager.dart';
 import 'package:logger/logger.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:dio/dio.dart';
 
 typedef SuccessCallback = void Function(dynamic data);
@@ -27,10 +30,10 @@ class Request {
   void uploadRequest(String apiName, String filePath, Map<String, dynamic> map,
       Callback callback) async {
     Response response;
-    Map<String, dynamic> param = new Map<String, dynamic>();
+    Map<String, dynamic> param = <String, dynamic>{};
     param.addAll(map);
     param["file"] = await MultipartFile.fromFile(filePath, filename: filePath);
-    FormData formData = new FormData.fromMap(
+    FormData formData = FormData.fromMap(
         {"file": await MultipartFile.fromFile(filePath, filename: filePath)});
     try {
       response = await Dio().post(apiName, data: formData);
@@ -62,13 +65,13 @@ class Request {
   void postRequest(
       String apiName, Map<String, dynamic> map, Callback callback) async {
     Response response;
-    Map<String, dynamic> param = new Map<String, dynamic>();
+    Map<String, dynamic> param = <String, dynamic>{};
     param.addAll(map);
-    String? token = UserManager.getInstance().user.token;
+    String? token = UserManager.getInstance()!.user!.token;
 
-    if (token.length != 0) {
-      print(UserManager.getInstance().user.token);
-      param["token"] = UserManager.getInstance().user.token;
+    if (token.isNotEmpty) {
+      log(UserManager.getInstance()!.user!.token);
+      param["token"] = UserManager.getInstance()!.user!.token;
     }
     try {
       FormData formData = FormData.fromMap(param);
@@ -105,8 +108,8 @@ class Request {
   }
 
   Map<String, dynamic> systemParam() {
-    Map<String, dynamic> systemParam = Map<String, dynamic>();
-    systemParam["token"] = UserManager.getInstance().user.token;
+    Map<String, dynamic> systemParam = <String, dynamic>{};
+    systemParam["token"] = UserManager.getInstance()!.user!.token;
     return systemParam;
   }
 }

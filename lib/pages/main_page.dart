@@ -1,11 +1,12 @@
-import 'package:dearim/Pages/ChatListPage.dart';
-import 'package:dearim/Pages/ContactPage.dart';
-import 'package:dearim/network/Request.dart';
-import 'package:dearim/user/UserManager.dart';
-import 'package:dearim/views/ToastShowUtils.dart';
+import 'package:dearim/network/request.dart';
+import 'package:dearim/user/user_manager.dart';
+import 'package:dearim/views/toast_show_utils.dart';
+
 import 'package:flutter/material.dart';
 
-import 'ProfilePage.dart';
+import 'chat_list_page.dart';
+import 'contact_page.dart';
+import 'profile_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -35,13 +36,13 @@ class _MainPageState extends State<MainPage>
       appBar: AppBar(
         actions: [
           MaterialButton(
-            child: Icon(
+            child: const Icon(
               Icons.logout,
               color: Colors.white,
             ),
             onPressed: () {
               ToastShowUtils.showAlert("确定登出吗", "", context, () {
-                UserManager.getInstance()
+                UserManager.getInstance()!
                     .logout(Callback(successCallback: (data) {
                   Navigator.of(context).pop();
                   Navigator.of(context).pushNamed("/login");
@@ -50,13 +51,13 @@ class _MainPageState extends State<MainPage>
             },
           )
         ],
-        title: Text(
+        title: const Text(
           "展信佳",
           style: TextStyle(color: Colors.white),
         ),
       ),
       body: TabBarView(controller: controller, children: [
-        ChatListPage(),
+        const ChatListPage(),
         ContactPage(),
         ProfilePage(),
       ]),

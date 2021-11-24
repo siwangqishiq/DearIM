@@ -34,7 +34,7 @@ enum ClientState {
 
 enum DataStatus {
   errorMagicNumber, //协议解析错误
-  errorVersion,//版本错误
+  errorVersion, //版本错误
   errorBodyEncode, //消息体编码方式不兼容
   errorOther, //其他错误
   errorLength, //数据长度不足
@@ -48,13 +48,15 @@ typedef IMLoginCallback = Function(Result loginResult);
 typedef IMLogOutCallback = Function(Result result);
 
 //发送IM消息 回调
-typedef SendIMMessageCallback = Function(IMMessage imMessage , Result result);
+typedef SendIMMessageCallback = Function(IMMessage imMessage, Result result);
 
 //状态改变回调
-typedef StateChangeCallback = Function(ClientState oldState, ClientState newState);
+typedef StateChangeCallback = Function(
+    ClientState oldState, ClientState newState);
 
 //接收到新消息
-typedef IMMessageIncomingCallback = Function(List<IMMessage> incomingIMMessageList);
+typedef IMMessageIncomingCallback = Function(
+    List<IMMessage> incomingIMMessageList);
 
 //handler抽象类
 abstract class MessageHandler<T> {
@@ -80,8 +82,8 @@ class IMClient {
 
   int get uid => _uid;
 
-  Map<String , SendIMMessageCallback> get sendIMMessageCallbackMap => _sendIMMessageCallbackMap;
-
+  Map<String, SendIMMessageCallback> get sendIMMessageCallbackMap =>
+      _sendIMMessageCallbackMap;
 
   //用户id
   int _uid = -1;
@@ -100,13 +102,16 @@ class IMClient {
   int _receivedPacketCount = 0;
 
   //发送IM消息回调
-  final Map<String , SendIMMessageCallback> _sendIMMessageCallbackMap = <String , SendIMMessageCallback>{};
+  final Map<String, SendIMMessageCallback> _sendIMMessageCallbackMap =
+      <String, SendIMMessageCallback>{};
 
-  final List<IMMessageIncomingCallback> _imMessageIncomingCallbackList = <IMMessageIncomingCallback>[];
+  final List<IMMessageIncomingCallback> _imMessageIncomingCallbackList =
+      <IMMessageIncomingCallback>[];
 
   final ByteBuf _dataBuf = ByteBuf.allocator(); //
 
-  final List<StateChangeCallback> _stateChangeCallbackList = <StateChangeCallback>[];
+  final List<StateChangeCallback> _stateChangeCallbackList =
+      <StateChangeCallback>[];
 
   //final List _todoList = []; //缓存要发送的消息
 
@@ -132,12 +137,13 @@ class IMClient {
   }
 
   //im登录
-  void imLogin(int uid, String token, {IMLoginCallback? loginCallback , String? host , int? port}) {
-    if(host != null){
+  void imLogin(int uid, String token,
+      {IMLoginCallback? loginCallback, String? host, int? port}) {
+    if (host != null) {
       _serverAddress = host;
     }
-    
-    if(port != null){
+
+    if (port != null) {
       _port = port;
     }
 
@@ -152,12 +158,13 @@ class IMClient {
   void imLoginOut({IMLogOutCallback? loginOutCallback}) {
     _logoutCallback = loginOutCallback;
 
-    if(_state == ClientState.logined){//已经登录的 才能退出登录
+    if (_state == ClientState.logined) {
+      //已经登录的 才能退出登录
       final LogoutReqMessage logoutReq = LogoutReqMessage(_token);
       _sendData(logoutReq.encode());
       _changeState(ClientState.logouting);
-    }else{
-      if(_logoutCallback != null){
+    } else {
+      if (_logoutCallback != null) {
         _logoutCallback!(Result.Error("Current state is not logined"));
       }
       return;
@@ -165,14 +172,14 @@ class IMClient {
   }
 
   //发送IM消息
-  void sendIMMessage(IMMessage imMessage,{SendIMMessageCallback? callback}){
-    imMessage.from = _uid;   
-    if(Utils.isTextEmpty(imMessage.msgId)){
+  void sendIMMessage(IMMessage imMessage, {SendIMMessageCallback? callback}) {
+    imMessage.from = _uid;
+    if (Utils.isTextEmpty(imMessage.msgId)) {
       imMessage.msgId = Utils.genUniqueMsgId();
     }
 
-    if(_state != ClientState.logined){
-      callback?.call(imMessage , Result.Error("error im client stauts"));
+    if (_state != ClientState.logined) {
+      callback?.call(imMessage, Result.Error("error im client stauts"));
       return;
     }
 
@@ -180,7 +187,7 @@ class IMClient {
     imMessage.createTime = time;
     imMessage.updateTime = time;
 
-    if(callback != null){
+    if (callback != null) {
       _sendIMMessageCallbackMap[imMessage.msgId] = callback;
     }
 
@@ -188,10 +195,9 @@ class IMClient {
     _sendData(SendIMMessageReqMsg(imMessage).encode());
   }
 
-  
   //注册 或 解绑 状态改变事件监听
   bool registerStateObserver(StateChangeCallback callback, bool register) {
-    if(register) {
+    if (register) {
       //注册
       if (!Utils.listContainObj(_stateChangeCallbackList, callback)) {
         _stateChangeCallbackList.add(callback);
@@ -208,8 +214,9 @@ class IMClient {
   }
 
   //注册接收IM消息
-  bool registerIMMessageIncomingObserver(IMMessageIncomingCallback callback , bool register) {
-    if(register) {
+  bool registerIMMessageIncomingObserver(
+      IMMessageIncomingCallback callback, bool register) {
+    if (register) {
       //注册
       if (!Utils.listContainObj(_imMessageIncomingCallbackList, callback)) {
         _imMessageIncomingCallbackList.add(callback);
@@ -226,14 +233,14 @@ class IMClient {
   }
 
   //接收到新IM消息
-  void receivedIMMessage(List<IMMessage> receivedMessageList){
+  void receivedIMMessage(List<IMMessage> receivedMessageList) {
     _fireMmMessageIncomingCallback(receivedMessageList);
   }
 
-  void _fireMmMessageIncomingCallback(List<IMMessage> receivedMessageList){
-    for(IMMessageIncomingCallback callback in _imMessageIncomingCallbackList){
+  void _fireMmMessageIncomingCallback(List<IMMessage> receivedMessageList) {
+    for (IMMessageIncomingCallback callback in _imMessageIncomingCallbackList) {
       callback.call(receivedMessageList);
-    }//end for each
+    } //end for each
   }
 
   //状态切换
@@ -309,7 +316,7 @@ class IMClient {
     ByteBuf recvBuf = ByteBuf.allocator(size: data.length);
     recvBuf.writeUint8List(data);
     LogUtil.log("received data  len : ${data.length}");
-    
+
     _heartBeat.recordTime();
     //recvBuf.debugHexPrint();
 
@@ -325,7 +332,7 @@ class IMClient {
       if (checkResult == DataStatus.success) {
         final Message? msg = parseByteBufToMessage(_dataBuf);
         _dataBuf.compact();
-        
+
         //execute hand
         _handleMsg(msg);
       } else if (checkResult == DataStatus.errorLength) {
@@ -342,21 +349,21 @@ class IMClient {
     Message msgHead = Message.fromBytebuf(buf);
     Message? result;
     switch (msgHead.type) {
-      case MessageTypes.LOGIN_RESP://登录消息响应
+      case MessageTypes.LOGIN_RESP: //登录消息响应
         result = IMLoginRespMessage.from(msgHead, buf);
         break;
-      case MessageTypes.LOGOUT_RESP://退出登录 消息响应 
+      case MessageTypes.LOGOUT_RESP: //退出登录 消息响应
         result = LogoutRespMessage.from(msgHead, buf);
         break;
-      case MessageTypes.SEND_IMMESSAGE_RESP://发送消息获取响应
+      case MessageTypes.SEND_IMMESSAGE_RESP: //发送消息获取响应
         result = SendIMMessageRespMsg.from(msgHead, buf);
         break;
-      case MessageTypes.PUSH_IMMESSAGE_REQ://发送过来的IMMessage
+      case MessageTypes.PUSH_IMMESSAGE_REQ: //发送过来的IMMessage
         result = PushIMMessageReqMsg.from(msgHead, buf);
         break;
       default:
         break;
-    }//end switch
+    } //end switch
     return result;
   }
 
@@ -376,12 +383,12 @@ class IMClient {
       case MessageTypes.SEND_IMMESSAGE_RESP:
         handler = SendIMMessageHandler();
         break;
-      case MessageTypes.PUSH_IMMESSAGE_REQ://发送过来的IMMessage
+      case MessageTypes.PUSH_IMMESSAGE_REQ: //发送过来的IMMessage
         handler = PushIMMessageHandler();
         break;
       default:
         break;
-    }//end switch
+    } //end switch
 
     handler?.handle(this, msg);
 
@@ -433,13 +440,13 @@ class IMClient {
   }
 
   //退出登录
-  void afterLogout(bool logoutSuccess){
-    if(logoutSuccess){
+  void afterLogout(bool logoutSuccess) {
+    if (logoutSuccess) {
       LogUtil.log("login out");
-      _changeState(ClientState.unlogin);//状态改为未登录
-      _socket?.destroy();//主动关闭socket
+      _changeState(ClientState.unlogin); //状态改为未登录
+      _socket?.destroy(); //主动关闭socket
       _onSocketClose();
-    }else{
+    } else {
       _changeState(ClientState.logined);
     }
   }
@@ -458,4 +465,3 @@ class IMClient {
     _socket?.flush();
   }
 } //end class
-

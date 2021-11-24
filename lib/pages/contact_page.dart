@@ -1,13 +1,13 @@
 import 'dart:developer';
 
-import 'package:dearim/Pages/ChatPage.dart';
-import 'package:dearim/models/ContactModel.dart';
-import 'package:dearim/network/Request.dart';
-import 'package:dearim/views/ContactView.dart';
+import 'package:dearim/Pages/chat_page.dart';
+import 'package:dearim/models/contact_model.dart';
+import 'package:dearim/network/request.dart';
+import 'package:dearim/views/contact_view.dart';
 import 'package:flutter/material.dart';
 
 class ContactPage extends StatefulWidget {
-  ContactPage({Key? key}) : super(key: key);
+  const ContactPage({Key? key}) : super(key: key);
 
   @override
   _ContactPageState createState() => _ContactPageState();
@@ -31,13 +31,13 @@ class _ContactPageState extends State<ContactPage> {
       //   title: Text("通讯录"),
       // ),
       body: ListView.builder(
-        itemCount: this.models.length,
+        itemCount: models.length,
         itemBuilder: (BuildContext context, int index) {
-          ContactModel contactModel = this.models[index];
+          ContactModel contactModel = models[index];
           return ContactView(contactModel, () {
             //跳转传参
             Navigator.of(context).push(
-              new PageRouteBuilder(
+              PageRouteBuilder(
                 pageBuilder: (BuildContext context, Animation<double> animation,
                     Animation<double> secondaryAnimation) {
                   return ChatPage(contactModel);
@@ -55,12 +55,12 @@ class _ContactPageState extends State<ContactPage> {
       "/contacts",
       {},
       Callback(successCallback: (data) {
-        this.models.clear();
+        models.clear();
         List list = data["list"];
         for (Map item in list) {
-          ContactModel model = new ContactModel(item["name"], item["uid"]);
+          ContactModel model = ContactModel(item["name"], item["uid"]);
           model.avatar = item["avatar"] ?? "";
-          this.models.add(model);
+          models.add(model);
         }
         setState(() {});
       }, failureCallback: (code, msgStr, data) {
