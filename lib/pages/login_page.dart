@@ -24,15 +24,15 @@ class _LoginPageState extends State<LoginPage> {
         title: const Text("Login"),
       ),
       body: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            SizedBox(
+            const SizedBox(
               height: 100,
             ),
             TextField(
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(hintText: "input login"),
+              decoration: const InputDecoration(hintText: "请输入账号名"),
               onChanged: (String text) {
                 username = text;
                 Logger().d(text);
@@ -43,15 +43,15 @@ class _LoginPageState extends State<LoginPage> {
             ),
             TextField(
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(hintText: "input password"),
+              decoration: const InputDecoration(hintText: "请输入密码"),
               obscureText: true,
               onChanged: (String text) {
-                this.password = text;
+                password = text;
                 Logger().d(text);
               },
             ),
             const SizedBox(
-              height: 20,
+              height: 30,
             ),
             MaterialButton(
                 onPressed: () {
@@ -66,6 +66,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Container(
                     width: 400,
                     height: 40,
+                    color: Colors.red,
                     child: const Center(
                       child: Text(
                         "Login",
