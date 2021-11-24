@@ -93,52 +93,54 @@ class TestCoreMainState extends State<TestCoreMain>{
       // ignore: avoid_unnecessary_containers
       body: Container(
         child:Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-                Text("当前状态: $mClientStatus  uid: ${IMClient.getInstance()?.uid}"),
-                ElevatedButton(
-                 onPressed: ()=> login(1), 
-                 child: const Text("登录1"),
-                ),
-                const SizedBox(height: 20,),
-                ElevatedButton(
-                 onPressed: ()=> login(1001), 
-                 child: const Text("登录1001"),
-                ),
-                const SizedBox(height: 20,),
-                SizedBox(
-                  width: 200,
-                  child: TextField(
-                    controller: _editController, 
-                    style:const TextStyle(
-                      color: Colors.black,
-                      fontSize: 18.0,
-                    ), 
-                    cursorColor: Colors.black, 
-                    decoration: const InputDecoration(border: OutlineInputBorder()),
-                    focusNode: _focusNode,
+          child: SizedBox(
+            width: 320,
+            child: ListView(
+              children: <Widget>[
+                  Text("当前状态: $mClientStatus  uid: ${IMClient.getInstance()?.uid}"),
+                  ElevatedButton(
+                  onPressed: ()=> login(1), 
+                  child: const Text("登录1"),
                   ),
-                ),
-                const SizedBox(height: 20,),
-                ElevatedButton(
-                 onPressed: ()=> sendTextMessage(1), 
-                 child: const Text("发送文本消息给1"),
-                ),
-                const SizedBox(height: 20,),
-                ElevatedButton(
-                 onPressed: ()=> sendTextMessage(1001), 
-                 child: const Text("发送文本消息给1001"),
-                ),
-                const SizedBox(height: 20,),
-                ElevatedButton(
-                 onPressed: ()=> imLogout(), 
-                 child: const Text("退出IM登录"),
-                ),
-                const SizedBox(height: 20,),
-                Text("接收消息 : $mIncomingMessage"),
-            ],
-          ),
+                  const SizedBox(height: 20,),
+                  ElevatedButton(
+                  onPressed: ()=> login(1001), 
+                  child: const Text("登录1001"),
+                  ),
+                  const SizedBox(height: 20,),
+                  SizedBox(
+                    width: 200,
+                    child: TextField(
+                      controller: _editController, 
+                      style:const TextStyle(
+                        color: Colors.black,
+                        fontSize: 18.0,
+                      ), 
+                      cursorColor: Colors.black, 
+                      decoration: const InputDecoration(border: OutlineInputBorder()),
+                      focusNode: _focusNode,
+                    ),
+                  ),
+                  const SizedBox(height: 20,),
+                  ElevatedButton(
+                  onPressed: ()=> sendTextMessage(1), 
+                  child: const Text("发送文本消息给1"),
+                  ),
+                  const SizedBox(height: 20,),
+                  ElevatedButton(
+                  onPressed: ()=> sendTextMessage(1001), 
+                  child: const Text("发送文本消息给1001"),
+                  ),
+                  const SizedBox(height: 20,),
+                  ElevatedButton(
+                  onPressed: ()=> imLogout(), 
+                  child: const Text("退出IM登录"),
+                  ),
+                  const SizedBox(height: 20,),
+                  Text("接收消息 : $mIncomingMessage"),
+              ],
+            ),
+          )
         ),
       )
     );

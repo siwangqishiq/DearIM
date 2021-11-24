@@ -162,7 +162,7 @@ class IMClient {
     if (_state == ClientState.logined) {
       //已经登录的 才能退出登录
       final LogoutReqMessage logoutReq = LogoutReqMessage(_token);
-      _sendData(logoutReq.encode());
+      sendData(logoutReq.encode());
       _changeState(ClientState.logouting);
     } else {
       if (_logoutCallback != null) {
@@ -193,7 +193,7 @@ class IMClient {
     }
 
     //发送
-    _sendData(SendIMMessageReqMsg(imMessage).encode());
+    sendData(SendIMMessageReqMsg(imMessage).encode());
   }
 
   //注册 或 解绑 状态改变事件监听
@@ -291,8 +291,12 @@ class IMClient {
       }
     }).catchError((error) {
       LogUtil.errorLog("socket 连接失败 ${error.toString()}");
-      _onSocketClose();
+      onSocketClose();
       _changeState(ClientState.unconnect);
+    }).onError((error, stackTrace) {
+      LogUtil.log("occur error ");
+    }).whenComplete((){
+      LogUtil.log("whenComplete");
     });
   }
 
@@ -300,13 +304,15 @@ class IMClient {
   void _onSocketFirstContected() {
     //todo 发送请求登录消息
     IMLoginReqMessage loginReqMsg = IMLoginReqMessage(_uid, _token);
-    _sendData(loginReqMsg.encode());
+    sendData(loginReqMsg.encode());
     _changeState(ClientState.loging);
   }
 
   //socket被关闭 清理socket连接
-  void _onSocketClose() {
+  void onSocketClose() {
     _dataBuf.reset(); //buf清空
+
+    _socket?.destroy();
     _changeState(ClientState.unconnect);
     _socket = null;
 
@@ -320,10 +326,9 @@ class IMClient {
     LogUtil.log("received data  len : ${data.length}");
 
     _heartBeat.recordTime();
-    //recvBuf.debugHexPrint();
 
     _dataBuf.writeByteBuf(recvBuf);
-    _dataBuf.debugHexPrint();
+    //_dataBuf.debugHexPrint();
 
     while (_dataBuf.hasReadContent) {
       final DataStatus checkResult = _checkDataStatus(
@@ -447,14 +452,14 @@ class IMClient {
       LogUtil.log("login out");
       _changeState(ClientState.unlogin); //状态改为未登录
       _socket?.destroy(); //主动关闭socket
-      _onSocketClose();
+      onSocketClose();
     } else {
       _changeState(ClientState.logined);
     }
   }
 
-  //发送数据
-  void _sendData(ByteBuf buf) {
+  //通过socket 发送数据
+  void sendData(ByteBuf buf) {
     LogUtil.log("send data size = ${buf.couldReadableSize}");
     buf.debugHexPrint();
 
@@ -462,8 +467,16 @@ class IMClient {
       return;
     }
     // buf.debugPrint();
-
-    _socket?.add(buf.readAllUint8List());
-    _socket?.flush();
+    
+    try{
+      _socket?.add(buf.readAllUint8List());
+    }catch(e){
+      LogUtil.log("socket write error");
+      onSocketClose();
+    }
+    _socket?.flush().catchError((error){
+      LogUtil.log("socket write error");
+      onSocketClose();
+    });
   }
 } //end class

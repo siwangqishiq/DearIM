@@ -5,6 +5,23 @@ import 'package:dearim/core/log.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../utils.dart';
+import 'message.dart';
+import 'protocol.dart';
+
+
+class PingMessage extends Message{
+  @override
+  int getType() {
+    return MessageTypes.PING;
+  }
+}
+
+class PongMessage extends Message{
+  @override
+  int getType() {
+    return MessageTypes.PONG;
+  }
+}
 
 ///
 /// 长链接心跳
@@ -12,7 +29,7 @@ import '../utils.dart';
 class HeartBeat{
   late IMClient _client;
 
-  final Duration _deltaTime = const Duration(seconds: 5);//代表最大等待时间
+  final Duration _deltaTime = const Duration(minutes: 5);//代表最大等待时间
 
   Timer? _timer;
 
@@ -27,12 +44,22 @@ class HeartBeat{
     //启动定时器
     _timer = Timer.periodic(_deltaTime, (timer) {
       final int curTime = Utils.currentTime();
-      if(curTime - _lastIoTime >= _deltaTime.inMilliseconds){//超过最大等待时间 发送心跳包
+      if(curTime - _lastIoTime > 4 * _deltaTime.inMilliseconds){//超出了心跳包时间的4倍 判定为连接断开
+        _judgeSocketDead();
+        return;
+      }
+
+      if(curTime - _lastIoTime > _deltaTime.inMilliseconds){//超过最大等待时间 发送心跳包
         _sendPingPkg(timer);
       }else{
-        LogUtil.log("net is wokring skip this heart beat tick!");
+        LogUtil.log("net is wooking skip this heart beat tick!");
       }
     });
+  }
+
+  void _judgeSocketDead(){
+    LogUtil.log("heart beat judge socket has die!");
+    _client.onSocketClose();
   }
 
   //停止心跳
@@ -49,8 +76,9 @@ class HeartBeat{
 
   //发送客户端心跳包
   void _sendPingPkg(Timer timer){
-    //todo
-     LogUtil.log("timer run ${timer.tick}");
+    LogUtil.log("send heart beat ping...");
+    final PingMessage pingMsg = PingMessage();
+    _client.sendData(pingMsg.encode());
   }
 }//end class
 
