@@ -7,7 +7,7 @@ enum NetworkEnvironment {
 
 class RequestManager {
   //TODO: 线上环境变化
-  NetworkEnvironment networkenv = NetworkEnvironment.daily;
+  NetworkEnvironment networkenv = NetworkEnvironment.online;
   String _hostName = "";
   RequestManager._privateConstructor();
 
@@ -23,7 +23,7 @@ class RequestManager {
   }
 
   String hostName() {
-    if (this.networkenv == NetworkEnvironment.online) {
+    if (networkenv == NetworkEnvironment.online) {
       return "http://47.99.103.133:9090/";
     }
     return _hostName;

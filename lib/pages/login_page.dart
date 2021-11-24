@@ -1,5 +1,7 @@
 // ignore_for_file: file_names
 
+import 'dart:ffi';
+
 import 'package:dearim/views/toast_show_utils.dart';
 import 'package:dearim/network/request.dart';
 import 'package:dearim/user/user_manager.dart';
@@ -17,14 +19,18 @@ class _LoginPageState extends State<LoginPage> {
   //TODO: wmy test
   String username = "wenmingyan";
   String password = "111111";
+  double space = 16.0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Login"),
+        title: const Text(
+          "登录",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(space),
         child: Column(
           children: [
             const SizedBox(
@@ -38,8 +44,8 @@ class _LoginPageState extends State<LoginPage> {
                 Logger().d(text);
               },
             ),
-            const SizedBox(
-              height: 20,
+            SizedBox(
+              height: space,
             ),
             TextField(
               keyboardType: TextInputType.emailAddress,
@@ -69,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
                     color: Colors.red,
                     child: const Center(
                       child: Text(
-                        "Login",
+                        "登录",
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.white),
                       ),
