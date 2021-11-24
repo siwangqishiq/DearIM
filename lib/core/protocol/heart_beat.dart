@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:dearim/core/imcore.dart';
 import 'package:dearim/core/log.dart';
-import 'package:flutter/cupertino.dart';
-
 import '../utils.dart';
 import 'message.dart';
 import 'protocol.dart';

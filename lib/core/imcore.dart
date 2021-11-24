@@ -15,6 +15,7 @@ import 'package:dearim/core/utils.dart';
 import 'protocol/heart_beat.dart';
 import 'protocol/logout.dart';
 import 'protocol/message.dart';
+import 'protocol/reconnect.dart';
 
 ///
 /// IM服务
@@ -116,13 +117,16 @@ class IMClient {
 
   //final List _todoList = []; //缓存要发送的消息
 
-  late HeartBeat _heartBeat;
+  late HeartBeat _heartBeat;//心跳包管理
+
+  late Reconnect _reconnect;//断线重连
 
   IMClient() {
     _state = ClientState.unconnect;
     LogUtil.log("imclient instance create");
 
     _heartBeat = HeartBeat(this);
+    _reconnect = Reconnect(this);
   }
 
   static IMClient? getInstance() {
@@ -251,6 +255,10 @@ class IMClient {
       _state = newState;
       //LogUtil.log("state change : $_state");
       _fireStateChangeCallback(oldState, _state);
+    }
+
+    if(_state == ClientState.unconnect){//未连接状态
+      _reconnect.tiggerReconnect();
     }
   }
 
