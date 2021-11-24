@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:dearim/Pages/chat_page.dart';
+import 'package:dearim/pages/chat_page.dart';
 import 'package:dearim/models/contact_model.dart';
 import 'package:dearim/network/request.dart';
 import 'package:dearim/views/contact_view.dart';

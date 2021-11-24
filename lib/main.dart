@@ -5,11 +5,11 @@ import 'package:dearim/user/user_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-// import 'core/core_test.dart';
+import 'core/core_test.dart';
 
 void main() {
-  runApp(const MyApp());
-  // coreTestRun();
+  // runApp(const MyApp());
+  coreTestRun();
 }
 
 class MyApp extends StatelessWidget {

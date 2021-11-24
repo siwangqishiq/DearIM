@@ -28,7 +28,7 @@ class CoreTestApp extends StatelessWidget {
 
 
 class TestCoreMainState extends State<TestCoreMain>{
-  String mClientStatus = "";
+  String mClientStatus = "init";
 
   String mIncomingMessage = "";
 
@@ -97,7 +97,7 @@ class TestCoreMainState extends State<TestCoreMain>{
             width: 320,
             child: ListView(
               children: <Widget>[
-                  Text("当前状态: $mClientStatus  uid: ${IMClient.getInstance()?.uid}"),
+                  Text("status: $mClientStatus  uid: ${IMClient.getInstance()?.uid}"),
                   ElevatedButton(
                   onPressed: ()=> login(1), 
                   child: const Text("登录1"),
