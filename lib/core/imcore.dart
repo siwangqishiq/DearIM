@@ -64,9 +64,10 @@ abstract class MessageHandler<T> {
 }
 
 class IMClient {
-  static String _serverAddress = "10.242.142.129"; //
+  // static String _serverAddress = "10.242.142.129"; //
   // static const String _serverAddress = "192.168.31.230"; //
   // static String _serverAddress = "192.168.31.37";
+  static String _serverAddress = "panyi.xyz";
 
   static int _port = 1013;
 
@@ -265,6 +266,7 @@ class IMClient {
   //连接服务器socket
   void _socketConnect() {
     _socket?.destroy();
+    _heartBeat.stopHeartBeat();//停止心跳 重新开始
 
     _changeState(ClientState.connecting);
 

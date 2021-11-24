@@ -69,22 +69,8 @@ class TestCoreMainState extends State<TestCoreMain>{
     IMClient.getInstance()?.registerIMMessageIncomingObserver(_imMessageIncomingCallback!, true);
   }
 
-  void login1001(){
-    int uid = 1001;
-    String token = "eyJ0eXAiOiJKV1QiLCJfdWlkIjoiMTAwMSIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE2Mzg4NjUwNTB9.6nYrxzog2bTRVkC5xUf_7qOeUJAE5Q4Vvf__4sPlbIk";
-
-    IMClient.getInstance()?.imLogin(uid, token, loginCallback: (result) {
-      if (result.result) {
-        LogUtil.log("IM登录成功");
-      } else {
-        LogUtil.log("IM登录失败 原因: ${result.reason}");
-      }
-    });
-  }
-
-  void login1(){
-    int uid = 1;
-    String token = "eyJ0eXAiOiJKV1QiLCJfdWlkIjoiMSIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE2MzkxMjk0MzB9.Bw-FLGm6y5ZHPsnmzNspY92_xLLLqlcks7_N71gRoZM";
+  void login(int uid){
+    String token = "fuckali_$uid";
 
     IMClient.getInstance()?.imLogin(uid, token, loginCallback: (result) {
       if (result.result) {
@@ -112,12 +98,12 @@ class TestCoreMainState extends State<TestCoreMain>{
             children: <Widget>[
                 Text("当前状态: $mClientStatus  uid: ${IMClient.getInstance()?.uid}"),
                 ElevatedButton(
-                 onPressed: ()=> login1(), 
+                 onPressed: ()=> login(1), 
                  child: const Text("登录1"),
                 ),
                 const SizedBox(height: 20,),
                 ElevatedButton(
-                 onPressed: ()=> login1001(), 
+                 onPressed: ()=> login(1001), 
                  child: const Text("登录1001"),
                 ),
                 const SizedBox(height: 20,),
