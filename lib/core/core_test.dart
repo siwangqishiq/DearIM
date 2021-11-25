@@ -150,6 +150,7 @@ class TestCoreMainState extends State<TestCoreMain>{
   void dispose() {
     _editController.dispose();
     _focusNode.dispose();
+    IMClient.getInstance()?.dispose();
     super.dispose();
   }
 

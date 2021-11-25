@@ -66,10 +66,10 @@ abstract class MessageHandler<T> {
 }
 
 class IMClient {
-  static String _serverAddress = "10.242.142.129"; //
+  // static String _serverAddress = "10.242.142.129"; //
   // static const String _serverAddress = "192.168.31.230"; //
   // static String _serverAddress = "192.168.31.37";
-  // static String _serverAddress = "panyi.xyz";
+  static String _serverAddress = "panyi.xyz";
 
   static int _port = 1013;
 
@@ -238,6 +238,10 @@ class IMClient {
       }
     }
     return false;
+  }
+
+  void dispose(){
+    _reconnect.dispose();
   }
 
   //接收到新IM消息
@@ -473,7 +477,7 @@ class IMClient {
       LogUtil.log("login out");
       _changeState(ClientState.unlogin); //状态改为未登录
       _socket?.destroy(); //主动关闭socket
-      
+
       _reconnect.CouldReconnect = false; //手动退出登录  不再进行重连
       onSocketClose();
     } else {
@@ -489,8 +493,8 @@ class IMClient {
     if (buf.couldReadableSize <= 0) {
       return;
     }
+
     // buf.debugPrint();
-    
     try{
       _socket?.add(buf.readAllUint8List());
     }catch(e){

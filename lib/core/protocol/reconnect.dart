@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dearim/core/imcore.dart';
 import 'package:dearim/core/log.dart';
 
@@ -24,7 +25,22 @@ class Reconnect{
 
   Timer? _task;
 
-  Reconnect(this._client);
+  late final StreamSubscription<ConnectivityResult> _streamSubscription;
+
+  Reconnect(IMClient client){
+    _client = client;
+    _streamSubscription = Connectivity().onConnectivityChanged.listen(_onConnectiveChangedCallback);
+  }
+
+  void _onConnectiveChangedCallback(ConnectivityResult event){
+    LogUtil.log("连接状态改变 : $event");
+    
+    if(event == ConnectivityResult.wifi 
+        || event == ConnectivityResult.mobile 
+        || event == ConnectivityResult.ethernet){//新连接建立 立刻启动重连
+      instantReconnect();
+    }
+  }
 
   void tiggerReconnect(){
     if(_isReconnecting){//防止重复调用
@@ -68,6 +84,10 @@ class Reconnect{
     _task = Timer(Duration(seconds: curDelay) , (){
       doReconnect();
     });
+  }
+
+  void dispose(){
+    _streamSubscription.cancel();
   }
 
   //计算下一次重连delay时间
