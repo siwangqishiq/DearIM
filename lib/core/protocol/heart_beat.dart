@@ -27,7 +27,7 @@ class PongMessage extends Message{
 class HeartBeat{
   late IMClient _client;
 
-  final Duration _deltaTime = const Duration(minutes: 5);//代表最大等待时间
+  final Duration _deltaTime = const Duration(minutes: 2);//代表最大等待时间
 
   Timer? _timer;
 
@@ -38,19 +38,21 @@ class HeartBeat{
   //开始心跳
   void startHeartBeat(){
     LogUtil.log("start heart beat");
+    _timer?.cancel();
+    _timer = null;
 
     //启动定时器
     _timer = Timer.periodic(_deltaTime, (timer) {
       final int curTime = Utils.currentTime();
-      if(curTime - _lastIoTime > 4 * _deltaTime.inMilliseconds){//超出了心跳包时间的4倍 判定为连接断开
-        _judgeSocketDead();
-        return;
-      }
+      // if(curTime - _lastIoTime > 4 * _deltaTime.inMilliseconds){//超出了心跳包时间的4倍 判定为连接断开
+      //   _judgeSocketDead();
+      //   return;
+      // }
 
-      if(curTime - _lastIoTime > _deltaTime.inMilliseconds){//超过最大等待时间 发送心跳包
+      if(curTime - _lastIoTime > (_deltaTime.inMilliseconds >> 1)){//超过最大等待时间的一半 发送心跳包
         _sendPingPkg(timer);
       }else{
-        LogUtil.log("net is wooking skip this heart beat tick!");
+        LogUtil.log("net is working skip this heart beat tick! delta : ${curTime - _lastIoTime}");
       }
     });
   }

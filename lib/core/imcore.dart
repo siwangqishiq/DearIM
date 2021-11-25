@@ -12,6 +12,7 @@ import 'package:dearim/core/protocol/push_immessage.dart';
 import 'package:dearim/core/protocol/send_immessage.dart';
 import 'package:dearim/core/utils.dart';
 
+import 'log.dart';
 import 'protocol/heart_beat.dart';
 import 'protocol/logout.dart';
 import 'protocol/message.dart';
@@ -65,10 +66,10 @@ abstract class MessageHandler<T> {
 }
 
 class IMClient {
-  // static String _serverAddress = "10.242.142.129"; //
+  static String _serverAddress = "10.242.142.129"; //
   // static const String _serverAddress = "192.168.31.230"; //
   // static String _serverAddress = "192.168.31.37";
-  static String _serverAddress = "panyi.xyz";
+  // static String _serverAddress = "panyi.xyz";
 
   static int _port = 1013;
 
@@ -83,6 +84,8 @@ class IMClient {
   IMLogOutCallback? get logoutCallback => _logoutCallback;
 
   int get uid => _uid;
+
+  ClientState get state => _state;
 
   Map<String, SendIMMessageCallback> get sendIMMessageCallbackMap =>
       _sendIMMessageCallbackMap;
@@ -256,10 +259,6 @@ class IMClient {
       //LogUtil.log("state change : $_state");
       _fireStateChangeCallback(oldState, _state);
     }
-
-    if(_state == ClientState.unconnect){//未连接状态
-      _reconnect.tiggerReconnect();
-    }
   }
 
   //触发状态改变回调
@@ -282,14 +281,19 @@ class IMClient {
         timeout: const Duration(seconds: 20));
 
     socketFuture.then((socket) {
-      LogUtil.log(
-          "连接成功! server ${socket.remoteAddress} : ${socket.remotePort}");
-
+      LogUtil.log("连接成功! remote ${socket.remoteAddress.host} : ${socket.remotePort}");
+      
       _socket = socket;
 
       //建立socket监听
       _socket?.listen((Uint8List data) {
         _receiveRemoteData(data);
+      },onError: (err){
+        LogUtil.log("socket read error : ${err.toString()}");
+        onSocketClose();
+      },onDone: (){
+        LogUtil.log("socket remote closed");
+        onSocketClose();
       });
 
       _changeState(ClientState.unlogin);
@@ -297,6 +301,7 @@ class IMClient {
       if (_socket != null) {
         _onSocketFirstContected();
       }
+      
     }).catchError((error) {
       LogUtil.errorLog("socket 连接失败 ${error.toString()}");
       onSocketClose();
@@ -308,7 +313,7 @@ class IMClient {
     });
   }
 
-  //sokcet首次连接成功
+  //socket首次连接成功
   void _onSocketFirstContected() {
     //todo 发送请求登录消息
     IMLoginReqMessage loginReqMsg = IMLoginReqMessage(_uid, _token);
@@ -325,6 +330,7 @@ class IMClient {
     _socket = null;
 
     _heartBeat.stopHeartBeat();
+    _reconnect.tiggerReconnect();
   }
 
   //接收到远端数据
@@ -336,7 +342,7 @@ class IMClient {
     _heartBeat.recordTime();
 
     _dataBuf.writeByteBuf(recvBuf);
-    //_dataBuf.debugHexPrint();
+    _dataBuf.debugHexPrint();
 
     while (_dataBuf.hasReadContent) {
       final DataStatus checkResult = _checkDataStatus(
@@ -407,7 +413,7 @@ class IMClient {
 
     handler?.handle(this, msg);
 
-    LogUtil.log("packetCount : $_receivedPacketCount");
+    //LogUtil.log("packetCount : $_receivedPacketCount");
   }
 
   //检测数据状态
@@ -446,7 +452,14 @@ class IMClient {
     LogUtil.log("login success");
     _changeState(ClientState.logined);
 
+    _reconnect.stopReconnect();//停止重连尝试
     _heartBeat.startHeartBeat();
+    _reconnect.CouldReconnect = true;//标识 未来可以自动重连
+  }
+
+  //自动重连
+  void autoReconnect(){
+    imLogin(_uid , _token!);
   }
 
   void loginFailed() {
@@ -460,6 +473,8 @@ class IMClient {
       LogUtil.log("login out");
       _changeState(ClientState.unlogin); //状态改为未登录
       _socket?.destroy(); //主动关闭socket
+      
+      _reconnect.CouldReconnect = false; //手动退出登录  不再进行重连
       onSocketClose();
     } else {
       _changeState(ClientState.logined);
