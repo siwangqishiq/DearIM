@@ -367,13 +367,19 @@ class ByteBuf {
   }
 
   void debugHexPrint({int columSize = 32}){
-    stdout.write("rdx = $_readIndex ,wdx = $_writeIndex \n");
+    String sb = "";
+    sb += "rdx = $_readIndex ,wdx = $_writeIndex \n";
+    //stdout.write("rdx = $_readIndex ,wdx = $_writeIndex \n");
     for(int i = 0 ; i< _writeIndex;i++){
       if(i != 0 && i % columSize ==0){
-        stdout.write("\n");
+        //stdout.write("\n");
+        sb += "\n";
       }
-      stdout.write(Utils.intToHex(_data[i]) +" ");
+      //stdout.write(Utils.intToHex(_data[i]) +" ");
+      sb += (Utils.intToHex(_data[i]) +" ");
     }
-    stdout.write("\n" + ("="*columSize));
+    //stdout.write("\n" + ("="*columSize));
+    sb += ("\n" + ("="*columSize));
+    LogUtil.log(sb);
   }
 } //end class

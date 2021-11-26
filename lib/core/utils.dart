@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:uuid/uuid.dart';
 import 'dart:convert' show utf8;
@@ -63,4 +64,34 @@ class Utils {
   static String genUniqueMsgId() {
     return uuid.v1();
   }
+
+  //生成随机字符串
+  static String genUnique(){
+    return uuid.v4();
+  }
+
+  //获取客户端类型
+  static int getClientType(){
+    if(Platform.isAndroid){
+      return ClientType.Android;
+    }else if(Platform.isIOS){
+      return ClientType.Ios;
+    }else if(Platform.isWindows){
+      return ClientType.Windows;
+    }else if(Platform.isLinux){
+      return ClientType.Linux;
+    }else if(Platform.isMacOS){
+      return ClientType.Macos;
+    }
+    return ClientType.Web;
+  }
+}
+
+class ClientType{
+  static const int Windows = 1;
+  static const int Macos = 2;
+  static const int Linux = 3;
+  static const int Web = 4;
+  static const int Android = 5;
+  static const int Ios = 6;
 }

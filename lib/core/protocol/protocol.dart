@@ -18,6 +18,8 @@ class MessageTypes {
   //心跳包
   static const int PING = 10;// 心跳包 请求
   static const int PONG = 11;// 心跳包 响应
+
+  static const int KICK_OFF = 400;//踢出 来自其他端抢登
 }
 
 class BodyEncodeTypes {

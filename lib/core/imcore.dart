@@ -15,8 +15,10 @@ import 'package:dearim/core/protocol/push_immessage.dart';
 import 'package:dearim/core/protocol/send_immessage.dart';
 import 'package:dearim/core/utils.dart';
 
+import 'device.dart';
 import 'log.dart';
 import 'heart_beat.dart';
+import 'protocol/kickoff.dart';
 import 'protocol/logout.dart';
 import 'protocol/message.dart';
 import 'reconnect.dart';
@@ -59,6 +61,9 @@ typedef SendIMMessageCallback = Function(IMMessage imMessage, Result result);
 typedef StateChangeCallback = Function(
     ClientState oldState, ClientState newState);
 
+//被踢出事件回调
+typedef KickoffCallback = Function();
+
 //接收到新消息
 typedef IMMessageIncomingCallback = Function(
     List<IMMessage> incomingIMMessageList);
@@ -69,10 +74,10 @@ abstract class MessageHandler<T> {
 }
 
 class IMClient {
-  // static String _serverAddress = "10.242.142.129"; //
+  static String _serverAddress = "10.242.142.129"; //
   // static const String _serverAddress = "192.168.31.230"; //
   // static String _serverAddress = "192.168.31.37";
-  static String _serverAddress = "panyi.xyz";
+  // static String _serverAddress = "panyi.xyz";
 
   static int _port = 1013;
 
@@ -90,6 +95,10 @@ class IMClient {
 
   ClientState get state => _state;
 
+  Reconnect get reconnect => _reconnect;
+
+  KickoffCallback? get kickoffCallback => _kickoffCallback;
+
   Map<String, SendIMMessageCallback> get sendIMMessageCallbackMap =>
       _sendIMMessageCallbackMap;
 
@@ -104,6 +113,8 @@ class IMClient {
   IMLoginCallback? _loginCallback;
 
   IMLogOutCallback? _logoutCallback;
+
+  KickoffCallback? _kickoffCallback;
 
   Socket? _socket;
 
@@ -132,10 +143,14 @@ class IMClient {
   late final StreamSubscription<ConnectivityResult> _streamSubscription;
 
   IMClient() {
+    DeviceManager.getDevice();
+
     _state = ClientState.unconnect;
     LogUtil.log("imclient instance create");
 
     _streamSubscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      LogUtil.log("网络环境变化$result");
+
       if(result == ConnectivityResult.none){//网络不可用时 
         onSocketClose();
       }
@@ -175,8 +190,8 @@ class IMClient {
     _uid = uid;
     _token = token;
     _loginCallback = loginCallback;
-
     _loginIsManual = manual;
+
     _socketConnect();
   }
 
@@ -342,6 +357,9 @@ class IMClient {
   void _onSocketFirstContected() {
     //todo 发送请求登录消息
     IMLoginReqMessage loginReqMsg = IMLoginReqMessage(_uid, _token);
+    loginReqMsg.manual = _loginIsManual;
+
+    _loginIsManual = false;
     sendData(loginReqMsg.encode());
     _changeState(ClientState.loging);
   }
@@ -410,6 +428,9 @@ class IMClient {
       case MessageTypes.PONG://心跳响应
         result = PongMessage();
         break;
+       case MessageTypes.KICK_OFF://被踢掉
+        result = KickoffMessage();
+        break;
       default:
         break;
     } //end switch
@@ -422,6 +443,7 @@ class IMClient {
 
     MessageHandler? handler;
 
+    LogUtil.log("messageType:${msg?.type}");
     switch (msg?.type) {
       case MessageTypes.LOGIN_RESP:
         handler = IMLoginRespHandler();
@@ -436,6 +458,9 @@ class IMClient {
         handler = PushIMMessageHandler();
         break;
       case MessageTypes.PONG: //心跳响应处理
+        break;
+      case MessageTypes.KICK_OFF://被踢掉
+        handler = KickOffHandler();
         break;
       default:
         break;
@@ -481,7 +506,7 @@ class IMClient {
   void loginSuccess() {
     LogUtil.log("login success");
     _changeState(ClientState.logined);
-    
+
     _reconnect.stopReconnect();//停止重连尝试
     _heartBeat.startHeartBeat();
     _reconnect.CouldReconnect = true;//标识 未来可以自动重连

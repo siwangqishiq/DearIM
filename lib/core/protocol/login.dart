@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:dearim/core/device.dart';
+
 import '../byte_buffer.dart';
 import '../imcore.dart';
 import '../log.dart';
@@ -11,6 +13,8 @@ import 'protocol.dart';
 class IMLoginReqMessage extends Message {
   int? uid;
   String? token;
+  String? device;
+  bool manual = false;//是否是手动发起的登录
 
   IMLoginReqMessage(this.uid, this.token);
 
@@ -19,6 +23,8 @@ class IMLoginReqMessage extends Message {
     Map body = {};
     body["uid"] = uid;
     body["token"] = token;
+    body["device"] = device??DeviceManager.getDeviceInstant();
+    body["manual"] = manual;
 
     String jsonBody = jsonEncode(body);
     LogUtil.log("jsonBody:$jsonBody");

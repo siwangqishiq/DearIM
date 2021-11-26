@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:dearim/core/log.dart';
 import 'package:dearim/core/protocol/message.dart';
 
+import 'utils.dart';
+
 ///
 /// IM消息
 ///
@@ -95,15 +97,6 @@ class IMMessageSessionType{
   static const int TEAM = 2;
 }
 
-class ClientType{
-  static const int Windows = 1;
-  static const int Macos = 2;
-  static const int Linux = 3;
-  static const int Web = 4;
-  static const int Android = 5;
-  static const int Ios = 6;
-}
-
 //IM消息返回结果
 class IMMessageResult extends Result{
   int createTime = 0;
@@ -130,27 +123,11 @@ class IMMessageBuilder{
     IMMessage imMessage = IMMessage();
 
     imMessage.to = toUid;
-    imMessage.fromClient = getClientType();
+    imMessage.fromClient = Utils.getClientType();
     imMessage.sessionType = sessionType;
     imMessage.imMsgType = IMMessageType.Text;
     imMessage.content = content;
     return imMessage;
-  }
-
-  static int getClientType(){
-    if(Platform.isAndroid){
-      return ClientType.Android;
-    }else if(Platform.isIOS){
-      return ClientType.Ios;
-    }else if(Platform.isWindows){
-      return ClientType.Windows;
-    }else if(Platform.isLinux){
-      return ClientType.Linux;
-    }else if(Platform.isMacOS){
-      return ClientType.Macos;
-    }
-
-    return ClientType.Web;
   }
 }//end class
 
