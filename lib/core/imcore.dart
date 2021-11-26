@@ -74,9 +74,9 @@ abstract class MessageHandler<T> {
 }
 
 class IMClient {
-  static String _serverAddress = "10.242.142.129"; //
+  // static String _serverAddress = "10.242.142.129"; //
   // static const String _serverAddress = "192.168.31.230"; //
-  // static String _serverAddress = "192.168.31.37";
+  static String _serverAddress = "192.168.31.37";
   // static String _serverAddress = "panyi.xyz";
 
   static int _port = 1013;
@@ -510,6 +510,8 @@ class IMClient {
     _reconnect.stopReconnect();//停止重连尝试
     _heartBeat.startHeartBeat();
     _reconnect.CouldReconnect = true;//标识 未来可以自动重连
+
+    
   }
 
   //自动重连

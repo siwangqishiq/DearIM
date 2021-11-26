@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:dearim/datas/chat_data.dart';
 import 'package:dearim/models/chat_message_model.dart';
@@ -42,29 +43,52 @@ class _ChatPageState extends State<ChatPage> {
           style: const TextStyle(color: Colors.white),
         ),
       ),
-      body: Row(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Expanded(
-            child: ListView.builder(
-              itemCount: msgModels!.length,
-              itemBuilder: (BuildContext context, int index) {
-                ChatMessageModel msgModel = msgModels![index];
-                return ChatView(msgModel);
-              },
-            ),
-          ),
-          Column(
-            children: [
-              TextField(
-                onChanged: (text) {
-                  this.text = text;
+            // child: 
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              child: ListView.builder(
+                itemCount: msgModels!.length,
+                itemBuilder: (BuildContext context, int index) {
+                  ChatMessageModel msgModel = msgModels![index];
+                  return ChatView(msgModel);
                 },
               ),
-              FlatButton(
-                  onPressed: () {
-                    log("message");
-                  },
-                  child: const Text("发送")),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Padding(
+                  padding:const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                  child: TextField(
+                    onChanged: (_text) {
+                      text = _text;
+                    },
+                    decoration:const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8))
+                      )
+                    ),
+                  ),
+                )
+              ),
+              TextButton(
+                onPressed: () {
+                  print("发送消息");
+                },
+                style: TextButton.styleFrom(
+                   padding: const EdgeInsets.all(16.0),
+                   primary: Colors.green,
+                   backgroundColor: Colors.green,
+                 ),
+                child: const Text("发送" ,style: TextStyle(color: Colors.white),)
+              ),
             ],
           )
         ],
