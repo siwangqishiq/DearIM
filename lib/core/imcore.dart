@@ -1,11 +1,14 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dearim/core/byte_buffer.dart';
 import 'package:dearim/core/immessage.dart';
 import 'package:dearim/core/log.dart';
+import 'package:dearim/core/protocol/heart_beat_message.dart';
 import 'package:dearim/core/protocol/login.dart';
 import 'package:dearim/core/protocol/protocol.dart';
 import 'package:dearim/core/protocol/push_immessage.dart';
@@ -13,10 +16,10 @@ import 'package:dearim/core/protocol/send_immessage.dart';
 import 'package:dearim/core/utils.dart';
 
 import 'log.dart';
-import 'protocol/heart_beat.dart';
+import 'heart_beat.dart';
 import 'protocol/logout.dart';
 import 'protocol/message.dart';
-import 'protocol/reconnect.dart';
+import 'reconnect.dart';
 
 ///
 /// IM服务
@@ -106,6 +109,8 @@ class IMClient {
 
   int _receivedPacketCount = 0;
 
+  bool _loginIsManual = false;//记录是否是手动发起的登录
+
   //发送IM消息回调
   final Map<String, SendIMMessageCallback> _sendIMMessageCallbackMap =
       <String, SendIMMessageCallback>{};
@@ -124,10 +129,17 @@ class IMClient {
 
   late Reconnect _reconnect;//断线重连
 
+  late final StreamSubscription<ConnectivityResult> _streamSubscription;
+
   IMClient() {
     _state = ClientState.unconnect;
     LogUtil.log("imclient instance create");
 
+    _streamSubscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      if(result == ConnectivityResult.none){//网络不可用时 
+        onSocketClose();
+      }
+    });
     _heartBeat = HeartBeat(this);
     _reconnect = Reconnect(this);
   }
@@ -146,7 +158,12 @@ class IMClient {
 
   //im登录
   void imLogin(int uid, String token,
-      {IMLoginCallback? loginCallback, String? host, int? port}) {
+      {IMLoginCallback? loginCallback, String? host, int? port , bool manual = true}) {
+    if(_state == ClientState.loging){
+      loginCallback?.call(Result.Error("正在登录中 请稍后再试"));
+      return;
+    }
+
     if (host != null) {
       _serverAddress = host;
     }
@@ -159,6 +176,7 @@ class IMClient {
     _token = token;
     _loginCallback = loginCallback;
 
+    _loginIsManual = manual;
     _socketConnect();
   }
 
@@ -241,7 +259,10 @@ class IMClient {
   }
 
   void dispose(){
+    _heartBeat.dispose();
     _reconnect.dispose();
+
+    _streamSubscription.cancel();
   }
 
   //接收到新IM消息
@@ -311,9 +332,9 @@ class IMClient {
       onSocketClose();
       _changeState(ClientState.unconnect);
     }).onError((error, stackTrace) {
-      LogUtil.log("occur error ");
+      LogUtil.log("occur error ${error.toString()}");
     }).whenComplete((){
-      LogUtil.log("whenComplete");
+      //LogUtil.log("whenComplete");
     });
   }
 
@@ -386,6 +407,9 @@ class IMClient {
       case MessageTypes.PUSH_IMMESSAGE_REQ: //发送过来的IMMessage
         result = PushIMMessageReqMsg.from(msgHead, buf);
         break;
+      case MessageTypes.PONG://心跳响应
+        result = PongMessage();
+        break;
       default:
         break;
     } //end switch
@@ -410,6 +434,8 @@ class IMClient {
         break;
       case MessageTypes.PUSH_IMMESSAGE_REQ: //发送过来的IMMessage
         handler = PushIMMessageHandler();
+        break;
+      case MessageTypes.PONG: //心跳响应处理
         break;
       default:
         break;
@@ -455,7 +481,7 @@ class IMClient {
   void loginSuccess() {
     LogUtil.log("login success");
     _changeState(ClientState.logined);
-
+    
     _reconnect.stopReconnect();//停止重连尝试
     _heartBeat.startHeartBeat();
     _reconnect.CouldReconnect = true;//标识 未来可以自动重连
@@ -463,7 +489,7 @@ class IMClient {
 
   //自动重连
   void autoReconnect(){
-    imLogin(_uid , _token!);
+    imLogin(_uid , _token! , manual: false);
   }
 
   void loginFailed() {

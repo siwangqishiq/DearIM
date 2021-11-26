@@ -26,7 +26,7 @@ class Reconnect{
   Timer? _task;
 
   late final StreamSubscription<ConnectivityResult> _streamSubscription;
-
+  
   Reconnect(IMClient client){
     _client = client;
     _streamSubscription = Connectivity().onConnectivityChanged.listen(_onConnectiveChangedCallback);

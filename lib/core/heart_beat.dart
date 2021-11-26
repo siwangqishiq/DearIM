@@ -1,25 +1,10 @@
 import 'dart:async';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dearim/core/imcore.dart';
 import 'package:dearim/core/log.dart';
-import '../utils.dart';
-import 'message.dart';
-import 'protocol.dart';
-
-
-class PingMessage extends Message{
-  @override
-  int getType() {
-    return MessageTypes.PING;
-  }
-}
-
-class PongMessage extends Message{
-  @override
-  int getType() {
-    return MessageTypes.PONG;
-  }
-}
+import 'protocol/heart_beat_message.dart';
+import 'utils.dart';
 
 ///
 /// 长链接心跳
@@ -31,9 +16,20 @@ class HeartBeat{
 
   Timer? _timer;
 
+  Timer? _checkExpireTimer;//超时检测timer
+  
   int _lastIoTime = -1;//记录上一次io操作时间
 
-  HeartBeat(this._client);
+  late final StreamSubscription<ConnectivityResult> _streamSubscription;
+
+  HeartBeat(IMClient client){
+    _client = client;
+    _streamSubscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      if(result == ConnectivityResult.none){//网络不可用时 立刻发起心跳
+        _sendPingPkg(_timer);
+      }
+    });
+  }
 
   //开始心跳
   void startHeartBeat(){
@@ -67,6 +63,9 @@ class HeartBeat{
     LogUtil.log("stop heart beat!");
     _timer?.cancel();
     _timer = null;
+
+    _checkExpireTimer?.cancel();
+    _checkExpireTimer = null;
   }
 
   //记录操作当前时间 在有网络交互时
@@ -74,8 +73,12 @@ class HeartBeat{
     _lastIoTime = Utils.currentTime();
   }
 
+  void dispose(){
+    _streamSubscription.cancel();
+  }
+
   //发送客户端心跳包
-  void _sendPingPkg(Timer timer){
+  void _sendPingPkg(Timer? timer){
     LogUtil.log("send heart beat ping...");
     final PingMessage pingMsg = PingMessage();
     _client.sendData(pingMsg.encode());
