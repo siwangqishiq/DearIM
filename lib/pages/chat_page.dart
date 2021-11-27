@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:ui';
 
@@ -23,12 +24,12 @@ class _ChatPageState extends State<ChatPage> {
   String text = "";
   String? receiveText = "";
   List<ChatMessageModel>? msgModels = [];
+  final ScrollController _listViewController = ScrollController();
   @override
   void initState() {
     super.initState();
     msgModels = ChatDataManager.getInstance()!.getMsgModels(model.userId);
     TCPManager().registerMessageCommingCallbck((incomingIMMessageList) {
-      // log(this.receiveText!);
       setState(() {
         receiveText = incomingIMMessageList.last.content;
         ChatMessageModel msgModel = ChatMessageModel();
@@ -36,12 +37,15 @@ class _ChatPageState extends State<ChatPage> {
         msgModel.context = receiveText!;
         ChatDataManager.getInstance()!.addMessage(msgModel, model.user);
         msgModels = ChatDataManager.getInstance()!.getMsgModels(model.userId);
+        scrollToBottom();
       });
     });
+    scrollToBottom();
   }
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController _textFieldController = TextEditingController();
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -61,6 +65,7 @@ class _ChatPageState extends State<ChatPage> {
                 // width: MediaQuery.of(context).size.width,
                 // height: double.infinity,
                 child: ListView.builder(
+                  controller: _listViewController,
                   itemCount: msgModels!.length,
                   itemBuilder: (BuildContext context, int index) {
                     ChatMessageModel msgModel = msgModels![index];
@@ -79,6 +84,7 @@ class _ChatPageState extends State<ChatPage> {
                     child: Padding(
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
                   child: TextField(
+                    controller: _textFieldController,
                     onChanged: (_text) {
                       text = _text;
                     },
@@ -90,7 +96,9 @@ class _ChatPageState extends State<ChatPage> {
                 )),
                 TextButton(
                   onPressed: () {
-                    log("message = " + text);
+                    if (_textFieldController.text.isEmpty) {
+                      return;
+                    }
                     TCPManager().sendMessage(text, model.userId);
                     ChatMessageModel msgModel = ChatMessageModel();
                     msgModel.context = text;
@@ -101,7 +109,9 @@ class _ChatPageState extends State<ChatPage> {
                     setState(() {
                       msgModels = ChatDataManager.getInstance()!
                           .getMsgModels(model.userId);
+                      _textFieldController.text = "";
                     });
+                    scrollToBottom();
                   },
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.all(16.0),
@@ -122,5 +132,13 @@ class _ChatPageState extends State<ChatPage> {
         ),
       ),
     );
+  }
+
+  void scrollToBottom() {
+    int microseconds = 1000;
+    Timer(Duration(microseconds: microseconds), () {
+      log("scrollToBottom");
+      _listViewController.jumpTo(_listViewController.position.maxScrollExtent);
+    });
   }
 }

@@ -7,5 +7,6 @@ enum MessageType {
 class ChatMessageModel {
   int uid = 0;
   String context = "";
+  int updateTime = 0;
   MessageType msgType = MessageType.text;
 }
