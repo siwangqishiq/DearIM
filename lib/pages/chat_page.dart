@@ -32,20 +32,20 @@ class _ChatPageState extends State<ChatPage> {
     TCPManager().registerMessageCommingCallbck((incomingIMMessageList) {
       setState(() {
         receiveText = incomingIMMessageList.last.content;
+        log(receiveText!);
         ChatMessageModel msgModel = ChatMessageModel();
         msgModel.uid = model.user.uid;
         msgModel.context = receiveText!;
         ChatDataManager.getInstance()!.addMessage(msgModel, model.user);
         msgModels = ChatDataManager.getInstance()!.getMsgModels(model.userId);
-        scrollToBottom();
       });
     });
-    scrollToBottom();
   }
 
   @override
   Widget build(BuildContext context) {
     TextEditingController _textFieldController = TextEditingController();
+    scrollToBottom();
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -73,6 +73,9 @@ class _ChatPageState extends State<ChatPage> {
                   },
                 ),
               ),
+            ),
+            const SizedBox(
+              height: 16,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -111,7 +114,6 @@ class _ChatPageState extends State<ChatPage> {
                           .getMsgModels(model.userId);
                       _textFieldController.text = "";
                     });
-                    scrollToBottom();
                   },
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.all(16.0),

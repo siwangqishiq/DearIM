@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:dearim/core/imcore.dart';
 import 'package:dearim/core/immessage.dart';
+import 'package:dearim/network/request_manager.dart';
 import 'package:dearim/user/user_manager.dart';
 
 class TCPManager {
@@ -40,6 +41,11 @@ class TCPManager {
   void connect(int uid, String token) {
     String host = UserManager.getInstance()!.user!.tcpParam.imServer;
     int port = UserManager.getInstance()!.user!.tcpParam.imPort;
+    if (RequestManager().networkenv == NetworkEnvironment.online) {
+      //TODO: wmy test
+      host = "47.99.103.133";
+    }
+
     IMClient.getInstance()?.imLogin(uid, token, host: host, port: port,
         loginCallback: (result) {
       if (result.result) {
