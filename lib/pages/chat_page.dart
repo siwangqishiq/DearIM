@@ -5,6 +5,7 @@ import 'package:dearim/datas/chat_data.dart';
 import 'package:dearim/models/chat_message_model.dart';
 import 'package:dearim/models/contact_model.dart';
 import 'package:dearim/tcp/tcp_manager.dart';
+import 'package:dearim/user/user_manager.dart';
 import 'package:dearim/views/chat_view.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +14,7 @@ class ChatPage extends StatefulWidget {
   ChatPage(this.model, {Key? key}) : super(key: key);
 
   @override
-  _ChatPageState createState() => _ChatPageState(this.model);
+  _ChatPageState createState() => _ChatPageState(model);
 }
 
 class _ChatPageState extends State<ChatPage> {
@@ -29,7 +30,12 @@ class _ChatPageState extends State<ChatPage> {
     TCPManager().registerMessageCommingCallbck((incomingIMMessageList) {
       // log(this.receiveText!);
       setState(() {
-        // this.receiveText = incomingIMMessageList.last.content;
+        receiveText = incomingIMMessageList.last.content;
+        ChatMessageModel msgModel = ChatMessageModel();
+        msgModel.uid = model.user.uid;
+        msgModel.context = receiveText!;
+        ChatDataManager.getInstance()!.addMessage(msgModel, model.user);
+        msgModels = ChatDataManager.getInstance()!.getMsgModels(model.userId);
       });
     });
   }
@@ -43,77 +49,76 @@ class _ChatPageState extends State<ChatPage> {
           style: const TextStyle(color: Colors.white),
         ),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Expanded(
-            // child: 
-            child: Container(
-              width: double.infinity,
-              height: double.infinity,
-              child: ListView.builder(
-                itemCount: msgModels!.length,
-                itemBuilder: (BuildContext context, int index) {
-                  ChatMessageModel msgModel = msgModels![index];
-                  return ChatView(msgModel);
-                },
+      body: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(
+              // child:
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                child: ListView.builder(
+                  itemCount: msgModels!.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    ChatMessageModel msgModel = msgModels![index];
+                    return ChatView(msgModel);
+                  },
+                ),
               ),
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding:const EdgeInsets.fromLTRB(8, 0, 8, 0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(
+                  width: 16,
+                ),
+                Expanded(
+                    child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
                   child: TextField(
                     onChanged: (_text) {
                       text = _text;
                     },
-                    decoration:const InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(8))
-                      )
-                    ),
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(8)))),
                   ),
-                )
-              ),
-              TextButton(
-                onPressed: () {
-                  print("发送消息");
-                },
-                style: TextButton.styleFrom(
-                   padding: const EdgeInsets.all(16.0),
-                   primary: Colors.green,
-                   backgroundColor: Colors.green,
-                 ),
-                child: const Text("发送" ,style: TextStyle(color: Colors.white),)
-              ),
-            ],
-          )
-        ],
+                )),
+                TextButton(
+                  onPressed: () {
+                    log("message = " + text);
+                    TCPManager().sendMessage(text, model.userId);
+                    ChatMessageModel msgModel = ChatMessageModel();
+                    msgModel.context = text;
+                    msgModel.uid = UserManager.getInstance()!.user!.uid;
+
+                    ChatDataManager.getInstance()!
+                        .addMessage(msgModel, model.user);
+                    setState(() {
+                      msgModels = ChatDataManager.getInstance()!
+                          .getMsgModels(model.userId);
+                    });
+                  },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.all(16.0),
+                    primary: Colors.green,
+                    backgroundColor: Colors.green,
+                  ),
+                  child: const Text(
+                    "发送",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                const SizedBox(
+                  width: 16,
+                ),
+              ],
+            )
+          ],
+        ),
       ),
-      // Center(
-      //     child: Column(
-      //   children: [
-      //     TextField(
-      //       onChanged: (text) {
-      //         this.text = text;
-      //       },
-      //     ),
-      //     FlatButton(
-      //       onPressed: () {
-      //         log("message = " + text);
-      //         TCPManager().sendMessage(text, this.model.userId);
-      //       },
-      //       child: Container(
-      //         color: Colors.red,
-      //         child: Text("send"),
-      //       ),
-      //     ),
-      //     Text(this.receiveText!),
-      //   ],
-      // )),
     );
   }
 }

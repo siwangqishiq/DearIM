@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:dearim/pages/chat_page.dart';
 import 'package:dearim/models/contact_model.dart';
 import 'package:dearim/network/request.dart';
+import 'package:dearim/user/user_manager.dart';
 import 'package:dearim/views/contact_view.dart';
 import 'package:flutter/material.dart';
 
@@ -15,8 +16,8 @@ class ContactPage extends StatefulWidget {
 
 class _ContactPageState extends State<ContactPage> {
   List<ContactModel> models = [
-    ContactModel("wenmingyan", 1002),
-    ContactModel("panyi", 1001)
+    // ContactModel("wenmingyan", 1002),
+    // ContactModel("panyi", 1001)
   ];
   @override
   void initState() {
@@ -60,6 +61,13 @@ class _ContactPageState extends State<ContactPage> {
         for (Map item in list) {
           ContactModel model = ContactModel(item["name"], item["uid"]);
           model.avatar = item["avatar"] ?? "";
+
+          model.user.uid = item["uid"];
+          model.user.name = item["name"];
+          model.user.avatar = item["avatar"] ?? "";
+          if (item["uid"] == UserManager.getInstance()!.user!.uid) {
+            UserManager.getInstance()!.user!.avatar = item["avatar"] ?? "";
+          }
           models.add(model);
         }
         setState(() {});

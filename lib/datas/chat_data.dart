@@ -37,4 +37,8 @@ class ChatDataManager {
     }
     return models;
   }
+
+  User? getUser(int uid) {
+    return _userMap[uid];
+  }
 }
