@@ -5,6 +5,7 @@ class User {
   String name = "";
   String token = "";
   String avatar = "";
+  String account = "";
   TCPParam tcpParam = TCPParam();
 
   void clear() {

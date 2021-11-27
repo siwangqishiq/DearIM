@@ -22,7 +22,7 @@ class IMMessage{
   int imMsgType = 0;//消息类型
   int sessionType = IMMessageSessionType.P2P;
   int msgState = 0;//消息状态
-  int readState = 0;//已读状态
+  int readState = 1;//已读状态 0已读  1未读
   int fromClient = 0;
   int toClient = 0;
 
@@ -32,6 +32,8 @@ class IMMessage{
   String? attachInfo;//附件信息
   String? localPath;//资源本地路径
   String? custom;//自定义扩展字段
+
+  bool isReceived = false;//是否是接收消息 此字段不参与传输
 
   IMMessage();
 
@@ -85,6 +87,9 @@ class IMMessage{
 
     return body;
   }
+
+  //会话ID
+  int get sessionId => isReceived?from:to;
   
 }//end class
 
@@ -120,13 +125,24 @@ class IMMessageBuilder{
       return null;
     }
     
-    IMMessage imMessage = IMMessage();
+    IMMessage imMessage = initIMMessage();
 
-    imMessage.to = toUid;
-    imMessage.fromClient = Utils.getClientType();
     imMessage.sessionType = sessionType;
+    imMessage.to = toUid;
     imMessage.imMsgType = IMMessageType.Text;
     imMessage.content = content;
+    return imMessage;
+  }
+
+  //初始化一个IMMessage
+  static IMMessage initIMMessage(){
+    IMMessage imMessage = IMMessage();
+    imMessage.isReceived = false;
+    imMessage.fromClient = Utils.getClientType();
+    int time = Utils.currentTime();
+    imMessage.createTime = time;
+    imMessage.updateTime = time;
+
     return imMessage;
   }
 }//end class

@@ -13,6 +13,7 @@ import 'package:dearim/core/protocol/login.dart';
 import 'package:dearim/core/protocol/protocol.dart';
 import 'package:dearim/core/protocol/push_immessage.dart';
 import 'package:dearim/core/protocol/send_immessage.dart';
+import 'package:dearim/core/session.dart';
 import 'package:dearim/core/utils.dart';
 
 import 'device.dart';
@@ -121,6 +122,8 @@ class IMClient {
   int _receivedPacketCount = 0;
 
   bool _loginIsManual = false;//记录是否是手动发起的登录
+
+  SessionManager? _sessionManager;
 
   //发送IM消息回调
   final Map<String, SendIMMessageCallback> _sendIMMessageCallbackMap =
@@ -234,6 +237,8 @@ class IMClient {
 
     //发送
     sendData(SendIMMessageReqMsg(imMessage).encode());
+
+    _sessionManager?.updateRecentSession(imMessage);
   }
 
   //注册 或 解绑 状态改变事件监听
@@ -252,6 +257,16 @@ class IMClient {
       }
     }
     return false;
+  }
+
+  //注册最近会话变化监听
+  bool registerRecentSessionObserver(RecentSessionChangeCallback callback ,bool register){
+    return _sessionManager?.registerStateObserver(callback, register)??false;
+  }
+
+  //获取最近会话列表
+  List<RecentSession> findRecentSessionList(){
+    return _sessionManager?.findRecentSessionList()??[];
   }
 
   //注册接收IM消息
@@ -277,11 +292,16 @@ class IMClient {
     _heartBeat.dispose();
     _reconnect.dispose();
 
+    _sessionManager?.dispose();
     _streamSubscription.cancel();
   }
 
   //接收到新IM消息
   void receivedIMMessage(List<IMMessage> receivedMessageList) {
+    for(IMMessage msg in receivedMessageList){
+      _sessionManager?.updateRecentSession(msg);
+    }//end for each
+    
     _fireMmMessageIncomingCallback(receivedMessageList);
   }
 
@@ -511,7 +531,15 @@ class IMClient {
     _heartBeat.startHeartBeat();
     _reconnect.CouldReconnect = true;//标识 未来可以自动重连
 
-    
+    //init session
+    if(_sessionManager != null){
+      if(_sessionManager?.uid == _uid){
+        _sessionManager?.dispose();
+        _sessionManager = SessionManager(uid);
+      }
+    }else{//init session manager
+      _sessionManager = SessionManager(uid);
+    }
   }
 
   //自动重连

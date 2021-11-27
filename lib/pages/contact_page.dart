@@ -65,6 +65,8 @@ class _ContactPageState extends State<ContactPage> {
           model.user.uid = item["uid"];
           model.user.name = item["name"];
           model.user.avatar = item["avatar"] ?? "";
+          model.user.account = item["account"]??"";
+          
           if (item["uid"] == UserManager.getInstance()!.user!.uid) {
             UserManager.getInstance()!.user!.avatar = item["avatar"] ?? "";
           }

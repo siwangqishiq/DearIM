@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:ui';
 
+import 'package:dearim/core/imcore.dart';
 import 'package:dearim/datas/chat_data.dart';
 import 'package:dearim/models/chat_message_model.dart';
 import 'package:dearim/models/contact_model.dart';
@@ -26,11 +27,15 @@ class _ChatPageState extends State<ChatPage> {
   String? receiveText = "";
   List<ChatMessageModel>? msgModels = [];
   final ScrollController _listViewController = ScrollController();
+
+  IMMessageIncomingCallback? _msgIncomingCallback;
+
   @override
   void initState() {
     super.initState();
     msgModels = ChatDataManager.getInstance()!.getMsgModels(model.userId);
-    TCPManager().registerMessageCommingCallbck((incomingIMMessageList) {
+
+    _msgIncomingCallback = (incomingIMMessageList) {
       setState(() {
         receiveText = incomingIMMessageList.last.content;
         log(receiveText!);
@@ -41,7 +46,8 @@ class _ChatPageState extends State<ChatPage> {
         ChatDataManager.getInstance()!.addMessage(msgModel, model.user);
         msgModels = ChatDataManager.getInstance()!.getMsgModels(model.userId);
       });
-    });
+    };
+    TCPManager().registerMessageCommingCallbck(_msgIncomingCallback!);
   }
 
   @override
@@ -148,5 +154,13 @@ class _ChatPageState extends State<ChatPage> {
       log("scrollToBottom");
       _listViewController.jumpTo(_listViewController.position.maxScrollExtent);
     });
+  }
+
+  @override
+  void dispose() {
+    if(_msgIncomingCallback != null){
+      TCPManager().unregistMessageCommingCallback(_msgIncomingCallback!);
+    }
+    super.dispose();
   }
 }

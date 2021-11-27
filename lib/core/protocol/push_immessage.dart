@@ -62,6 +62,8 @@ class PushIMMessageHandler extends MessageHandler<PushIMMessageReqMsg> {
     LogUtil.log("received msg ${imMessage.content}");
     
     List<IMMessage> incomingIMList = <IMMessage>[];
+    imMessage.isReceived = true;//是接收到的消息
+
     incomingIMList.add(imMessage);
 
     client.receivedIMMessage(incomingIMList);
