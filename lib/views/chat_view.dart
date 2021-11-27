@@ -27,21 +27,31 @@ class _ChatViewState extends State<ChatView> {
       isSelf = true;
     }
     List<Widget> children = [
-      Container(
-        color: Colors.green,
-        child: Padding(
-          padding: EdgeInsets.all(innerSpace),
-          child: Text(msgModel.context),
-        ),
-      ),
+      ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: Container(
+            constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width - 200),
+            color: Colors.green,
+            child: Padding(
+              padding: EdgeInsets.all(innerSpace),
+              child: Text(
+                msgModel.context,
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ),
+          )),
       SizedBox(
         width: innerSpace,
       ),
-      Image.network(
-        isSelf ? UserManager.getInstance()!.user!.avatar : user!.avatar,
-        width: 44,
-        height: 44,
-        fit: BoxFit.cover,
+      ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          isSelf ? UserManager.getInstance()!.user!.avatar : user!.avatar,
+          width: 38,
+          height: 38,
+          fit: BoxFit.cover,
+        ),
       ),
       SizedBox(
         width: space,
@@ -60,6 +70,7 @@ class _ChatViewState extends State<ChatView> {
           height: space,
         ),
         Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment:
                 !isSelf ? MainAxisAlignment.start : MainAxisAlignment.end,
             children: children)

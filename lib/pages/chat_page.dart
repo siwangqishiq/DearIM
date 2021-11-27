@@ -56,8 +56,10 @@ class _ChatPageState extends State<ChatPage> {
             Expanded(
               // child:
               child: Container(
-                width: double.infinity,
-                height: double.infinity,
+                constraints:
+                    BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
+                // width: MediaQuery.of(context).size.width,
+                // height: double.infinity,
                 child: ListView.builder(
                   itemCount: msgModels!.length,
                   itemBuilder: (BuildContext context, int index) {
