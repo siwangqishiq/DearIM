@@ -1,5 +1,6 @@
 import 'package:dearim/network/request.dart';
 import 'package:dearim/user/user_manager.dart';
+import 'package:dearim/views/color_utils.dart';
 import 'package:dearim/views/toast_show_utils.dart';
 
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ class _MainPageState extends State<MainPage>
   @override
   void initState() {
     super.initState();
-    controller = new TabController(length: 3, vsync: this);
+    controller = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -58,16 +59,16 @@ class _MainPageState extends State<MainPage>
       ),
       body: TabBarView(controller: controller, children: [
         const ChatListPage(),
-        ContactPage(),
+        const ContactPage(),
         ProfilePage(),
       ]),
-      bottomNavigationBar: new Material(
+      bottomNavigationBar: Material(
         color: Colors.white,
         child: TabBar(
             controller: controller,
-            labelColor: Colors.deepPurpleAccent,
-            unselectedLabelColor: Colors.black26,
-            tabs: [
+            labelColor: ColorThemes.themeColor,
+            unselectedLabelColor: ColorThemes.unselectColor,
+            tabs: const [
               Tab(
                 text: "聊天",
                 icon: Icon(Icons.chat),

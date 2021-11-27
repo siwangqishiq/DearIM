@@ -2,6 +2,7 @@ import 'package:dearim/pages/login_page.dart';
 import 'package:dearim/pages/main_page.dart';
 import 'package:dearim/routers/routers.dart';
 import 'package:dearim/user/user_manager.dart';
+import 'package:dearim/views/color_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'dearIM',
       debugShowCheckedModeBanner: isNeedShowDebug(),
-      theme: ThemeData(primarySwatch: Colors.lightGreen),
+      theme: ThemeData(primarySwatch: ColorThemes.themeColor),
       home: homepage(),
       routes: Routers().routers,
     );

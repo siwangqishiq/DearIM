@@ -2,6 +2,7 @@
 
 import 'dart:ffi';
 
+import 'package:dearim/views/color_utils.dart';
 import 'package:dearim/views/toast_show_utils.dart';
 import 'package:dearim/network/request.dart';
 import 'package:dearim/user/user_manager.dart';
@@ -72,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Container(
                     width: 400,
                     height: 40,
-                    color: Colors.red,
+                    color: ColorThemes.themeColor,
                     child: const Center(
                       child: Text(
                         "登录",

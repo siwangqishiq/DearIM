@@ -7,7 +7,7 @@ enum NetworkEnvironment {
 
 class RequestManager {
   //TODO: 线上环境变化
-  NetworkEnvironment networkenv = NetworkEnvironment.online;
+  NetworkEnvironment networkenv = NetworkEnvironment.daily;
   String _hostName = "";
   RequestManager._privateConstructor();
 

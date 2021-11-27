@@ -8,6 +8,7 @@ import 'package:dearim/models/contact_model.dart';
 import 'package:dearim/tcp/tcp_manager.dart';
 import 'package:dearim/user/user_manager.dart';
 import 'package:dearim/views/chat_view.dart';
+import 'package:dearim/views/color_utils.dart';
 import 'package:flutter/material.dart';
 
 class ChatPage extends StatefulWidget {
@@ -36,6 +37,7 @@ class _ChatPageState extends State<ChatPage> {
         ChatMessageModel msgModel = ChatMessageModel();
         msgModel.uid = model.user.uid;
         msgModel.context = receiveText!;
+        msgModel.updateTime = incomingIMMessageList.last.updateTime;
         ChatDataManager.getInstance()!.addMessage(msgModel, model.user);
         msgModels = ChatDataManager.getInstance()!.getMsgModels(model.userId);
       });
@@ -87,6 +89,7 @@ class _ChatPageState extends State<ChatPage> {
                     child: Padding(
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
                   child: TextField(
+                    maxLines: null,
                     controller: _textFieldController,
                     onChanged: (_text) {
                       text = _text;
@@ -106,7 +109,7 @@ class _ChatPageState extends State<ChatPage> {
                     ChatMessageModel msgModel = ChatMessageModel();
                     msgModel.context = text;
                     msgModel.uid = UserManager.getInstance()!.user!.uid;
-
+                    msgModel.updateTime = DateTime.now().millisecondsSinceEpoch;
                     ChatDataManager.getInstance()!
                         .addMessage(msgModel, model.user);
                     setState(() {
@@ -117,8 +120,8 @@ class _ChatPageState extends State<ChatPage> {
                   },
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.all(16.0),
-                    primary: Colors.green,
-                    backgroundColor: Colors.green,
+                    primary: ColorThemes.themeColor,
+                    backgroundColor: ColorThemes.themeColor,
                   ),
                   child: const Text(
                     "发送",
@@ -129,6 +132,9 @@ class _ChatPageState extends State<ChatPage> {
                   width: 16,
                 ),
               ],
+            ),
+            const SizedBox(
+              height: 16,
             )
           ],
         ),

@@ -4,6 +4,8 @@ import 'package:dearim/datas/chat_data.dart';
 import 'package:dearim/models/chat_message_model.dart';
 import 'package:dearim/user/user.dart';
 import 'package:dearim/user/user_manager.dart';
+import 'package:dearim/utils/timer_utils.dart';
+import 'package:dearim/views/color_utils.dart';
 import 'package:flutter/material.dart';
 
 class ChatView extends StatefulWidget {
@@ -32,7 +34,7 @@ class _ChatViewState extends State<ChatView> {
           child: Container(
             constraints: BoxConstraints(
                 maxWidth: MediaQuery.of(context).size.width - 200),
-            color: Colors.green,
+            color: ColorThemes.themeColor,
             child: Padding(
               padding: EdgeInsets.all(innerSpace),
               child: Text(
@@ -64,16 +66,37 @@ class _ChatViewState extends State<ChatView> {
       }
       children = reverses;
     }
+    String time = TimerUtils.getMessageFormatTime(msgModel.updateTime);
     return Column(
       children: [
         SizedBox(
           height: space,
         ),
-        Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment:
-                !isSelf ? MainAxisAlignment.start : MainAxisAlignment.end,
-            children: children)
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: Container(
+            color: ColorThemes.unselectColor,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
+              child: Text(
+                time,
+                style: const TextStyle(fontSize: 12, color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+        Column(
+          children: [
+            SizedBox(
+              height: space,
+            ),
+            Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment:
+                    !isSelf ? MainAxisAlignment.start : MainAxisAlignment.end,
+                children: children)
+          ],
+        )
       ],
     );
   }
