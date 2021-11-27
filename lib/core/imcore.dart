@@ -121,7 +121,7 @@ class IMClient {
 
   int _receivedPacketCount = 0;
 
-  bool _loginIsManual = false;//记录是否是手动发起的登录
+  bool _loginIsManual = false; //记录是否是手动发起的登录
 
   SessionManager? _sessionManager;
 
@@ -139,9 +139,9 @@ class IMClient {
 
   //final List _todoList = []; //缓存要发送的消息
 
-  late HeartBeat _heartBeat;//心跳包管理
+  late HeartBeat _heartBeat; //心跳包管理
 
-  late Reconnect _reconnect;//断线重连
+  late Reconnect _reconnect; //断线重连
 
   late final StreamSubscription<ConnectivityResult> _streamSubscription;
 
@@ -151,10 +151,13 @@ class IMClient {
     _state = ClientState.unconnect;
     LogUtil.log("imclient instance create");
 
-    _streamSubscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+    _streamSubscription = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
       LogUtil.log("网络环境变化$result");
 
-      if(result == ConnectivityResult.none){//网络不可用时 
+      if (result == ConnectivityResult.none) {
+        //网络不可用时
         onSocketClose();
       }
     });
@@ -176,8 +179,11 @@ class IMClient {
 
   //im登录
   void imLogin(int uid, String token,
-      {IMLoginCallback? loginCallback, String? host, int? port , bool manual = true}) {
-    if(_state == ClientState.loging){
+      {IMLoginCallback? loginCallback,
+      String? host,
+      int? port,
+      bool manual = true}) {
+    if (_state == ClientState.loging) {
       loginCallback?.call(Result.Error("正在登录中 请稍后再试"));
       return;
     }
@@ -217,7 +223,7 @@ class IMClient {
 
   //发送IM消息
   void sendIMMessage(IMMessage imMessage, {SendIMMessageCallback? callback}) {
-    imMessage.from = _uid;
+    imMessage.fromId = _uid;
     if (Utils.isTextEmpty(imMessage.msgId)) {
       imMessage.msgId = Utils.genUniqueMsgId();
     }
@@ -260,13 +266,14 @@ class IMClient {
   }
 
   //注册最近会话变化监听
-  bool registerRecentSessionObserver(RecentSessionChangeCallback callback ,bool register){
-    return _sessionManager?.registerStateObserver(callback, register)??false;
+  bool registerRecentSessionObserver(
+      RecentSessionChangeCallback callback, bool register) {
+    return _sessionManager?.registerStateObserver(callback, register) ?? false;
   }
 
   //获取最近会话列表
-  List<RecentSession> findRecentSessionList(){
-    return _sessionManager?.findRecentSessionList()??[];
+  List<RecentSession> findRecentSessionList() {
+    return _sessionManager?.findRecentSessionList() ?? [];
   }
 
   //注册接收IM消息
@@ -288,7 +295,7 @@ class IMClient {
     return false;
   }
 
-  void dispose(){
+  void dispose() {
     _heartBeat.dispose();
     _reconnect.dispose();
 
@@ -298,10 +305,10 @@ class IMClient {
 
   //接收到新IM消息
   void receivedIMMessage(List<IMMessage> receivedMessageList) {
-    for(IMMessage msg in receivedMessageList){
+    for (IMMessage msg in receivedMessageList) {
       _sessionManager?.updateRecentSession(msg);
-    }//end for each
-    
+    } //end for each
+
     _fireMmMessageIncomingCallback(receivedMessageList);
   }
 
@@ -333,7 +340,7 @@ class IMClient {
   //连接服务器socket
   void _socketConnect() {
     _socket?.destroy();
-    _heartBeat.stopHeartBeat();//停止心跳 重新开始
+    _heartBeat.stopHeartBeat(); //停止心跳 重新开始
 
     _changeState(ClientState.connecting);
 
@@ -341,17 +348,18 @@ class IMClient {
         timeout: const Duration(seconds: 20));
 
     socketFuture.then((socket) {
-      LogUtil.log("连接成功! remote ${socket.remoteAddress.host} : ${socket.remotePort}");
-      
+      LogUtil.log(
+          "连接成功! remote ${socket.remoteAddress.host} : ${socket.remotePort}");
+
       _socket = socket;
 
       //建立socket监听
       _socket?.listen((Uint8List data) {
         _receiveRemoteData(data);
-      },onError: (err){
+      }, onError: (err) {
         LogUtil.log("socket read error : ${err.toString()}");
         onSocketClose();
-      },onDone: (){
+      }, onDone: () {
         LogUtil.log("socket remote closed");
         onSocketClose();
       });
@@ -361,14 +369,13 @@ class IMClient {
       if (_socket != null) {
         _onSocketFirstContected();
       }
-      
     }).catchError((error) {
       LogUtil.errorLog("socket 连接失败 ${error.toString()}");
       onSocketClose();
       _changeState(ClientState.unconnect);
     }).onError((error, stackTrace) {
       LogUtil.log("occur error ${error.toString()}");
-    }).whenComplete((){
+    }).whenComplete(() {
       //LogUtil.log("whenComplete");
     });
   }
@@ -445,10 +452,10 @@ class IMClient {
       case MessageTypes.PUSH_IMMESSAGE_REQ: //发送过来的IMMessage
         result = PushIMMessageReqMsg.from(msgHead, buf);
         break;
-      case MessageTypes.PONG://心跳响应
+      case MessageTypes.PONG: //心跳响应
         result = PongMessage();
         break;
-       case MessageTypes.KICK_OFF://被踢掉
+      case MessageTypes.KICK_OFF: //被踢掉
         result = KickoffMessage();
         break;
       default:
@@ -479,7 +486,7 @@ class IMClient {
         break;
       case MessageTypes.PONG: //心跳响应处理
         break;
-      case MessageTypes.KICK_OFF://被踢掉
+      case MessageTypes.KICK_OFF: //被踢掉
         handler = KickOffHandler();
         break;
       default:
@@ -527,24 +534,25 @@ class IMClient {
     LogUtil.log("login success");
     _changeState(ClientState.logined);
 
-    _reconnect.stopReconnect();//停止重连尝试
+    _reconnect.stopReconnect(); //停止重连尝试
     _heartBeat.startHeartBeat();
-    _reconnect.CouldReconnect = true;//标识 未来可以自动重连
+    _reconnect.CouldReconnect = true; //标识 未来可以自动重连
 
     //init session
-    if(_sessionManager != null){
-      if(_sessionManager?.uid == _uid){
+    if (_sessionManager != null) {
+      if (_sessionManager?.uid == _uid) {
         _sessionManager?.dispose();
         _sessionManager = SessionManager(uid);
       }
-    }else{//init session manager
+    } else {
+      //init session manager
       _sessionManager = SessionManager(uid);
     }
   }
 
   //自动重连
-  void autoReconnect(){
-    imLogin(_uid , _token! , manual: false);
+  void autoReconnect() {
+    imLogin(_uid, _token!, manual: false);
   }
 
   void loginFailed() {
@@ -576,13 +584,13 @@ class IMClient {
     }
 
     // buf.debugPrint();
-    try{
+    try {
       _socket?.add(buf.readAllUint8List());
-    }catch(e){
+    } catch (e) {
       LogUtil.log("socket write error");
       onSocketClose();
     }
-    _socket?.flush().catchError((error){
+    _socket?.flush().catchError((error) {
       LogUtil.log("socket write error");
       onSocketClose();
     });
