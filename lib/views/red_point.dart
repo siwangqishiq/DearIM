@@ -78,23 +78,25 @@ class _RedPointState extends State<RedPoint> {
           );
         }
     }
+    
+    var _children = [
+      Align(
+        child: child,
+        alignment: Alignment.center,
+      )
+    ];
 
-    return Container(
+    if(number > 0){
+      _children.add(Align(child: redpoint,alignment: Alignment.topRight,));
+    }
+
+    return SizedBox(
       // color: Colors.blue,
       width: this.width,
       height: this.height,
       child: Stack(
         alignment: Alignment.center,
-        children: [
-          Align(
-            child: child,
-            alignment: Alignment.center,
-          ),
-          Align(
-            child: redpoint,
-            alignment: Alignment.topRight,
-          ),
-        ],
+        children: _children,
       ),
     );
   }

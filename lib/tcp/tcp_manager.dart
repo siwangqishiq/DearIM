@@ -39,8 +39,8 @@ class TCPManager {
 
   // 连接tcp
   void connect(int uid, String token) {
-    String host = UserManager.getInstance()!.user!.tcpParam.imServer;
-    int port = UserManager.getInstance()!.user!.tcpParam.imPort;
+    String host = UserManager.getInstance()!.user!.imServer;
+    int port = UserManager.getInstance()!.user!.imPort;
     if (RequestManager().networkenv == NetworkEnvironment.online) {
       //TODO: wmy test
       host = "47.99.103.133";

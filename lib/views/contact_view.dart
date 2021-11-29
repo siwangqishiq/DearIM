@@ -53,7 +53,7 @@ class _ContactViewState extends State<ContactView> {
                         height: imageWidth,
                         fit: BoxFit.cover,
                       )),
-                  number: 12,
+                  number: 0,
                   pointStyle: RedPointStyle.number,
                 ),
                 const SizedBox(

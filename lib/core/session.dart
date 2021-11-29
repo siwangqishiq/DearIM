@@ -161,14 +161,18 @@ class SessionManager{
   }
 
   static void addIMMessageByUpdateTime(List<IMMessage> list , IMMessage msg){
-    for(int i = list.length - 1 ; i>= 0 ;i++){
-      if(msg.updateTime > list[i].updateTime){
-        list.insert(i + 1, msg);
-        return;
-      }
-    }//end for i
+    // for(int i = list.length - 1 ; i>= 0 ;i++){
+    //   if(msg.updateTime > list[i].updateTime){
+    //     list.insert(i + 1, msg);
+    //     return;
+    //   }
+    // }//end for i
+    // list.insert(0, msg);
 
-    list.insert(0, msg);
+    list.add(msg);
+    list.sort((left , right){
+      return left.updateTime - right.updateTime;
+    });
   }
 
   //快速检索数据

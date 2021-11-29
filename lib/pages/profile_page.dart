@@ -11,12 +11,15 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text("我的"),
-      // ),
-      body: Center(
-        child: Text("我的"),
+      body: Column(
+        children: [
+          myInfo(),
+        ],
       ),
     );
+  }
+
+  Widget myInfo(){
+    return Text("我的信息");
   }
 }

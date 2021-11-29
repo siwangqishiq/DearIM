@@ -44,7 +44,8 @@ class _MainPageState extends State<MainPage>
             onPressed: () {
               ToastShowUtils.showAlert("确定登出吗", "", context, () {
                 UserManager.getInstance()!
-                    .logout(Callback(successCallback: (data) {
+                    .logout(Callback(successCallback: (data) async {
+                      await UserManager.getInstance()!.user?.clear();
                   Navigator.of(context).pop();
                   Navigator.of(context).pushNamed("/login");
                 }));

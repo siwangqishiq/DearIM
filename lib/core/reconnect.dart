@@ -33,7 +33,7 @@ class Reconnect{
   }
 
   void _onConnectiveChangedCallback(ConnectivityResult event){
-    LogUtil.log("连接状态改变 : $event");
+    //LogUtil.log("连接状态改变 : $event");
     if(event == ConnectivityResult.wifi 
         || event == ConnectivityResult.mobile 
         || event == ConnectivityResult.ethernet){//新连接建立 立刻启动重连

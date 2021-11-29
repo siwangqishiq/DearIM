@@ -35,17 +35,22 @@ class _ContactPageState extends State<ContactPage> {
         itemCount: models.length,
         itemBuilder: (BuildContext context, int index) {
           ContactModel contactModel = models[index];
-          return ContactView(contactModel, () {
-            //跳转传参
-            Navigator.of(context).push(
-              PageRouteBuilder(
-                pageBuilder: (BuildContext context, Animation<double> animation,
-                    Animation<double> secondaryAnimation) {
-                  return ChatPage(contactModel);
-                },
-              ),
-            );
-          });
+          return Column(
+            children: [
+              ContactView(contactModel, () {
+                //跳转传参
+                Navigator.of(context).push(
+                  PageRouteBuilder(
+                    pageBuilder: (BuildContext context, Animation<double> animation,
+                        Animation<double> secondaryAnimation) {
+                      return ChatPage(contactModel);
+                    },
+                  ),
+                );
+              }),
+              const Divider(height: 1,color: Colors.grey,)
+            ],
+          );
         },
       ),
     );

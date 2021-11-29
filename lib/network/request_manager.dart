@@ -17,7 +17,8 @@ class RequestManager {
     if (kDebugMode) {
       // _instance.networkenv = NetworkEnvironment.daily;
       // _instance._hostName = "http://192.168.31.230:9090/"; // mac
-      _instance._hostName = "http://192.168.31.37:9090/"; // windows
+      // _instance._hostName = "http://192.168.31.37:9090/"; // windows
+      _instance._hostName = "http://10.242.142.129:9090/";
     }
     return _instance;
   }

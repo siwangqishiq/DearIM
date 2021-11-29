@@ -16,6 +16,10 @@ class UserManager {
     return _instance;
   }
 
+  void restoreUserInfo() async {
+    _instance?.user?.restore();
+  }
+
   bool hasUser() {
     if (user!.uid != 0) {
       return true;
@@ -31,13 +35,16 @@ class UserManager {
     Request().postRequest(
         "login",
         map,
-        Callback(successCallback: (data) {
+        Callback(successCallback: (data) async {
           Logger().d("success = ($data)");
           // 配置登录参数
           user!.token = data["token"];
           user!.uid = data["uid"];
-          user!.tcpParam.imPort = data["imPort"];
-          user!.tcpParam.imServer = data["imServer"];
+          user!.imPort = data["imPort"];
+          user!.imServer = data["imServer"];
+
+          await user?.save();//持久化
+
           if (callback != null && callback.successCallback != null) {
             callback.successCallback!(data);
             // 连接TCP

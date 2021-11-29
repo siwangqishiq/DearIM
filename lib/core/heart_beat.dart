@@ -33,19 +33,15 @@ class HeartBeat{
 
   //开始心跳
   void startHeartBeat(){
-    LogUtil.log("start heart beat");
     _timer?.cancel();
     _timer = null;
 
     //启动定时器
     _timer = Timer.periodic(_deltaTime, (timer) {
       final int curTime = Utils.currentTime();
-      // if(curTime - _lastIoTime > 4 * _deltaTime.inMilliseconds){//超出了心跳包时间的4倍 判定为连接断开
-      //   _judgeSocketDead();
-      //   return;
-      // }
-
+      
       if(curTime - _lastIoTime > (_deltaTime.inMilliseconds >> 1)){//超过最大等待时间的一半 发送心跳包
+         LogUtil.log("heart beat");
         _sendPingPkg(timer);
       }else{
         LogUtil.log("net is working skip this heart beat tick! delta : ${curTime - _lastIoTime}");
