@@ -16,14 +16,14 @@ class ContactPage extends StatefulWidget {
 }
 
 class ContactPageState extends State<ContactPage> {
-  List<ContactModel> models = [
-    // ContactModel("wenmingyan", 1002),
-    // ContactModel("panyi", 1001)
-  ];
+  List<ContactModel> models = <ContactModel>[];
   @override
   void initState() {
     super.initState();
-    requestChatList();
+    //requestChatList();
+    
+    models.clear();
+    models.addAll(ContactsDataCache.instance.allContacts);
   }
 
   @override
@@ -57,33 +57,33 @@ class ContactPageState extends State<ContactPage> {
     );
   }
 
-  requestChatList() {
-    Request().postRequest(
-      "/contacts",
-      {},
-      Callback(successCallback: (data) {
-        models.clear();
-        List list = data["list"];
-        for (Map item in list) {
-          ContactModel model = ContactModel(item["name"], item["uid"]);
-          model.avatar = item["avatar"] ?? "";
+  // requestChatList() {
+  //   Request().postRequest(
+  //     "/contacts",
+  //     {},
+  //     Callback(successCallback: (data) {
+  //       models.clear();
+  //       List list = data["list"];
+  //       for (Map item in list) {
+  //         ContactModel model = ContactModel(item["name"], item["uid"]);
+  //         model.avatar = item["avatar"] ?? "";
 
-          model.user.uid = item["uid"];
-          model.user.name = item["name"];
-          model.user.avatar = item["avatar"] ?? "";
-          model.user.account = item["account"]??"";
+  //         model.user.uid = item["uid"];
+  //         model.user.name = item["name"];
+  //         model.user.avatar = item["avatar"] ?? "";
+  //         model.user.account = item["account"]??"";
           
-          if (item["uid"] == UserManager.getInstance()!.user!.uid) {
-            UserManager.getInstance()!.user!.avatar = item["avatar"] ?? "";
-          }
-          models.add(model);
-        }
-        
-        ContactsDataCache.instance.resetContacts(models);
-        setState(() {});
-      }, failureCallback: (code, msgStr, data) {
-        log(data);
-      }),
-    );
-  }
+  //         if (item["uid"] == UserManager.getInstance()!.user!.uid) {
+  //           UserManager.getInstance()!.user!.avatar = item["avatar"] ?? "";
+  //         }
+  //         models.add(model);
+  //       }
+
+  //       ContactsDataCache.instance.resetContacts(models);
+  //       setState(() {});
+  //     }, failureCallback: (code, msgStr, data) {
+  //       log(data);
+  //     }),
+  //   );
+  // }
 }

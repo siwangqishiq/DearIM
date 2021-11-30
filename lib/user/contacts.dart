@@ -40,4 +40,12 @@ class ContactsDataCache with ChangeNotifier{
     notifyListeners();
   }
 
+  List<ContactModel> get allContacts {
+    List<ContactModel> list = <ContactModel>[];
+    for(var key in contacts.keys){
+      list.add(contacts[key]!);
+    }
+    return list;
+  }
+
 }//end class

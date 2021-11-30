@@ -18,7 +18,7 @@ class RecentSession {
   List<IMMessage> imMsgList = <IMMessage>[];//消息列表
   String? custom;//用户自定义数据
   String? attach;//附件信息
-
+  
   //最近IM消息消息
   IMMessage? get lastIMMessage => imMsgList.last;
 

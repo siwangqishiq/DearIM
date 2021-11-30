@@ -58,7 +58,8 @@ class _RedPointState extends State<RedPoint> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              ));
+              )
+            );
         }
         break;
       case RedPointStyle.redPoint:

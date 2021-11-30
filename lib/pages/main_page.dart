@@ -92,7 +92,7 @@ class _MainPageState extends State<MainPage>
         ),
       ),
       body: TabBarView(controller: controller, children: [
-        const ChatListPage(),
+        SessionPage(),
         const ContactPage(),
         ProfilePage(),
       ]),
