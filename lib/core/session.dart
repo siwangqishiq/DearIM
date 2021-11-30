@@ -11,23 +11,23 @@ import 'utils.dart';
 
 //最近会话
 class RecentSession {
-  int sessionId = 0;//会话ID
-  int sessionType = IMMessageSessionType.P2P;//会话类型
-  
-  int unreadCount = 0;//会话未读数量
-  List<IMMessage> imMsgList = <IMMessage>[];//消息列表
-  String? custom;//用户自定义数据
-  String? attach;//附件信息
-  
+  int sessionId = 0; //会话ID
+  int sessionType = IMMessageSessionType.P2P; //会话类型
+
+  int unreadCount = 0; //会话未读数量
+  List<IMMessage> imMsgList = <IMMessage>[]; //消息列表
+  String? custom; //用户自定义数据
+  String? attach; //附件信息
+
   //最近IM消息消息
   IMMessage? get lastIMMessage => imMsgList.last;
 
   //会话时间
-  int get time => (lastIMMessage?.updateTime)??-1;
+  int get time => (lastIMMessage?.updateTime) ?? -1;
 
   //更新session未读数量
-  void updateUnReadCount(IMMessage msg){
-    if(msg.isReceived){
+  void updateUnReadCount(IMMessage msg) {
+    if (msg.isReceived) {
       unreadCount += msg.readState;
     }
   }
@@ -36,18 +36,22 @@ class RecentSession {
 typedef RecentSessionChangeCallback = Function(List<RecentSession> sessionList);
 
 // 会话管理
-class SessionManager{
+class SessionManager {
   int _uid = -1;
 
   int get uid => _uid;
 
   final List<RecentSession> _recentSessionList = <RecentSession>[];
 
-  final Map<String , RecentSession> _recentSessionMap =<String , RecentSession>{};
+  final Map<String, RecentSession> _recentSessionMap =
+      <String, RecentSession>{};
 
-  final List<RecentSessionChangeCallback> _changeCallbackList = <RecentSessionChangeCallback>[];
+  final List<RecentSessionChangeCallback> _changeCallbackList =
+      <RecentSessionChangeCallback>[];
 
-  SessionManager(id){
+  SessionManager(id) {
+    LogUtil.log("session loadData $id");
+
     _uid = id;
     loadData();
   }
@@ -58,23 +62,24 @@ class SessionManager{
   }
 
   //获取最近消息列表
-  List<RecentSession> findRecentSessionList(){
+  List<RecentSession> findRecentSessionList() {
     return _recentSessionList;
   }
 
   //查询用户IM消息列表
-  List<IMMessage> queryIMMessageByUid(int sessionType ,int sessionId){
+  List<IMMessage> queryIMMessageByUid(int sessionType, int sessionId) {
     final String key = "${sessionType}_$sessionId";
-    return _recentSessionMap[key]?.imMsgList??[];
+    return _recentSessionMap[key]?.imMsgList ?? [];
   }
 
-  Future<List<IMMessage>> _loadHistoryIMMessage() async{
+  Future<List<IMMessage>> _loadHistoryIMMessage() async {
     //载入历史消息
     return <IMMessage>[];
   }
 
   //注册 或 解绑 状态改变事件监听
-  bool registerStateObserver(RecentSessionChangeCallback callback, bool register) {
+  bool registerStateObserver(
+      RecentSessionChangeCallback callback, bool register) {
     if (register) {
       //注册
       if (!Utils.listContainObj(_changeCallbackList, callback)) {
@@ -92,19 +97,19 @@ class SessionManager{
   }
 
   //重构会话列表
-  void _rebuildRecentSession(List<IMMessage> msgList){
+  void _rebuildRecentSession(List<IMMessage> msgList) {
     _recentSessionList.clear();
     _recentSessionMap.clear();
 
-    for(final IMMessage msg in msgList){
+    for (final IMMessage msg in msgList) {
       updateRecentSession(msg);
-    }//end for each
+    } //end for each
 
     _sortRecentSessionList();
   }
 
-  void _fireRecentChangeCallback(){
-    for(RecentSessionChangeCallback callback in _changeCallbackList){
+  void _fireRecentChangeCallback() {
+    for (RecentSessionChangeCallback callback in _changeCallbackList) {
       callback.call(findRecentSessionList());
     }
   }
@@ -112,15 +117,17 @@ class SessionManager{
   ///
   ///通过消息 更新最近联系人会话
   ///
-  void updateRecentSession(final IMMessage msg , {bool recentSort = false , bool fireCallback = false}){
+  void updateRecentSession(final IMMessage msg,
+      {bool recentSort = false, bool fireCallback = false}) {
     final String key = _getRecentSessionKey(msg);
 
-    if(_recentSessionMap.containsKey(key)){//已经包含
+    if (_recentSessionMap.containsKey(key)) {
+      //已经包含
       final RecentSession recent = _recentSessionMap[key]!;
-      addIMMessageByUpdateTime(recent.imMsgList , msg);
+      addIMMessageByUpdateTime(recent.imMsgList, msg);
 
       recent.updateUnReadCount(msg);
-    }else{
+    } else {
       final RecentSession recent = RecentSession();
       recent.sessionId = msg.sessionId;
       recent.sessionType = msg.sessionType;
@@ -133,19 +140,20 @@ class SessionManager{
       recent.updateUnReadCount(msg);
     }
 
-    if(recentSort){//重新排序
+    if (recentSort) {
+      //重新排序
       _sortRecentSessionList();
     }
 
-    if(fireCallback){
+    if (fireCallback) {
       _fireRecentChangeCallback();
     }
   }
 
   //删除消息 session更新
-  void onRemoveIMMessage(final IMMessage msg){
+  void onRemoveIMMessage(final IMMessage msg) {
     final String key = _getRecentSessionKey(msg);
-    if(_recentSessionMap.containsKey(key)){
+    if (_recentSessionMap.containsKey(key)) {
       final RecentSession recent = _recentSessionMap[key]!;
       recent.imMsgList.remove(msg);
 
@@ -154,13 +162,13 @@ class SessionManager{
     }
   }
 
-  void _sortRecentSessionList(){
-    _recentSessionList.sort((left , right){
+  void _sortRecentSessionList() {
+    _recentSessionList.sort((left, right) {
       return left.time - right.time;
     });
   }
 
-  static void addIMMessageByUpdateTime(List<IMMessage> list , IMMessage msg){
+  static void addIMMessageByUpdateTime(List<IMMessage> list, IMMessage msg) {
     // for(int i = list.length - 1 ; i>= 0 ;i++){
     //   if(msg.updateTime > list[i].updateTime){
     //     list.insert(i + 1, msg);
@@ -170,19 +178,18 @@ class SessionManager{
     // list.insert(0, msg);
 
     list.add(msg);
-    list.sort((left , right){
+    list.sort((left, right) {
       return left.updateTime - right.updateTime;
     });
   }
 
   //快速检索数据
-  String _getRecentSessionKey(IMMessage message){
+  String _getRecentSessionKey(IMMessage message) {
     return "${message.sessionType}_${message.sessionId}";
   }
 
-
   //关闭
-  void dispose(){
-
+  void dispose() {
+    _recentSessionList.clear();
   }
 }

@@ -537,7 +537,7 @@ class IMClient {
 
     //init session
     if (_sessionManager != null) {
-      if (_sessionManager?.uid == _uid) {
+      if (_sessionManager?.uid != _uid) {
         _sessionManager?.dispose();
         _sessionManager = SessionManager(uid);
       }
