@@ -46,6 +46,31 @@ class PushIMMessageReqMsg extends Message {
   }
 } //end class
 
+//接到推送消息后 反馈已接收
+class PushIMMessageResp extends Message{
+  String? msgId;//ack msgid
+
+  PushIMMessageResp(this.msgId);
+
+  @override
+  ByteBuf encodeBody() {
+    Map<String , dynamic> body = {"msgId" : msgId};
+
+    String jsonBody = jsonEncode(body);
+    LogUtil.log("jsonBody:$jsonBody");
+
+    Uint8List bodyData = Utils.convertStringToUint8List(jsonBody);
+    ByteBuf bodyBuf = ByteBuf.allocator(size: bodyData.length);
+    bodyBuf.writeUint8List(bodyData);
+    return bodyBuf;
+  }
+
+  @override
+  int getType() {
+    return MessageTypes.PUSH_IMMESSAGE_RESP;
+  }
+}
+
 ///
 /// PushIMMessageHandler处理
 ///
@@ -65,50 +90,12 @@ class PushIMMessageHandler extends MessageHandler<PushIMMessageReqMsg> {
     imMessage.isReceived = true;//是接收到的消息
 
     incomingIMList.add(imMessage);
-
     client.receivedIMMessage(incomingIMList);
+
+    //send received push msg ack
+    client.sendData(PushIMMessageResp(msg.uniqueId.toString()).encode());
   }
 }//end class
 
-///
-///发送消息返回
-///
-// class PushIMMessageRespMsg extends Message{
-
-//   SendIMMessageRespMsg();
-
-
-
-//   IMMessageResult? result;
-
-//   @override
-//   dynamic decodeBody(ByteBuf buf, int bodySize) {
-//     Uint8List rawData = buf.readUint8List(bodySize);
-    
-//     String originJsonStr = Utils.convertUint8ListToString(rawData);
-//     LogUtil.log(originJsonStr);
-
-//     try{
-//       var jsonMap = jsonDecode(Utils.convertUint8ListToString(rawData));
-      
-//       result = IMMessageResult();
-//       result?.code = jsonMap["code"]??0;
-//       result?.result = jsonMap["result"];
-//       result?.reason = jsonMap["reason"];
-
-//       result?.createTime = jsonMap["createTime"];
-//       result?.updateTime = jsonMap["updateTime"];
-//       result?.msgId = jsonMap["msgId"];
-//     }catch(e){
-//       LogUtil.errorLog(e.toString());
-//     }
-//     return result;
-//   }
-
-//   @override
-//   int getType() {
-//     return MessageTypes.SEND_IMMESSAGE_RESP;
-//   }
-// }
 
 

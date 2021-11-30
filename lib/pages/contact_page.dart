@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:dearim/pages/chat_page.dart';
 import 'package:dearim/models/contact_model.dart';
 import 'package:dearim/network/request.dart';
+import 'package:dearim/user/contacts.dart';
 import 'package:dearim/user/user_manager.dart';
 import 'package:dearim/views/contact_view.dart';
 import 'package:flutter/material.dart';
@@ -11,10 +12,10 @@ class ContactPage extends StatefulWidget {
   const ContactPage({Key? key}) : super(key: key);
 
   @override
-  _ContactPageState createState() => _ContactPageState();
+  ContactPageState createState() => ContactPageState();
 }
 
-class _ContactPageState extends State<ContactPage> {
+class ContactPageState extends State<ContactPage> {
   List<ContactModel> models = [
     // ContactModel("wenmingyan", 1002),
     // ContactModel("panyi", 1001)
@@ -77,6 +78,8 @@ class _ContactPageState extends State<ContactPage> {
           }
           models.add(model);
         }
+        
+        ContactsDataCache.instance.resetContacts(models);
         setState(() {});
       }, failureCallback: (code, msgStr, data) {
         log(data);

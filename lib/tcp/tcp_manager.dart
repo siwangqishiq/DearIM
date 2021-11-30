@@ -11,7 +11,7 @@ class TCPManager {
   static final TCPManager _instance = TCPManager._privateConstructor();
 
   factory TCPManager() {
-    IMClient.getInstance()!.registerStateObserver((oldState, newState) {
+    IMClient.getInstance().registerStateObserver((oldState, newState) {
       log("change state $oldState to $newState");
     }, true);
     return _instance;
@@ -19,22 +19,22 @@ class TCPManager {
 
   // 注册状态变化回调
   void registerStateChangeback(StateChangeCallback callback) {
-    IMClient.getInstance()?.registerStateObserver(callback, true);
+    IMClient.getInstance().registerStateObserver(callback, true);
   }
 
   // 删除注册
   void unregisterStateChangeback(StateChangeCallback callback) {
-    IMClient.getInstance()?.registerStateObserver(callback, false);
+    IMClient.getInstance().registerStateObserver(callback, false);
   }
 
   // 注册消息回调
   void registerMessageCommingCallbck(IMMessageIncomingCallback callback) {
-    IMClient.getInstance()?.registerIMMessageIncomingObserver(callback, true);
+    IMClient.getInstance().registerIMMessageIncomingObserver(callback, true);
   }
 
   // 删除注册消息回调
   void unregistMessageCommingCallback(IMMessageIncomingCallback callback) {
-    IMClient.getInstance()?.registerIMMessageIncomingObserver(callback, false);
+    IMClient.getInstance().registerIMMessageIncomingObserver(callback, false);
   }
 
   // 连接tcp
@@ -46,7 +46,7 @@ class TCPManager {
       host = "47.99.103.133";
     }
 
-    IMClient.getInstance()?.imLogin(uid, token, host: host, port: port,
+    IMClient.getInstance().imLogin(uid, token, host: host, port: port,
         loginCallback: (result) {
       if (result.result) {
         log("IM登录成功");
@@ -58,7 +58,7 @@ class TCPManager {
 
   // 取消连接tcp
   void disconnect() {
-    IMClient.getInstance()?.imLoginOut(loginOutCallback: (r) {
+    IMClient.getInstance().imLoginOut(loginOutCallback: (r) {
       log("退出登录: ${r.result}");
     });
   }
@@ -67,7 +67,7 @@ class TCPManager {
     IMMessage? msg =
         IMMessageBuilder.createText(toUid, IMMessageSessionType.P2P, content);
     if (msg != null) {
-      IMClient.getInstance()?.sendIMMessage(msg, callback: (imMessage, result) {
+      IMClient.getInstance().sendIMMessage(msg, callback: (imMessage, result) {
         log("send im message ${result.code}");
       });
     }

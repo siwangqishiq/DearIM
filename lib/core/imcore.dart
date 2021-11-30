@@ -165,12 +165,9 @@ class IMClient {
     _reconnect = Reconnect(this);
   }
 
-  static IMClient? getInstance() {
-    // ignore: prefer_conditional_assignment
-    if (_instance == null) {
-      _instance = IMClient();
-    }
-    return _instance;
+  static IMClient getInstance() {
+    _instance ??= IMClient();
+    return _instance!;
   }
 
   void debugStatus() {

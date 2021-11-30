@@ -58,7 +58,7 @@ class TestCoreMainState extends State<TestCoreMain>{
       });
     };
 
-    IMClient.getInstance()?.registerStateObserver(_stateChangeCallback!, true);
+    IMClient.getInstance().registerStateObserver(_stateChangeCallback!, true);
 
     _imMessageIncomingCallback??=(incomingIMMessageList){
        setState(() {
@@ -66,13 +66,13 @@ class TestCoreMainState extends State<TestCoreMain>{
       });
     };
 
-    IMClient.getInstance()?.registerIMMessageIncomingObserver(_imMessageIncomingCallback!, true);
+    IMClient.getInstance().registerIMMessageIncomingObserver(_imMessageIncomingCallback!, true);
   }
 
   void login(int uid){
     String token = "fuckali_$uid";
 
-    IMClient.getInstance()?.imLogin(uid, token, loginCallback: (result) {
+    IMClient.getInstance().imLogin(uid, token, loginCallback: (result) {
       if (result.result) {
         LogUtil.log("IM登录成功");
       } else {
@@ -97,7 +97,7 @@ class TestCoreMainState extends State<TestCoreMain>{
             width: 320,
             child: ListView(
               children: <Widget>[
-                  Text("status: $mClientStatus  uid: ${IMClient.getInstance()?.uid}"),
+                  Text("status: $mClientStatus  uid: ${IMClient.getInstance().uid}"),
                   ElevatedButton(
                   onPressed: ()=> login(1), 
                   child: const Text("登录1"),
@@ -150,12 +150,12 @@ class TestCoreMainState extends State<TestCoreMain>{
   void dispose() {
     _editController.dispose();
     _focusNode.dispose();
-    IMClient.getInstance()?.dispose();
+    IMClient.getInstance().dispose();
     super.dispose();
   }
 
   void imLogout(){
-    IMClient.getInstance()?.imLoginOut(loginOutCallback:(r){
+    IMClient.getInstance().imLoginOut(loginOutCallback:(r){
       LogUtil.log("退出登录: ${r.result}");
     });
   }
@@ -165,7 +165,7 @@ class TestCoreMainState extends State<TestCoreMain>{
 
     IMMessage? msg = IMMessageBuilder.createText(toId, IMMessageSessionType.P2P, content);
     if(msg != null){
-      IMClient.getInstance()?.sendIMMessage(msg , callback : (imMessage , result){
+      IMClient.getInstance().sendIMMessage(msg , callback : (imMessage , result){
         LogUtil.log("send im message ${result.code}");
       });
     }

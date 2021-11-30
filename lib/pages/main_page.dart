@@ -1,4 +1,6 @@
+import 'package:dearim/models/contact_model.dart';
 import 'package:dearim/network/request.dart';
+import 'package:dearim/user/contacts.dart';
 import 'package:dearim/user/user_manager.dart';
 import 'package:dearim/views/color_utils.dart';
 import 'package:dearim/views/toast_show_utils.dart';
@@ -23,6 +25,37 @@ class _MainPageState extends State<MainPage>
   void initState() {
     super.initState();
     controller = TabController(length: 3, vsync: this);
+    _fetchContacts();
+  }
+
+  //获取通讯录数据 
+  void _fetchContacts(){
+    Request().postRequest(
+      "/contacts",
+      {},
+      Callback(successCallback: (data) {
+        List list = data["list"];
+        List<ContactModel> models = [];
+        for (Map item in list) {
+          ContactModel model = ContactModel(item["name"], item["uid"]);
+          model.avatar = item["avatar"] ?? "";
+
+          model.user.uid = item["uid"];
+          model.user.name = item["name"];
+          model.user.avatar = item["avatar"] ?? "";
+          model.user.account = item["account"]??"";
+          
+          if (item["uid"] == UserManager.getInstance()!.user!.uid) {
+            UserManager.getInstance()!.user!.avatar = item["avatar"] ?? "";
+          }
+          models.add(model);
+        }
+        
+        ContactsDataCache.instance.resetContacts(models);
+      }, failureCallback: (code, msgStr, data) {
+
+      }),
+    );
   }
 
   @override
