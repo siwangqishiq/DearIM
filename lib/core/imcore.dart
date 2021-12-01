@@ -123,7 +123,7 @@ class IMClient {
 
   bool _loginIsManual = false; //记录是否是手动发起的登录
 
-  SessionManager? _sessionManager;
+  final SessionManager _sessionManager = SessionManager();
 
   //发送IM消息回调
   final Map<String, SendIMMessageCallback> _sendIMMessageCallbackMap =
@@ -163,6 +163,8 @@ class IMClient {
     });
     _heartBeat = HeartBeat(this);
     _reconnect = Reconnect(this);
+
+    //_sessionManager = SessionManager();
   }
 
   static IMClient getInstance() {
@@ -241,7 +243,8 @@ class IMClient {
     //发送
     sendData(SendIMMessageReqMsg(imMessage).encode());
 
-    _sessionManager?.updateRecentSession(imMessage);
+    //更新最近会话session
+    _sessionManager.updateRecentSession(imMessage , recentSort: true , fireCallback:true);
   }
 
   //注册 或 解绑 状态改变事件监听
@@ -265,12 +268,12 @@ class IMClient {
   //注册最近会话变化监听
   bool registerRecentSessionObserver(
       RecentSessionChangeCallback callback, bool register) {
-    return _sessionManager?.registerStateObserver(callback, register) ?? false;
+    return _sessionManager.registerRecentSessionObserver(callback, register);
   }
 
   //获取最近会话列表
   List<RecentSession> findRecentSessionList() {
-    return _sessionManager?.findRecentSessionList() ?? [];
+    return _sessionManager.findRecentSessionList();
   }
 
   //注册接收IM消息
@@ -296,14 +299,14 @@ class IMClient {
     _heartBeat.dispose();
     _reconnect.dispose();
 
-    _sessionManager?.dispose();
+    _sessionManager.dispose();
     _streamSubscription.cancel();
   }
 
   //接收到新IM消息
   void receivedIMMessage(List<IMMessage> receivedMessageList) {
     for (IMMessage msg in receivedMessageList) {
-      _sessionManager?.updateRecentSession(msg);
+      _sessionManager.updateRecentSession(msg , recentSort: true ,fireCallback:true);
     } //end for each
 
     _fireMmMessageIncomingCallback(receivedMessageList);
@@ -336,6 +339,7 @@ class IMClient {
 
   //连接服务器socket
   void _socketConnect() {
+    LogUtil.log("call _socketConnect");
     _socket?.destroy();
     _heartBeat.stopHeartBeat(); //停止心跳 重新开始
 
@@ -390,6 +394,7 @@ class IMClient {
 
   //socket被关闭 清理socket连接
   void onSocketClose() {
+    LogUtil.log("call onSocketClose");
     _dataBuf.reset(); //buf清空
 
     _socket?.destroy();
@@ -527,8 +532,8 @@ class IMClient {
   }
 
   //登录成功
-  void loginSuccess() {
-    LogUtil.log("login success");
+  void loginSuccess(bool manualLogin) {
+    LogUtil.log("login success 是否是手动登录: $manualLogin");
     _changeState(ClientState.logined);
 
     _reconnect.stopReconnect(); //停止重连尝试
@@ -536,14 +541,8 @@ class IMClient {
     _reconnect.CouldReconnect = true; //标识 未来可以自动重连
 
     //init session
-    if (_sessionManager != null) {
-      if (_sessionManager?.uid != _uid) {
-        _sessionManager?.dispose();
-        _sessionManager = SessionManager(uid);
-      }
-    } else {
-      //init session manager
-      _sessionManager = SessionManager(uid);
+    if(manualLogin){
+      _sessionManager.loadUid(_uid);
     }
   }
 

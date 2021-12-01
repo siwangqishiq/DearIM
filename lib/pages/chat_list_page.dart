@@ -1,11 +1,9 @@
 import 'package:dearim/core/imcore.dart';
-import 'package:dearim/core/immessage.dart';
+import 'package:dearim/core/log.dart';
 import 'package:dearim/core/session.dart';
 import 'package:dearim/models/contact_model.dart';
 import 'package:dearim/user/contacts.dart';
 import 'package:dearim/utils/timer_utils.dart';
-
-import 'package:dearim/views/contact_view.dart';
 import 'package:dearim/views/head_view.dart';
 import 'package:flutter/material.dart';
 
@@ -119,10 +117,23 @@ class RecentSessionListWidget extends StatefulWidget {
 
 class RecentSessionListState extends State<RecentSessionListWidget> {
   List<RecentSession>? recentSessionList;
+
+  late RecentSessionChangeCallback _recentSessionChangeCallback;
+
   @override
   void initState() {
     super.initState();
+    LogUtil.log("最近会话列表 initState");
+
     recentSessionList = IMClient.getInstance().findRecentSessionList();
+    _recentSessionChangeCallback = (List<RecentSession> sessionList){
+      setState(() {
+        LogUtil.log("最近会话列表更新");
+        recentSessionList = sessionList;
+      });
+    };
+    
+    IMClient.getInstance().registerRecentSessionObserver(_recentSessionChangeCallback, true);
   }
   
   @override
@@ -167,7 +178,7 @@ class RecentSessionListState extends State<RecentSessionListWidget> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(name , style:const TextStyle(color: Colors.black , fontSize: 20.0),maxLines: 1),
+                      Text(name , style:const TextStyle(color: Colors.black , fontSize: 18.0),maxLines: 1),
                       Text(content , style:const TextStyle(color: Colors.grey , fontSize: 14.0),maxLines: 1,),
                     ],
                   )
@@ -183,5 +194,11 @@ class RecentSessionListState extends State<RecentSessionListWidget> {
         ],
       ), 
     );
+  }
+
+  @override
+  void dispose() {
+    IMClient.getInstance().registerRecentSessionObserver(_recentSessionChangeCallback, false);
+    super.dispose();
   }
 }

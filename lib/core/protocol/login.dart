@@ -69,6 +69,7 @@ class IMLoginRespMessage extends Message {
       _result?.code = jsonMap["code"]??0;
       _result?.result = jsonMap["result"];
       _result?.reason = jsonMap["reason"];
+      _result?.extra = jsonMap["extra"]??0;
     }catch(e){
       LogUtil.errorLog(e.toString());
     }
@@ -86,7 +87,7 @@ class IMLoginRespHandler extends MessageHandler<IMLoginRespMessage> {
     //todo
 
     if(msg.result != null && msg.result!.result){
-      client.loginSuccess();
+      client.loginSuccess(msg.result?.extra == 1);
     }else{
       client.loginFailed();
     }

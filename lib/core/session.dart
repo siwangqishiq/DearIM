@@ -49,9 +49,10 @@ class SessionManager {
   final List<RecentSessionChangeCallback> _changeCallbackList =
       <RecentSessionChangeCallback>[];
 
-  SessionManager(id) {
-    LogUtil.log("session loadData $id");
+  SessionManager();
 
+  Future<void> loadUid(int id) async{
+    LogUtil.log("session loadData $id");
     _uid = id;
     loadData();
   }
@@ -78,18 +79,20 @@ class SessionManager {
   }
 
   //注册 或 解绑 状态改变事件监听
-  bool registerStateObserver(
+  bool registerRecentSessionObserver(
       RecentSessionChangeCallback callback, bool register) {
     if (register) {
       //注册
       if (!Utils.listContainObj(_changeCallbackList, callback)) {
         _changeCallbackList.add(callback);
+        LogUtil.log("添加最近会话 Ok ${_changeCallbackList.length}");
         return true;
       }
     } else {
       //解绑
       if (Utils.listContainObj(_changeCallbackList, callback)) {
         _changeCallbackList.remove(callback);
+        LogUtil.log("解绑最近会话 Ok ${_changeCallbackList.length}");
         return true;
       }
     }
@@ -109,6 +112,7 @@ class SessionManager {
   }
 
   void _fireRecentChangeCallback() {
+    print("最近会话列表更新 _fireRecentChangeCallback ${_changeCallbackList.length}");
     for (RecentSessionChangeCallback callback in _changeCallbackList) {
       callback.call(findRecentSessionList());
     }
@@ -145,6 +149,14 @@ class SessionManager {
       _sortRecentSessionList();
     }
 
+    //debug show
+    LogUtil.log("--------beg-------");
+    for(int i = 0 ; i < _recentSessionList.length ;i++){
+      var data = _recentSessionList[i];
+      LogUtil.log("sessionI ${data.sessionId} msg content: ${data.lastIMMessage?.content} count: ${data.imMsgList.length}");
+    }
+    LogUtil.log("--------end-------");
+
     if (fireCallback) {
       _fireRecentChangeCallback();
     }
@@ -162,9 +174,10 @@ class SessionManager {
     }
   }
 
+  //重新排序会话列表
   void _sortRecentSessionList() {
     _recentSessionList.sort((left, right) {
-      return left.time - right.time;
+      return right.time - left.time;
     });
   }
 

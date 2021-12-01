@@ -93,9 +93,9 @@ class _MainPageState extends State<MainPage>
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: TabBarView(controller: controller, children: [
+      body: TabBarView(controller: controller, children:const [
         SessionPage(),
-        const ContactPage(),
+        ContactPage(),
         ProfilePage(),
       ]),
       bottomNavigationBar: Material(

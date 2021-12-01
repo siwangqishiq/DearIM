@@ -12,10 +12,13 @@ import 'package:dearim/views/chat_view.dart';
 import 'package:dearim/views/color_utils.dart';
 import 'package:flutter/material.dart';
 
+///
+/// P2P聊天页
+///
 class ChatPage extends StatefulWidget {
   late ContactModel model;
   ChatPage(this.model, {Key? key}) : super(key: key);
-
+  
   @override
   _ChatPageState createState() => _ChatPageState(model);
 }

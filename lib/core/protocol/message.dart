@@ -115,6 +115,8 @@ class Result {
   bool result = false;
   String? reason;
 
+  int extra = 0;
+
   //是否成功
   bool isSuccess() => code == Codes.success;
 }//end class
