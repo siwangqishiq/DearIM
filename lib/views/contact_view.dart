@@ -1,6 +1,7 @@
 // ignore_for_file: no_logic_in_create_state
 
 import 'package:dearim/models/contact_model.dart';
+import 'package:dearim/views/head_view.dart';
 import 'package:dearim/views/red_point.dart';
 import 'package:flutter/material.dart';
 
@@ -45,14 +46,13 @@ class _ContactViewState extends State<ContactView> {
                 RedPoint(
                   width: imageWidth + 10,
                   height: imageWidth + 10,
-                  child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        imageURL,
-                        width: imageWidth,
-                        height: imageWidth,
-                        fit: BoxFit.cover,
-                      )),
+                  child: HeadView(
+                    imageURL,
+                    width: imageWidth,
+                    height: imageWidth, 
+                    size: ImageSize.small,
+                    circle: 16,
+                  ),
                   number: 0,
                   pointStyle: RedPointStyle.number,
                 ),

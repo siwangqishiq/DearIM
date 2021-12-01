@@ -3,6 +3,7 @@ import 'package:dearim/models/contact_model.dart';
 import 'package:dearim/pages/contact_page.dart';
 import 'package:dearim/user/contacts.dart';
 import 'package:dearim/views/contact_view.dart';
+import 'package:dearim/views/head_view.dart';
 import 'package:flutter/material.dart';
 
 
@@ -72,14 +73,12 @@ class MyInfoState extends State<MyInfoWidget>{
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: 40,),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(100),
-            child: Image.network(
-              avatar??"",
-              width: 150,
-              height: 150,
-              fit: BoxFit.cover,
-            )
+          HeadView(
+            avatar , 
+            size: ImageSize.middle,
+            width: 150,
+            height: 150,
+            circle: 100,
           ),
           const SizedBox(height: 8,),
           Text(name??"" , style:const TextStyle(fontSize: 20 , color: Colors.black),),

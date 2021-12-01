@@ -6,6 +6,7 @@ import 'package:dearim/user/contacts.dart';
 import 'package:dearim/utils/timer_utils.dart';
 
 import 'package:dearim/views/contact_view.dart';
+import 'package:dearim/views/head_view.dart';
 import 'package:flutter/material.dart';
 
 import 'chat_page.dart';
@@ -153,18 +154,12 @@ class RecentSessionListState extends State<RecentSessionListWidget> {
             child: Row(
               children: [
                 //头像
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(100),
-                  child: FadeInImage.assetNetwork(
-                    height: 55,
-                    width: 55,
-                    fit: BoxFit.cover, 
-                    image: avatar, 
-                    imageErrorBuilder: (context, error, st) {
-                      return const Icon(Icons.face_rounded);
-                    },
-                    placeholder: '', 
-                  ),  
+                HeadView(
+                  avatar , 
+                  size:ImageSize.small,
+                  circle: 16,
+                  height: 55,
+                  width: 55,
                 ),
                 const SizedBox(width: 10,),
                 Expanded(

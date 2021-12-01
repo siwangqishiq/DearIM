@@ -6,6 +6,7 @@ import 'package:dearim/user/user.dart';
 import 'package:dearim/user/user_manager.dart';
 import 'package:dearim/utils/timer_utils.dart';
 import 'package:dearim/views/color_utils.dart';
+import 'package:dearim/views/head_view.dart';
 import 'package:flutter/material.dart';
 
 class ChatView extends StatefulWidget {
@@ -28,6 +29,9 @@ class _ChatViewState extends State<ChatView> {
     if (msgModel.uid == UserManager.getInstance()!.user!.uid) {
       isSelf = true;
     }
+
+    String avatar = isSelf ? UserManager.getInstance()!.user!.avatar : user!.avatar;
+
     List<Widget> children = [
       ClipRRect(
           borderRadius: BorderRadius.circular(6),
@@ -46,15 +50,7 @@ class _ChatViewState extends State<ChatView> {
       SizedBox(
         width: innerSpace,
       ),
-      ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.network(
-          isSelf ? UserManager.getInstance()!.user!.avatar : user!.avatar,
-          width: 38,
-          height: 38,
-          fit: BoxFit.cover,
-        ),
-      ),
+      HeadView(avatar , circle: 8 , width: 38 , height: 38, size:ImageSize.small),
       SizedBox(
         width: space,
       ),
