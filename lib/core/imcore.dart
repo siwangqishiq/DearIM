@@ -371,6 +371,7 @@ class IMClient {
         _onSocketFirstContected();
       }
     }).catchError((error) {
+      LogUtil.log("socket 连接失败 ${error.toString()}");
       LogUtil.errorLog("socket 连接失败 ${error.toString()}");
       onSocketClose();
       _changeState(ClientState.unconnect);

@@ -44,7 +44,7 @@ class HeadView extends StatelessWidget{
         fit: BoxFit.cover, 
         image: urlFromSize(originUrl , size), 
         imageErrorBuilder: (context, error, st) {
-          return const Icon(Icons.face_rounded);
+          return Icon(Icons.face_rounded , size: width,);
         },
         placeholder: 'avatar_loading.png', 
       ),  
