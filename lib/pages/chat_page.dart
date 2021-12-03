@@ -33,13 +33,18 @@ class _ChatPageState extends State<ChatPage> {
   final ScrollController _listViewController = ScrollController();
 
   IMMessageIncomingCallback? _msgIncomingCallback;
-
+  
   @override
   void initState() {
     super.initState();
     msgModels.addAll(queryHistoryMessage());//查询历史消息
 
     _msgIncomingCallback = (incomingIMMessageList) {
+      IMMessage incomingMessage = incomingIMMessageList.last;
+      if(incomingMessage.sessionId != model.userId){//不属于此会话的消息 不做处理
+        return;
+      }
+
       setState(() {
         receiveText = incomingIMMessageList.last.content;
         log(receiveText!);
