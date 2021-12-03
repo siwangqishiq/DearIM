@@ -204,7 +204,7 @@ class IMClient {
   }
 
   //im退出登录
-  void imLoginOut({IMLogOutCallback? loginOutCallback}) {
+  void imLoginOut({IMLogOutCallback? loginOutCallback}) async {
     _logoutCallback = loginOutCallback;
 
     if (_state == ClientState.logined) {
@@ -274,6 +274,11 @@ class IMClient {
   //获取最近会话列表
   List<RecentSession> findRecentSessionList() {
     return _sessionManager.findRecentSessionList();
+  }
+
+  //查询指定会话历史消息
+  List<IMMessage> queryIMMessageList(int sessionType, int uid){
+    return _sessionManager.queryIMMessageByUid(sessionType , uid);
   }
 
   //注册接收IM消息
@@ -410,7 +415,6 @@ class IMClient {
   void _receiveRemoteData(Uint8List data) {
     ByteBuf recvBuf = ByteBuf.allocator(size: data.length);
     recvBuf.writeUint8List(data);
-    LogUtil.log("received data  len : ${data.length}");
 
     _heartBeat.recordTime();
 
@@ -427,6 +431,7 @@ class IMClient {
         final Message? msg = parseByteBufToMessage(_dataBuf);
         _dataBuf.compact();
 
+        LogUtil.log("received data  len : ${data.length}");
         //execute hand
         _handleMsg(msg);
       } else if (checkResult == DataStatus.errorLength) {
@@ -583,13 +588,13 @@ class IMClient {
     // buf.debugPrint();
     try {
       _socket?.add(buf.readAllUint8List());
+      // _socket?.flush().whenComplete((){
+      //   LogUtil.log("套接字 flush 完成");
+      // });
     } catch (e) {
-      LogUtil.log("socket write error");
+      LogUtil.log("socket write error ${e.toString()}");
       onSocketClose();
     }
-    _socket?.flush().catchError((error) {
-      LogUtil.log("socket write error");
-      onSocketClose();
-    });
+   
   }
 } //end class

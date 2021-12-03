@@ -112,7 +112,6 @@ class SessionManager {
   }
 
   void _fireRecentChangeCallback() {
-    print("最近会话列表更新 _fireRecentChangeCallback ${_changeCallbackList.length}");
     for (RecentSessionChangeCallback callback in _changeCallbackList) {
       callback.call(findRecentSessionList());
     }

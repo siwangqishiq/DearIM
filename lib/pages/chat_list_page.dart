@@ -120,20 +120,27 @@ class RecentSessionListState extends State<RecentSessionListWidget> {
 
   late RecentSessionChangeCallback _recentSessionChangeCallback;
 
+  VoidCallback? _contactChangeCallback;
+
   @override
   void initState() {
     super.initState();
-    LogUtil.log("最近会话列表 initState");
 
     recentSessionList = IMClient.getInstance().findRecentSessionList();
     _recentSessionChangeCallback = (List<RecentSession> sessionList){
+      LogUtil.log("最近会话变更: ${sessionList.length}");
       setState(() {
-        LogUtil.log("最近会话列表更新");
         recentSessionList = sessionList;
       });
     };
     
     IMClient.getInstance().registerRecentSessionObserver(_recentSessionChangeCallback, true);
+
+    _contactChangeCallback = (){
+      setState(() {
+      });
+    };
+    ContactsDataCache.instance.addListener(_contactChangeCallback!);
   }
   
   @override
@@ -156,48 +163,63 @@ class RecentSessionListState extends State<RecentSessionListWidget> {
     final String content = recentSession.lastIMMessage?.content??"";
     final int sessionTime = recentSession.time;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      child: Column(
-          children: [
-            SizedBox(
-              height: 70,
-            child: Row(
-              children: [
-                //头像
-                HeadView(
-                  avatar , 
-                  size:ImageSize.small,
-                  circle: 16,
-                  height: 55,
-                  width: 55,
-                ),
-                const SizedBox(width: 10,),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(name , style:const TextStyle(color: Colors.black , fontSize: 18.0),maxLines: 1),
-                      Text(content , style:const TextStyle(color: Colors.grey , fontSize: 14.0),maxLines: 1,),
-                    ],
-                  )
-                ),
-                Text(
-                  TimerUtils.getMessageFormatTime(sessionTime) , 
-                  style:const TextStyle(color: Colors.grey , fontSize: 12.0),
-                )
-              ],
-            ),
+    return InkWell(
+      onTap: (){
+        if(contact == null){
+          return;
+        }
+        Navigator.of(context).push(
+          PageRouteBuilder(
+            pageBuilder: (_,__,___) => ChatPage(contact)
           ),
-          const Divider(height: 0.5,color: Colors.grey,)
-        ],
-      ), 
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+        child: Column(
+            children: [
+              SizedBox(
+                height: 70,
+              child: Row(
+                children: [
+                  //头像
+                  HeadView(
+                    avatar , 
+                    size:ImageSize.small,
+                    circle: 16,
+                    height: 55,
+                    width: 55,
+                  ),
+                  const SizedBox(width: 10,),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(name , style:const TextStyle(color: Colors.black , fontSize: 18.0),maxLines: 1),
+                        Text(content , style:const TextStyle(color: Colors.grey , fontSize: 14.0),maxLines: 1,),
+                      ],
+                    )
+                  ),
+                  Text(
+                    TimerUtils.getMessageFormatTime(sessionTime) , 
+                    style:const TextStyle(color: Colors.grey , fontSize: 12.0),
+                  )
+                ],
+              ),
+            ),
+            const Divider(height: 0.5,color: Colors.grey,)
+          ],
+        ), 
+      ),
     );
   }
 
   @override
   void dispose() {
+    if(_contactChangeCallback != null){
+      ContactsDataCache.instance.removeListener(_contactChangeCallback!);
+    }
     IMClient.getInstance().registerRecentSessionObserver(_recentSessionChangeCallback, false);
     super.dispose();
   }

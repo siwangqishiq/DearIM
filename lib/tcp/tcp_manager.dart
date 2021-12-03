@@ -63,7 +63,7 @@ class TCPManager {
     });
   }
 
-  void sendMessage(String content, int toUid) {
+  IMMessage? sendMessage(String content, int toUid) {
     IMMessage? msg =
         IMMessageBuilder.createText(toUid, IMMessageSessionType.P2P, content);
     if (msg != null) {
@@ -71,5 +71,6 @@ class TCPManager {
         log("send im message ${result.code}");
       });
     }
+    return msg;
   }
 }

@@ -2,6 +2,8 @@
 
 import 'package:dearim/datas/chat_data.dart';
 import 'package:dearim/models/chat_message_model.dart';
+import 'package:dearim/models/contact_model.dart';
+import 'package:dearim/user/contacts.dart';
 import 'package:dearim/user/user.dart';
 import 'package:dearim/user/user_manager.dart';
 import 'package:dearim/utils/timer_utils.dart';
@@ -22,16 +24,14 @@ class _ChatViewState extends State<ChatView> {
   _ChatViewState(this.msgModel);
   @override
   Widget build(BuildContext context) {
-    bool isSelf = false;
+    bool isSendOutMsg = !msgModel.isReceived;
     double space = 16;
     double innerSpace = 10;
-    User? user = ChatDataManager.getInstance()!.getUser(msgModel.uid);
-    if (msgModel.uid == UserManager.getInstance()!.user!.uid) {
-      isSelf = true;
-    }
-
-    String avatar = isSelf ? UserManager.getInstance()!.user!.avatar : user!.avatar;
-
+    
+    int uid = msgModel.isReceived?(msgModel.sessionId):(UserManager.getInstance()?.user?.uid??0);
+    final ContactModel contactModel = ContactsDataCache.instance.getContact(uid)??ContactModel("",0);
+    String avatar = contactModel.avatar;
+    
     List<Widget> children = [
       ClipRRect(
           borderRadius: BorderRadius.circular(6),
@@ -42,7 +42,7 @@ class _ChatViewState extends State<ChatView> {
             child: Padding(
               padding: EdgeInsets.all(innerSpace),
               child: Text(
-                msgModel.context,
+                msgModel.content,
                 style: const TextStyle(color: Colors.white, fontSize: 16),
               ),
             ),
@@ -55,7 +55,7 @@ class _ChatViewState extends State<ChatView> {
         width: space,
       ),
     ];
-    if (!isSelf) {
+    if (!isSendOutMsg) {
       List<Widget> reverses = [];
       for (var i = children.length - 1; i >= 0; i--) {
         reverses.add(children[i]);
@@ -89,7 +89,7 @@ class _ChatViewState extends State<ChatView> {
             Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment:
-                    !isSelf ? MainAxisAlignment.start : MainAxisAlignment.end,
+                    !isSendOutMsg ? MainAxisAlignment.start : MainAxisAlignment.end,
                 children: children)
           ],
         )

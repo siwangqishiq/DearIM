@@ -20,9 +20,9 @@ class HeadView extends StatelessWidget{
 
     switch(size){
       case ImageSize.middle:
-        return "$url!middle";
+        return "$url?imageMogr2/thumbnail/256x/interlace/0";
       case ImageSize.small:
-        return "$url!small";
+        return "$url?imageMogr2/thumbnail/128x/interlace/0";
       default:
         return url;
     }//end switch

@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:dearim/core/imcore.dart';
+import 'package:dearim/core/immessage.dart';
 import 'package:dearim/datas/chat_data.dart';
 import 'package:dearim/models/chat_message_model.dart';
 import 'package:dearim/models/contact_model.dart';
@@ -28,7 +29,7 @@ class _ChatPageState extends State<ChatPage> {
   _ChatPageState(this.model);
   String text = "";
   String? receiveText = "";
-  List<ChatMessageModel>? msgModels = [];
+  List<ChatMessageModel> msgModels = [];
   final ScrollController _listViewController = ScrollController();
 
   IMMessageIncomingCallback? _msgIncomingCallback;
@@ -36,21 +37,26 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    msgModels = ChatDataManager.getInstance()!.getMsgModels(model.userId);
+    msgModels.addAll(queryHistoryMessage());//查询历史消息
 
     _msgIncomingCallback = (incomingIMMessageList) {
       setState(() {
         receiveText = incomingIMMessageList.last.content;
         log(receiveText!);
-        ChatMessageModel msgModel = ChatMessageModel();
-        msgModel.uid = model.user.uid;
-        msgModel.context = receiveText!;
-        msgModel.updateTime = incomingIMMessageList.last.updateTime;
-        ChatDataManager.getInstance()!.addMessage(msgModel, model.user);
-        msgModels = ChatDataManager.getInstance()!.getMsgModels(model.userId);
+        ChatMessageModel incomingMsgModel = ChatMessageModel.fromIMMessage(incomingIMMessageList.last);
+        msgModels.add(incomingMsgModel);
       });
     };
     TCPManager().registerMessageCommingCallbck(_msgIncomingCallback!);
+  }
+
+  List<ChatMessageModel> queryHistoryMessage(){
+    List<ChatMessageModel> result = <ChatMessageModel>[];
+    var imMsgList = IMClient.getInstance().queryIMMessageList(IMMessageSessionType.P2P, model.userId);
+    for(IMMessage imMsg in imMsgList){
+      result.add(ChatMessageModel.fromIMMessage(imMsg));
+    }//end for each
+    return result;
   }
 
   @override
@@ -77,9 +83,9 @@ class _ChatPageState extends State<ChatPage> {
                 // height: double.infinity,
                 child: ListView.builder(
                   controller: _listViewController,
-                  itemCount: msgModels!.length,
+                  itemCount: msgModels.length,
                   itemBuilder: (BuildContext context, int index) {
-                    ChatMessageModel msgModel = msgModels![index];
+                    ChatMessageModel msgModel = msgModels[index];
                     return ChatView(msgModel);
                   },
                 ),
@@ -114,16 +120,12 @@ class _ChatPageState extends State<ChatPage> {
                     if (_textFieldController.text.isEmpty) {
                       return;
                     }
-                    TCPManager().sendMessage(text, model.userId);
-                    ChatMessageModel msgModel = ChatMessageModel();
-                    msgModel.context = text;
-                    msgModel.uid = UserManager.getInstance()!.user!.uid;
-                    msgModel.updateTime = DateTime.now().millisecondsSinceEpoch;
-                    ChatDataManager.getInstance()!
-                        .addMessage(msgModel, model.user);
+                    var msg = TCPManager().sendMessage(text, model.userId);
+                    if(msg == null){
+                      return;
+                    }
+                    msgModels.add(ChatMessageModel.fromIMMessage(msg));
                     setState(() {
-                      msgModels = ChatDataManager.getInstance()!
-                          .getMsgModels(model.userId);
                       _textFieldController.text = "";
                     });
                   },

@@ -1,3 +1,4 @@
+import 'package:dearim/config.dart';
 import 'package:dearim/core/imcore.dart';
 import 'package:dearim/models/contact_model.dart';
 import 'package:dearim/network/request.dart';
@@ -89,7 +90,7 @@ class _MainPageState extends State<MainPage>
           )
         ],
         title: const Text(
-          "展信佳",
+          APP_NAME,
           style: TextStyle(color: Colors.white),
         ),
       ),

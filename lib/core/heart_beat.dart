@@ -75,7 +75,7 @@ class HeartBeat{
 
   //发送客户端心跳包
   void _sendPingPkg(Timer? timer){
-    LogUtil.log("send heart beat ping...");
+    LogUtil.log("心跳: heart beat ping...");
     final PingMessage pingMsg = PingMessage();
     _client.sendData(pingMsg.encode());
   }
