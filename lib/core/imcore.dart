@@ -14,6 +14,7 @@ import 'package:dearim/core/protocol/protocol.dart';
 import 'package:dearim/core/protocol/push_immessage.dart';
 import 'package:dearim/core/protocol/send_immessage.dart';
 import 'package:dearim/core/session.dart';
+import 'package:dearim/core/sync.dart';
 import 'package:dearim/core/utils.dart';
 
 import 'device.dart';
@@ -145,6 +146,8 @@ class IMClient {
 
   late final StreamSubscription<ConnectivityResult> _streamSubscription;
 
+  late SyncManager _syncManager;
+
   IMClient() {
     DeviceManager.getDevice();
 
@@ -163,6 +166,7 @@ class IMClient {
     });
     _heartBeat = HeartBeat(this);
     _reconnect = Reconnect(this);
+    _syncManager = SyncManager(this);
 
     //_sessionManager = SessionManager();
   }
@@ -546,10 +550,17 @@ class IMClient {
     _heartBeat.startHeartBeat();
     _reconnect.CouldReconnect = true; //标识 未来可以自动重连
 
-    //init session
+    //init session 登录成功后 构建
     if(manualLogin){
       _sessionManager.loadUid(_uid);
     }
+
+    //同步离线消息
+    sendSyncOfflineMessageRequest();
+  }
+
+  void sendSyncOfflineMessageRequest(){
+    _syncManager.sendSyncOfflineMessageReq(uid);
   }
 
   //自动重连
@@ -588,6 +599,8 @@ class IMClient {
     // buf.debugPrint();
     try {
       _socket?.add(buf.readAllUint8List());
+      
+      //flush不能加  否则多次循环调用的场景下 会引发socket异常 add后 交给网络栈发送即可
       // _socket?.flush().whenComplete((){
       //   LogUtil.log("套接字 flush 完成");
       // });

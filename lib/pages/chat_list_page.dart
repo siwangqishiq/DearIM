@@ -145,6 +145,7 @@ class RecentSessionListState extends State<RecentSessionListWidget> {
   
   @override
   Widget build(BuildContext context) {
+    LogUtil.log("最近联系人刷新 数量:${recentSessionList?.length}");
     return Expanded(
       child: ListView.builder(
         itemCount:recentSessionList?.length??0,

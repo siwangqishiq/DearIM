@@ -19,6 +19,9 @@ class MessageTypes {
   static const int PING = 10;// 心跳包 请求
   static const int PONG = 11;// 心跳包 响应
 
+  static const int SYNC_MESSAGE_REQ = 12;//同步消息 请求
+  static const int SYNC_MESSAGE_RESP = 13;//同步消息 响应
+
   static const int KICK_OFF = 400;//踢出 来自其他端抢登
 }
 

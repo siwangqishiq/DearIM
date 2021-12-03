@@ -1,2 +1,4 @@
 
-const String APP_NAME = "";
+// ignore_for_file: constant_identifier_names
+
+const String APP_NAME = "iM";

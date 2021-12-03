@@ -51,7 +51,7 @@ class SessionManager {
 
   SessionManager();
 
-  Future<void> loadUid(int id) async{
+  void loadUid(int id){
     LogUtil.log("session loadData $id");
     _uid = id;
     loadData();
@@ -70,7 +70,15 @@ class SessionManager {
   //查询用户IM消息列表
   List<IMMessage> queryIMMessageByUid(int sessionType, int sessionId) {
     final String key = "${sessionType}_$sessionId";
-    return _recentSessionMap[key]?.imMsgList ?? [];
+    LogUtil.log("查询消息记录 key : $key");
+    var result = _recentSessionMap[key]?.imMsgList ?? [];
+
+    LogUtil.log("历史消息查询结果:");
+    for(IMMessage msg in result){
+      LogUtil.log("${msg.sessionId} : ${msg.content}");
+    }
+    LogUtil.log("历史消息查询结果:END");
+    return result;
   }
 
   Future<List<IMMessage>> _loadHistoryIMMessage() async {

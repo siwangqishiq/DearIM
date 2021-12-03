@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:uuid/uuid.dart';
 
 import '../byte_buffer.dart';
@@ -79,7 +81,7 @@ class Message {
     buf.writeInt32(getType());
     buf.writeInt32(bodyEncode);
     buf.writeInt64(uniqueId);
-
+    
     if (bodyBuf.hasReadContent) {
       buf.writeByteBuf(bodyBuf);
     }
