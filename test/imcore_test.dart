@@ -15,7 +15,7 @@ void main() {
   int uid = 1001;
   String token =
       "eyJ0eXAiOiJKV1QiLCJfdWlkIjoiMTAwMSIsImFsZyI6IkhTMjU2In0.eyJleHAiOjE2MzY4MzY5Nzh9.SDvudzHirrbwWvNopPd1JS3eY6PYZYaidE8_1083cxk";
-  IMClient.getInstance()?.imLogin(uid, token);
+  IMClient.getInstance().imLogin(uid, token);
 }
 
 void testSocket() {
