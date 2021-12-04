@@ -90,7 +90,7 @@ class SendIMMessageHandler extends MessageHandler<SendIMMessageRespMsg> {
   @override
   void handle(IMClient client, SendIMMessageRespMsg msg) {
     LogUtil.log("send immessage resp unique(${msg.uniqueId}) ");
-
+    
     //callback
     if(msg.result != null){
       IMMessageResult result = msg.result!;
