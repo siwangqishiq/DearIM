@@ -405,6 +405,7 @@ void main() {
     buf.writeString(null);
     buf.writeString("123456789");
     buf.writeString("你好世界 哈哈哈!");
+    buf.writeInt64(1001);
 
     String? v1 = buf.readString();
     print(v1);
@@ -421,5 +422,7 @@ void main() {
     String? v4 = buf.readString();
     print("readString2 : $v4");
     expect(v4, "你好世界 哈哈哈!");
+        
+    expect(1001, buf.readInt64());
   });
 }
