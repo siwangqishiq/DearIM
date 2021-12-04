@@ -138,6 +138,36 @@ class ByteBuf {
     _writeIndex += moveSize;
   }
 
+  //写入字符串
+  void writeString(String? str){
+    if(str == null){
+      writeInt32(-1);
+      return;
+    }else if(str == ""){
+      writeInt32(0);
+      return;
+    }
+
+    var strBytes = Utils.convertStringToUint8List(str);
+    final int strLen = strBytes.length;
+    writeInt32(strLen);
+    
+    writeUint8List(strBytes);
+  }
+
+  //读取字符串
+  String? readString(){
+    final int strLen = readInt32();
+    if(strLen < 0){
+      return null;
+    }else if(strLen == 0){
+      return "";
+    }
+
+    var strBytes = readUint8List(strLen);
+    return Utils.convertUint8ListToString(strBytes);
+  }
+
   //读取指定数量的byte为Uint8List
   Uint8List readUint8List(int readSize) {
     if (readSize < 1) {
