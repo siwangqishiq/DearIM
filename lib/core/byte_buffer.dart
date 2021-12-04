@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -333,13 +332,14 @@ class ByteBuf {
   }
 
   //拷贝指定字节数量 到 ByteBuf
-  ByteBuf copyWithSize(int copySize){
-    if(copySize <= initMinSize){
+  ByteBuf copyWithSize(int copySize) {
+    if (copySize <= initMinSize) {
       copySize = initMinSize;
     }
 
-    final ByteBuf copyBuf = ByteBuf.allocator(size:copySize);
-    Uint8List cpData = _data.sublist(_readIndex , min(_readIndex + copySize , writeIndex));
+    final ByteBuf copyBuf = ByteBuf.allocator(size: copySize);
+    Uint8List cpData =
+        _data.sublist(_readIndex, min(_readIndex + copySize, writeIndex));
     copyBuf.writeUint8List(cpData);
     return copyBuf;
   }
@@ -368,24 +368,24 @@ class ByteBuf {
   }
 
   //重新调整buf 舍弃已读过的数据 释放原有数据节约内存使用
-  void compact(){
-    if(_readIndex <= 0) {
+  void compact() {
+    if (_readIndex <= 0) {
       return;
     }
-    
+
     int originReadIndex = _readIndex;
     _readIndex = 0;
     _writeIndex -= originReadIndex;
     _data = _data.sublist(originReadIndex);
 
-    if(_data.length < initMinSize){
-      ByteBuf newBuf = ByteBuf.allocator(size:initMinSize);
+    if (_data.length < initMinSize) {
+      ByteBuf newBuf = ByteBuf.allocator(size: initMinSize);
       newBuf.writeByteBuf(this);
       _deepCopySelf(newBuf);
     }
   }
 
-  void _deepCopySelf(ByteBuf buf){
+  void _deepCopySelf(ByteBuf buf) {
     _readIndex = buf.readIndex;
     _writeIndex = buf.writeIndex;
     _data = buf.data;
@@ -396,20 +396,20 @@ class ByteBuf {
     LogUtil.log("$str  r = $_readIndex ,w = $_writeIndex");
   }
 
-  void debugHexPrint({int columSize = 32}){
+  void debugHexPrint({int columSize = 32}) {
     String sb = "";
     sb += "rdx = $_readIndex ,wdx = $_writeIndex \n";
     //stdout.write("rdx = $_readIndex ,wdx = $_writeIndex \n");
-    for(int i = 0 ; i< _writeIndex;i++){
-      if(i != 0 && i % columSize ==0){
+    for (int i = 0; i < _writeIndex; i++) {
+      if (i != 0 && i % columSize == 0) {
         //stdout.write("\n");
         sb += "\n";
       }
       //stdout.write(Utils.intToHex(_data[i]) +" ");
-      sb += (Utils.intToHex(_data[i]) +" ");
+      sb += (Utils.intToHex(_data[i]) + " ");
     }
     //stdout.write("\n" + ("="*columSize));
-    sb += ("\n" + ("="*columSize));
+    sb += ("\n" + ("=" * columSize));
     LogUtil.log(sb);
   }
 } //end class
