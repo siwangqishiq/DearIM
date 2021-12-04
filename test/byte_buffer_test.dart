@@ -397,4 +397,29 @@ void main() {
 
     expect(0, originBuf.readIndex);
   });
+  
+  test("read write string" , (){
+    ByteBuf buf = ByteBuf.allocator();
+
+    buf.writeString("");
+    buf.writeString(null);
+    buf.writeString("123456789");
+    buf.writeString("你好世界 哈哈哈!");
+
+    String? v1 = buf.readString();
+    print(v1);
+    expect(v1, "");
+
+    String? v2 = buf.readString();
+    print(v2);
+    expect(v2, null);
+
+    String? v3 = buf.readString();
+    print("readString1 : $v3");
+    expect(v3, "123456789");
+    
+    String? v4 = buf.readString();
+    print("readString2 : $v4");
+    expect(v4, "你好世界 哈哈哈!");
+  });
 }
