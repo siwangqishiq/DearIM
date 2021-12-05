@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main(){
   
-  test("test run", (){
+  test("test file create", (){
     File file = File("panyi.txt");
     if(!file.existsSync()){
       file.createSync();
@@ -15,6 +15,12 @@ void main(){
     file.writeAsString("Hello Werld你好 世界");
     
     LogUtil.log("path: ${file.absolute.path}");
+
+    file.deleteSync();
+  });
+
+  test("test 1" , (){
+
   });
 }
 
