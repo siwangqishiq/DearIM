@@ -169,34 +169,40 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                   ),
                 ),
-                Container(
-                  width: 40,
-                  height: 40,
-                  child: TextButton(
-                    onPressed: () {
-                      setState(() {
-                        showemoji = !showemoji;
-                        showBottomAction = false;
-                      });
-                    },
-                    child: const Icon(Icons.sentiment_satisfied_alt),
-                  ),
-                ),
-                Container(
-                  width: 40,
-                  height: 40,
-                  child: TextButton(
-                    onPressed: () {
-                      setState(() {
-                        showBottomAction = !showBottomAction;
-                        showemoji = false;
-                      });
-                    },
-                    child: const Icon(Icons.add),
-                  ),
+                // Container(
+                //   width: 40,
+                //   height: 40,
+                //   child: TextButton(
+                //     onPressed: () {
+                //       setState(() {
+                //         showemoji = !showemoji;
+                //         showBottomAction = false;
+                //       });
+                //     },
+                //     child: const Icon(Icons.sentiment_satisfied_alt),
+                //   ),
+                // ),
+                // Container(
+                //   width: 40,
+                //   height: 40,
+                //   child: TextButton(
+                //     onPressed: () {
+                //       setState(() {
+                //         showBottomAction = !showBottomAction;
+                //         showemoji = false;
+                //       });
+                //     },
+                //     child: const Icon(Icons.send),
+                //   ),
+                // ),
+
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(fixedSize:const Size(60 ,40)),
+                  onPressed: () => sendMsg(text),
+                  child:const Text("发送" , style: TextStyle(color: Colors.white)),
                 ),
                 const SizedBox(
-                  width: 5,
+                  width: 16,
                 ),
               ],
             ),
