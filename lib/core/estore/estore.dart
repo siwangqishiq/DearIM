@@ -42,36 +42,40 @@ class User with Codec<User> {
 }
 
 class EasyStore {
-  factory EasyStore.fromFile(String path) {
-    return EasyStore(path);
-  }
-
   static const List<int> MagicNumbers = [7, 7, 8, 8];
 
-  late String dbPath;
+  String _dbName = "";
 
   late Directory workDir;
+  late File dbFile;
 
   int _version = 1; //版本
 
   final ByteBuf _dataBuf = ByteBuf.allocator();
 
+  bool isInit = false;
+
   Map<String, StoreTable> tables = <String, StoreTable>{};
 
   factory EasyStore.open(String dbName) {
-    EasyStore result = EasyStore();
-    result.findLocalPath().then((value) => null);
-    result._init();
+    final EasyStore result = EasyStore();
+    result._dbName = dbName;
 
+    result.findLocalPath().then((value) {
+      print("数据库路径:${value}");
+      result._init(value);
+    });
     return result;
   }
 
   EasyStore();
 
-  Future<void> _init() async {
-    LogUtil.log("$dbPath read file");
+  void _init(String _workDir) {
+    workDir = Directory(_workDir);
+    dbFile = File("${workDir.path}/$_dbName");
 
-    final File dbFile = File(dbPath);
+    LogUtil.log("db文件路径 :${dbFile.absolute.path}");
+
     if (!dbFile.existsSync()) {
       _createDbFile();
     }
@@ -80,22 +84,23 @@ class EasyStore {
     LogUtil.log("工作目录: ${workDir.absolute.path}");
 
     _readDataBaseConfig();
+
+    isInit = true;
   }
 
   //创建db文件
   void _createDbFile() {
-    final File dbFile = File(dbPath);
     dbFile.createSync(recursive: true);
-    _reSaveDb(dbFile);
+    reSaveDb();
     LogUtil.log("创建db文件 ${dbFile.absolute.path}");
   }
 
   Future<String> findLocalPath() async {
     final directory = await getApplicationDocumentsDirectory();
-    return directory.path;
+    return directory.absolute.path;
   }
 
-  void _reSaveDb(final File dbFile) {
+  void reSaveDb() {
     ByteBuf buf = ByteBuf.allocator(size: 32);
     //write magic number
     buf.writeInt8(MagicNumbers[0]);
@@ -117,9 +122,8 @@ class EasyStore {
     dbFile.writeAsBytesSync(buf.readAllUint8List());
   }
 
+  //写入配置
   int _readDataBaseConfig() {
-    final File dbFile = File(dbPath);
-
     ByteBuf buf = ByteBuf.allocator(size: dbFile.lengthSync());
     var content = dbFile.readAsBytesSync();
     buf.writeUint8List(content);

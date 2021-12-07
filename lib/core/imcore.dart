@@ -78,8 +78,8 @@ abstract class MessageHandler<T> {
 class IMClient {
   // static String _serverAddress = "10.242.142.129"; //
   // static const String _serverAddress = "192.168.31.230"; //
-  static String _serverAddress = "192.168.31.37";
-  // static String _serverAddress = "panyi.xyz";
+  // static String _serverAddress = "192.168.31.37";
+  static String _serverAddress = "101.34.247.16";
 
   static int _port = 1013;
 
@@ -248,7 +248,8 @@ class IMClient {
     sendData(SendIMMessageReqMsg(imMessage).encode());
 
     //更新最近会话session
-    _sessionManager.updateRecentSession(imMessage , recentSort: true , fireCallback:true);
+    _sessionManager.updateRecentSession(imMessage,
+        recentSort: true, fireCallback: true);
   }
 
   //注册 或 解绑 状态改变事件监听
@@ -281,8 +282,8 @@ class IMClient {
   }
 
   //查询指定会话历史消息
-  List<IMMessage> queryIMMessageList(int sessionType, int uid){
-    return _sessionManager.queryIMMessageByUid(sessionType , uid);
+  List<IMMessage> queryIMMessageList(int sessionType, int uid) {
+    return _sessionManager.queryIMMessageByUid(sessionType, uid);
   }
 
   //注册接收IM消息
@@ -315,7 +316,8 @@ class IMClient {
   //接收到新IM消息
   void receivedIMMessage(List<IMMessage> receivedMessageList) {
     for (IMMessage msg in receivedMessageList) {
-      _sessionManager.updateRecentSession(msg , recentSort: true ,fireCallback:true);
+      _sessionManager.updateRecentSession(msg,
+          recentSort: true, fireCallback: true);
     } //end for each
 
     _fireMmMessageIncomingCallback(receivedMessageList);
@@ -551,7 +553,7 @@ class IMClient {
     _reconnect.CouldReconnect = true; //标识 未来可以自动重连
 
     //init session 登录成功后 构建
-    if(manualLogin){
+    if (manualLogin) {
       _sessionManager.loadUid(_uid);
     }
 
@@ -559,7 +561,7 @@ class IMClient {
     sendSyncOfflineMessageRequest();
   }
 
-  void sendSyncOfflineMessageRequest(){
+  void sendSyncOfflineMessageRequest() {
     _syncManager.sendSyncOfflineMessageReq(uid);
   }
 
@@ -599,7 +601,7 @@ class IMClient {
     // buf.debugPrint();
     try {
       _socket?.add(buf.readAllUint8List());
-      
+
       //flush不能加  否则多次循环调用的场景下 会引发socket异常 add后 交给网络栈发送即可
       // _socket?.flush().whenComplete((){
       //   LogUtil.log("套接字 flush 完成");
@@ -608,6 +610,5 @@ class IMClient {
       LogUtil.log("socket write error ${e.toString()}");
       onSocketClose();
     }
-   
   }
 } //end class

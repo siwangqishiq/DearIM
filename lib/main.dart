@@ -11,8 +11,8 @@ import 'core/core_test.dart';
 import 'tcp/tcp_manager.dart';
 
 void main() {
-  runApp(const MyApp());
-  // coreTestRun();
+  // runApp(const MyApp());
+  coreTestRun();
 }
 
 class MyApp extends StatelessWidget {
@@ -30,14 +30,17 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(primarySwatch: ColorThemes.themeColor),
       home: FutureBuilder(
         future: getUser(),
-        builder :(BuildContext context, AsyncSnapshot<User> snapshot) {
-          if(snapshot.data == null){
+        builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
+          if (snapshot.data == null) {
             //todo 显示一个欢迎页
             return Scaffold(
               body: Container(
                 color: ColorThemes.themeColor,
                 child: const Center(
-                  child: Text("Welcome" , style: TextStyle(fontSize: 30.0 , color: Colors.white),),
+                  child: Text(
+                    "Welcome",
+                    style: TextStyle(fontSize: 30.0, color: Colors.white),
+                  ),
                 ),
               ),
             );

@@ -1,3 +1,4 @@
+import 'package:dearim/core/estore/estore.dart';
 import 'package:dearim/core/immessage.dart';
 import 'package:dearim/core/log.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,7 @@ import 'utils.dart';
 ///
 /// core测试相关
 ///
-void coreTestRun(){
+void coreTestRun() {
   runApp(const CoreTestApp());
 }
 
@@ -26,8 +27,7 @@ class CoreTestApp extends StatelessWidget {
   }
 }
 
-
-class TestCoreMainState extends State<TestCoreMain>{
+class TestCoreMainState extends State<TestCoreMain> {
   String mClientStatus = "init";
 
   String mIncomingMessage = "";
@@ -42,9 +42,12 @@ class TestCoreMainState extends State<TestCoreMain>{
   @override
   void initState() {
     super.initState();
+
+    EasyStore s = EasyStore.open("test_ppp");
+
     _editController = TextEditingController(text: "你好世界");
     _focusNode = FocusNode();
-    
+
     initIM();
   }
 
@@ -60,16 +63,17 @@ class TestCoreMainState extends State<TestCoreMain>{
 
     IMClient.getInstance().registerStateObserver(_stateChangeCallback!, true);
 
-    _imMessageIncomingCallback??=(incomingIMMessageList){
-       setState(() {
+    _imMessageIncomingCallback ??= (incomingIMMessageList) {
+      setState(() {
         mIncomingMessage = incomingIMMessageList.first.content!;
       });
     };
 
-    IMClient.getInstance().registerIMMessageIncomingObserver(_imMessageIncomingCallback!, true);
+    IMClient.getInstance()
+        .registerIMMessageIncomingObserver(_imMessageIncomingCallback!, true);
   }
 
-  void login(int uid){
+  void login(int uid) {
     String token = "fuckali_$uid";
 
     IMClient.getInstance().imLogin(uid, token, loginCallback: (result) {
@@ -84,66 +88,78 @@ class TestCoreMainState extends State<TestCoreMain>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "TestCore",
-          style: TextStyle(color: Colors.white),
+        appBar: AppBar(
+          title: const Text(
+            "TestCore",
+            style: TextStyle(color: Colors.white),
+          ),
         ),
-      ),
-      // ignore: avoid_unnecessary_containers
-      body: Container(
-        child:Center(
-          child: SizedBox(
+        // ignore: avoid_unnecessary_containers
+        body: Container(
+          child: Center(
+              child: SizedBox(
             width: 320,
             child: ListView(
               children: <Widget>[
-                  Text("status: $mClientStatus  uid: ${IMClient.getInstance().uid}"),
-                  ElevatedButton(
-                  onPressed: ()=> login(1), 
+                Text(
+                    "status: $mClientStatus  uid: ${IMClient.getInstance().uid}"),
+                ElevatedButton(
+                  onPressed: () => login(1),
                   child: const Text("登录1"),
-                  ),
-                  const SizedBox(height: 20,),
-                  ElevatedButton(
-                  onPressed: ()=> login(1001), 
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                ElevatedButton(
+                  onPressed: () => login(1001),
                   child: const Text("登录1001"),
-                  ),
-                  const SizedBox(height: 20,),
-                  SizedBox(
-                    width: 200,
-                    child: TextField(
-                      controller: _editController, 
-                      style:const TextStyle(
-                        color: Colors.black,
-                        fontSize: 18.0,
-                      ), 
-                      cursorColor: Colors.black, 
-                      decoration: const InputDecoration(border: OutlineInputBorder()),
-                      focusNode: _focusNode,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                SizedBox(
+                  width: 200,
+                  child: TextField(
+                    controller: _editController,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 18.0,
                     ),
+                    cursorColor: Colors.black,
+                    decoration:
+                        const InputDecoration(border: OutlineInputBorder()),
+                    focusNode: _focusNode,
                   ),
-                  const SizedBox(height: 20,),
-                  ElevatedButton(
-                  onPressed: ()=> sendTextMessage(1), 
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                ElevatedButton(
+                  onPressed: () => sendTextMessage(1),
                   child: const Text("发送文本消息给1"),
-                  ),
-                  const SizedBox(height: 20,),
-                  ElevatedButton(
-                  onPressed: ()=> sendTextMessage(1001), 
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                ElevatedButton(
+                  onPressed: () => sendTextMessage(1001),
                   child: const Text("发送文本消息给1001"),
-                  ),
-                  const SizedBox(height: 20,),
-                  ElevatedButton(
-                  onPressed: ()=> imLogout(), 
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                ElevatedButton(
+                  onPressed: () => imLogout(),
                   child: const Text("退出IM登录"),
-                  ),
-                  const SizedBox(height: 20,),
-                  Text("接收消息 : $mIncomingMessage"),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Text("接收消息 : $mIncomingMessage"),
               ],
             ),
-          )
-        ),
-      )
-    );
+          )),
+        ));
   }
 
   @override
@@ -154,29 +170,28 @@ class TestCoreMainState extends State<TestCoreMain>{
     super.dispose();
   }
 
-  void imLogout(){
-    IMClient.getInstance().imLoginOut(loginOutCallback:(r){
+  void imLogout() {
+    IMClient.getInstance().imLoginOut(loginOutCallback: (r) {
       LogUtil.log("退出登录: ${r.result}");
     });
   }
 
-  void sendTextMessage(int toId){
+  void sendTextMessage(int toId) {
     String content = _editController.text;
 
-    IMMessage? msg = IMMessageBuilder.createText(toId, IMMessageSessionType.P2P, content);
-    if(msg != null){
-      IMClient.getInstance().sendIMMessage(msg , callback : (imMessage , result){
+    IMMessage? msg =
+        IMMessageBuilder.createText(toId, IMMessageSessionType.P2P, content);
+    if (msg != null) {
+      IMClient.getInstance().sendIMMessage(msg, callback: (imMessage, result) {
         LogUtil.log("send im message ${result.code}");
       });
     }
   }
 }
 
-class TestCoreMain extends StatefulWidget{
+class TestCoreMain extends StatefulWidget {
   const TestCoreMain({Key? key}) : super(key: key);
 
   @override
   TestCoreMainState createState() => TestCoreMainState();
 }
-
-
