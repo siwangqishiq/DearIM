@@ -38,6 +38,7 @@ dependencies:
   shared_preferences: ^2.0.9 #key-value持久化存储
   date_format: ^2.0.4
   file_picker: ^4.2.5 #文件选择器
+  path_provider: ^2.0.7 #获取工作目录
   
 dev_dependencies:
   flutter_test:

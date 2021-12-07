@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dearim/core/byte_buffer.dart';
 import 'package:dearim/core/log.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'estore_table.dart';
 
@@ -57,11 +58,17 @@ class EasyStore {
 
   Map<String, StoreTable> tables = <String, StoreTable>{};
 
-  EasyStore(this.dbPath) {
-    _init();
+  factory EasyStore.open(String dbName) {
+    EasyStore result = EasyStore();
+    result.findLocalPath().then((value) => null);
+    result._init();
+
+    return result;
   }
 
-  void _init() {
+  EasyStore();
+
+  Future<void> _init() async {
     LogUtil.log("$dbPath read file");
 
     final File dbFile = File(dbPath);
@@ -81,6 +88,11 @@ class EasyStore {
     dbFile.createSync(recursive: true);
     _reSaveDb(dbFile);
     LogUtil.log("创建db文件 ${dbFile.absolute.path}");
+  }
+
+  Future<String> findLocalPath() async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.path;
   }
 
   void _reSaveDb(final File dbFile) {
@@ -133,7 +145,7 @@ class EasyStore {
     } //end for i
     return 0;
   }
-  
+
   int save(Codec data) {
     return 0;
   }
