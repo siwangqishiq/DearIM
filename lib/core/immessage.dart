@@ -103,8 +103,8 @@ class IMMessage with Codec<IMMessage>{
     msg.msgId = buf.readString()??"";
     msg.fromId = buf.readInt64();
     msg.toId = buf.readInt64();
-    msg.createTime = buf.readInt32();
-    msg.updateTime = buf.readInt32();
+    msg.createTime = buf.readInt64();
+    msg.updateTime = buf.readInt64();
 
     msg.imMsgType = buf.readInt32();
     msg.sessionType = buf.readInt32();
@@ -131,8 +131,8 @@ class IMMessage with Codec<IMMessage>{
     buf.writeString(msgId);
     buf.writeInt64(fromId);
     buf.writeInt64(toId);
-    buf.writeInt32(createTime);
-    buf.writeInt32(updateTime);
+    buf.writeInt64(createTime);
+    buf.writeInt64(updateTime);
 
     buf.writeInt32(imMsgType);
     buf.writeInt32(sessionType);

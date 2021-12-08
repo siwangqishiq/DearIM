@@ -20,7 +20,7 @@ class StoreTable {
 
   static const int STATE_NORMAL = 0;//数据状态 正常
   static const int STATE_DELETE = -1;//数据状态 删除
-  
+
 
   StoreTable(this.name, this.path){
     tableFile = File(path);
@@ -29,7 +29,7 @@ class StoreTable {
       tableFile.createSync();
     }
   }
-
+  
   int dataHeadSize(){
     return 4 + 1;
   }
