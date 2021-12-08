@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:dearim/core/estore/estore.dart';
 import 'package:dearim/core/immessage.dart';
 import 'package:dearim/core/log.dart';
 
@@ -49,17 +50,25 @@ class SessionManager {
   final List<RecentSessionChangeCallback> _changeCallbackList =
       <RecentSessionChangeCallback>[];
 
+  EasyStore? _store;
+
   SessionManager();
 
-  void loadUid(int id){
+  Future<int> loadUid(int id) async{
     LogUtil.log("session loadData $id");
     _uid = id;
     loadData();
+
+    return Future.value(0);
   }
 
   void loadData() async {
-    List<IMMessage> list = await _loadHistoryIMMessage();
-    _rebuildRecentSession(list);
+    _store = EasyStore.open("${_uid}db");
+    await _store!.init();
+
+    List<dynamic> list = _store!.query(IMMessage());
+    LogUtil.log("用户$_uid 查询本地历史消息 ${list.length}条记录");
+    _rebuildRecentSession(list.cast<IMMessage>());
   }
 
   //获取最近消息列表
@@ -79,11 +88,6 @@ class SessionManager {
     }
     LogUtil.log("历史消息查询结果:END");
     return result;
-  }
-
-  Future<List<IMMessage>> _loadHistoryIMMessage() async {
-    //载入历史消息
-    return <IMMessage>[];
   }
 
   //注册 或 解绑 状态改变事件监听
@@ -113,7 +117,7 @@ class SessionManager {
     _recentSessionMap.clear();
 
     for (final IMMessage msg in msgList) {
-      updateRecentSession(msg);
+      _updateRecentSession(msg);
     } //end for each
 
     _sortRecentSessionList();
@@ -125,10 +129,26 @@ class SessionManager {
     }
   }
 
+  //接收新的IM消息
+  void onReceivedIMMessage(final IMMessage msg){
+    _updateRecentSession(msg, recentSort: true, fireCallback: true);
+
+    //保存消息到本地
+    _store?.save(msg);
+  }
+
+  //发送新IM消息
+  void onSendIMMessage(final IMMessage msg){
+    _updateRecentSession(msg,recentSort: true, fireCallback: true);
+
+    //保存消息到本地
+    _store?.save(msg);
+  }
+
   ///
   ///通过消息 更新最近联系人会话
   ///
-  void updateRecentSession(final IMMessage msg,
+  void _updateRecentSession(final IMMessage msg,
       {bool recentSort = false, bool fireCallback = false}) {
     final String key = _getRecentSessionKey(msg);
 
@@ -157,12 +177,12 @@ class SessionManager {
     }
 
     //debug show
-    LogUtil.log("--------beg-------");
-    for(int i = 0 ; i < _recentSessionList.length ;i++){
-      var data = _recentSessionList[i];
-      LogUtil.log("sessionI ${data.sessionId} msg content: ${data.lastIMMessage?.content} count: ${data.imMsgList.length}");
-    }
-    LogUtil.log("--------end-------");
+    // LogUtil.log("--------beg-------");
+    // for(int i = 0 ; i < _recentSessionList.length ;i++){
+    //   var data = _recentSessionList[i];
+    //   LogUtil.log("sessionI ${data.sessionId} msg content: ${data.lastIMMessage?.content} count: ${data.imMsgList.length}");
+    // }
+    // LogUtil.log("--------end-------");
 
     if (fireCallback) {
       _fireRecentChangeCallback();

@@ -79,7 +79,7 @@ class IMClient {
   // static String _serverAddress = "10.242.142.129"; //
   // static const String _serverAddress = "192.168.31.230"; //
   // static String _serverAddress = "192.168.31.37";
-  static String _serverAddress = "101.34.247.16";
+  static String _serverAddress = "fuckalibaba.xyz";
 
   static int _port = 1013;
 
@@ -248,8 +248,7 @@ class IMClient {
     sendData(SendIMMessageReqMsg(imMessage).encode());
 
     //更新最近会话session
-    _sessionManager.updateRecentSession(imMessage,
-        recentSort: true, fireCallback: true);
+    _sessionManager.onSendIMMessage(imMessage);
   }
 
   //注册 或 解绑 状态改变事件监听
@@ -316,8 +315,7 @@ class IMClient {
   //接收到新IM消息
   void receivedIMMessage(List<IMMessage> receivedMessageList) {
     for (IMMessage msg in receivedMessageList) {
-      _sessionManager.updateRecentSession(msg,
-          recentSort: true, fireCallback: true);
+      _sessionManager.onReceivedIMMessage(msg);
     } //end for each
 
     _fireMmMessageIncomingCallback(receivedMessageList);
@@ -544,7 +542,7 @@ class IMClient {
   }
 
   //登录成功
-  void loginSuccess(bool manualLogin) {
+  void loginSuccess(bool manualLogin) async {
     LogUtil.log("login success 是否是手动登录: $manualLogin");
     _changeState(ClientState.logined);
 
@@ -554,7 +552,7 @@ class IMClient {
 
     //init session 登录成功后 构建
     if (manualLogin) {
-      _sessionManager.loadUid(_uid);
+      await _sessionManager.loadUid(_uid);
     }
 
     //同步离线消息

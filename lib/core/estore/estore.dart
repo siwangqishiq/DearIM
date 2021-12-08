@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dearim/core/byte_buffer.dart';
 import 'package:dearim/core/log.dart';
+import 'package:dearim/user/user.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'estore_table.dart';
@@ -17,28 +18,8 @@ abstract class Codec<T> {
   T decode(ByteBuf buf);
 
   String key();
-}
 
-class User with Codec<User> {
-  int id = 0;
-  String? name;
-  int age = -1;
-  String? desc;
-
-  @override
-  User decode(ByteBuf buf) {
-    return User();
-  }
-
-  @override
-  ByteBuf encode() {
-    return ByteBuf.allocator();
-  }
-
-  @override
-  String key() {
-    return "user";
-  }
+  String tableName();
 }
 
 class EasyStore {
@@ -61,18 +42,20 @@ class EasyStore {
     final EasyStore result = EasyStore();
     result._dbName = dbName;
 
-    result.findLocalPath().then((value) {
-      print("数据库路径:${value}");
-      result._init(value);
-    });
+    // result.findLocalPath().then((value) {
+    //   print("数据库路径:${value}");
+    //   result.init(value);
+    // });
     return result;
   }
 
   EasyStore();
 
-  void _init(String _workDir) {
+  Future<int> init() async {
+    var _workDir = await findLocalPath();
+
     workDir = Directory(_workDir);
-    dbFile = File("${workDir.path}/$_dbName");
+    dbFile = File("${workDir.path}${Platform.pathSeparator}$_dbName");
 
     LogUtil.log("db文件路径 :${dbFile.absolute.path}");
 
@@ -83,9 +66,11 @@ class EasyStore {
     workDir = dbFile.parent;
     LogUtil.log("工作目录: ${workDir.absolute.path}");
 
-    _readDataBaseConfig();
+    _readDb();
 
     isInit = true;
+
+    return Future.value(0);
   }
 
   //创建db文件
@@ -96,6 +81,7 @@ class EasyStore {
   }
 
   Future<String> findLocalPath() async {
+    //final directory = await getLibraryDirectory();
     final directory = await getApplicationDocumentsDirectory();
     return directory.absolute.path;
   }
@@ -123,7 +109,7 @@ class EasyStore {
   }
 
   //写入配置
-  int _readDataBaseConfig() {
+  int _readDb() {
     ByteBuf buf = ByteBuf.allocator(size: dbFile.lengthSync());
     var content = dbFile.readAsBytesSync();
     buf.writeUint8List(content);
@@ -145,13 +131,45 @@ class EasyStore {
       String name = buf.readString() ?? "";
       String path = buf.readString() ?? "";
 
+      LogUtil.log("table name:$name path: $path");
+
       tables[name] = StoreTable(name, path);
     } //end for i
     return 0;
   }
 
   int save(Codec data) {
-    return 0;
+    if(!tables.containsKey(data.tableName())){ //建表
+      StoreTable table = StoreTable(data.tableName(), "${workDir.absolute.path}${Platform.pathSeparator}${_dbName}_${data.tableName()}");
+      tables[data.tableName()] = table;
+    }
+
+    StoreTable table = tables[data.tableName()]!;
+    reSaveDb();
+    return table.save(data);
+  }
+
+  void delete(){
+    for(StoreTable table in tables.values){
+      File file = File(table.path);
+      if(file.existsSync()){
+        LogUtil.log("删除文件 ${file.absolute.path}");
+        file.deleteSync();
+      }
+    }
+
+    LogUtil.log("删除文件 ${dbFile.absolute.path}");
+    dbFile.deleteSync();
+  }
+
+  //从表中查询数据 返回数据列表
+  List<dynamic> query(Codec codec) {
+   if(!tables.containsKey(codec.tableName())){ //建表
+      return [];
+    }
+    
+    StoreTable table = tables[codec.tableName()]!;
+    return table.query(codec);
   }
 
   int remove(Codec data) {
@@ -160,9 +178,5 @@ class EasyStore {
 
   int update(Codec data) {
     return 0;
-  }
-
-  List<Codec> query(Codec data) {
-    return <Codec>[];
   }
 }

@@ -185,6 +185,13 @@ class ByteBuf {
     return Uint8List(1);
   }
 
+  ByteBuf readUint8ListAsByteBuf(int readSize){
+    Uint8List data = readUint8List(readSize);
+    ByteBuf buf = ByteBuf.allocator(size: readSize);
+    buf.writeUint8List(data);
+    return buf;
+  }
+
   //读取所有剩下的数据为Unit8List
   Uint8List readAllUint8List() {
     return readUint8List(couldReadableSize);

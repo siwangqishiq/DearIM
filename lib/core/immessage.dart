@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:dearim/core/byte_buffer.dart';
 import 'package:dearim/core/log.dart';
 import 'package:dearim/core/protocol/message.dart';
 
+import 'estore/estore.dart';
 import 'utils.dart';
 
 ///
@@ -11,7 +13,10 @@ import 'utils.dart';
 // ignore_for_file: constant_identifier_names
 
 //im消息体
-class IMMessage {
+class IMMessage with Codec<IMMessage>{
+  static const int CODE_RECEIVED = 1;//消息接收
+  static const int CODE_SEND = 0;//消息发出
+
   int size = 0; //消息总大小
   String msgId = ""; //消息唯一标识
   int fromId = 0; //发送人ID
@@ -90,6 +95,69 @@ class IMMessage {
 
   //会话ID
   int get sessionId => isReceived ? fromId : toId;
+
+  @override
+  IMMessage decode(ByteBuf buf) {
+    final IMMessage msg  = IMMessage();
+    msg.size = buf.readInt32();
+    msg.msgId = buf.readString()??"";
+    msg.fromId = buf.readInt64();
+    msg.toId = buf.readInt64();
+    msg.createTime = buf.readInt32();
+    msg.updateTime = buf.readInt32();
+
+    msg.imMsgType = buf.readInt32();
+    msg.sessionType = buf.readInt32();
+    msg.msgState = buf.readInt32();
+    msg.readState = buf.readInt32();
+    msg.fromClient = buf.readInt32();
+    msg.toClient = buf.readInt32();
+
+    msg.content = buf.readString();
+    msg.url = buf.readString();
+    msg.attachState = buf.readInt32();
+    msg.attachInfo = buf.readString();
+    msg.custom = buf.readString();
+
+    msg.isReceived = (buf.readInt8() == CODE_RECEIVED);
+    return msg;
+  }
+
+  @override
+  ByteBuf encode() {
+    ByteBuf buf = ByteBuf.allocator(size: 256);
+
+    buf.writeInt32(size);
+    buf.writeString(msgId);
+    buf.writeInt64(fromId);
+    buf.writeInt64(toId);
+    buf.writeInt32(createTime);
+    buf.writeInt32(updateTime);
+
+    buf.writeInt32(imMsgType);
+    buf.writeInt32(sessionType);
+    buf.writeInt32(msgState);
+    buf.writeInt32(readState);
+    buf.writeInt32(fromClient);
+    buf.writeInt32(toClient);
+
+    buf.writeString(content);
+    buf.writeString(url);
+    buf.writeInt32(attachState);
+    buf.writeString(attachInfo);
+    buf.writeString(custom);
+
+    buf.writeInt8(isReceived?CODE_RECEIVED:CODE_SEND);
+    return buf;
+  }
+
+  @override
+  String key() => msgId;
+
+  @override
+  String tableName() {
+    return "immessage";
+  }
 } //end class
 
 class IMMessageType {
