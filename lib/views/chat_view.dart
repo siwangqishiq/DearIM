@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_immutable, no_logic_in_create_state
+// ignore_for_file: must_be_immutable, no_logic_in_create_state, constant_identifier_names
 
 import 'package:dearim/datas/chat_data.dart';
 import 'package:dearim/models/chat_message_model.dart';
@@ -13,19 +13,23 @@ import 'package:flutter/material.dart';
 
 class ChatView extends StatefulWidget {
   ChatMessageModel msgModel;
-  ChatView(this.msgModel, {Key? key}) : super(key: key);
+  ChatMessageModel? preMsgModel;
+  ChatView(this.msgModel, {this.preMsgModel , Key? key}) : super(key: key);
 
   @override
   _ChatViewState createState() => _ChatViewState(msgModel);
 }
 
 class _ChatViewState extends State<ChatView> {
-  ChatMessageModel msgModel = ChatMessageModel();
+  late ChatMessageModel msgModel;
+
   _ChatViewState(this.msgModel);
+
   @override
   Widget build(BuildContext context) {
+    
     bool isSendOutMsg = !msgModel.isReceived;
-    double space = 16;
+    double space = 8;
     double innerSpace = 10;
     
     int uid = msgModel.isReceived?(msgModel.sessionId):(UserManager.getInstance()?.user?.uid??0);
@@ -62,24 +66,28 @@ class _ChatViewState extends State<ChatView> {
       }
       children = reverses;
     }
+
     String time = TimerUtils.getMessageFormatTime(msgModel.updateTime);
     return Column(
       children: [
         SizedBox(
           height: space,
         ),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: Container(
-            color: ColorThemes.unselectColor,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
-              child: Text(
-                time,
-                style: const TextStyle(fontSize: 12, color: Colors.white),
+        Visibility(
+          visible: isTimeVisible(),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: Container(
+              color: ColorThemes.unselectColor,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
+                child: Text(
+                  time,
+                  style: const TextStyle(fontSize: 12, color: Colors.white),
+                ),
               ),
             ),
-          ),
+          ) 
         ),
         Column(
           children: [
@@ -95,5 +103,22 @@ class _ChatViewState extends State<ChatView> {
         )
       ],
     );
+  }
+
+  //根据时间差 判断时间控件是否显示
+  bool isTimeVisible(){
+    if(widget.preMsgModel == null){
+      return true;
+    }
+
+    const int MSG_MAX_TIME_DURING_MILLS = 5 * 60 * 1000;
+
+    ChatMessageModel preModel = widget.preMsgModel!;
+    ChatMessageModel currentModel = widget.msgModel;
+    
+    if((preModel.updateTime - currentModel.updateTime).abs() < MSG_MAX_TIME_DURING_MILLS){
+      return false;
+    }
+    return true;
   }
 }

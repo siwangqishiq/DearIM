@@ -57,7 +57,7 @@ class IMMessage with Codec<IMMessage>{
     msg.readState = map["readState"] ?? 0;
     msg.fromClient = map["fromClient"] ?? 0;
     msg.toClient = map["toClient"] ?? 0;
-
+    
     msg.content = map["content"];
     msg.url = map["url"];
     msg.attachState = map["attachState"] ?? 0;

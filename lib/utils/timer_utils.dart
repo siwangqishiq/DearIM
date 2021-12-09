@@ -2,7 +2,7 @@ import 'package:date_format/date_format.dart';
 
 class TimerUtils {
   static String getMessageFormatTime(int timestamp) {
-    int lasttimestamp = DateTime.now().millisecondsSinceEpoch;
+    int lasttimestamp = getCurrentTimeStamp();
     DateTime time = DateTime.fromMillisecondsSinceEpoch(timestamp);
     int diff = lasttimestamp - timestamp;
     int oneDay = 24 * 60 * 60 * 1000;
@@ -16,7 +16,7 @@ class TimerUtils {
     }
   }
 
-  int getCurrentTimeStamp() {
+  static int getCurrentTimeStamp() {
     return DateTime.now().millisecondsSinceEpoch;
   }
 }

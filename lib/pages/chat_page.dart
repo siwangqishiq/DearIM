@@ -131,7 +131,7 @@ class _ChatPageState extends State<ChatPage> {
                   itemCount: msgModels.length,
                   itemBuilder: (BuildContext context, int index) {
                     ChatMessageModel msgModel = msgModels[index];
-                    return ChatView(msgModel);
+                    return ChatView(msgModel , preMsgModel: index - 1 >=0?msgModels[index - 1]:null,);
                   },
                 ),
               ),
