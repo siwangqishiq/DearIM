@@ -22,6 +22,12 @@ class MessageTypes {
   static const int SYNC_MESSAGE_REQ = 12;//同步消息 请求
   static const int SYNC_MESSAGE_RESP = 13;//同步消息 响应
 
+  static const int SEND_TRANS_MESSAGE_REQ = 14;//透传消息 发送请求
+  static const int SEND_TRANS_MESSAGE_RESP = 15;//透传消息 发送后响应
+
+  static const int PUSH_TRANS_MESSAGE_REQ = 16;//接收透传消息 
+  static const int PUSH_TRANS_MESSAGE_RESP = 17;//接收透传消息 响应
+
   static const int KICK_OFF = 400;//踢出 来自其他端抢登
 }
 
@@ -38,6 +44,8 @@ class ProtocolConfig {
 class Codes {
   static const int success = 200; //响应成功
   static const int error = 500;//响应失败
+
+  static const int update = 201;//状态更新
 
   static const int errorState = 501;//状态不正确
 }

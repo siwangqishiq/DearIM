@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dearim/core/byte_buffer.dart';
+import 'package:dearim/core/imcore.dart';
 import 'package:dearim/core/log.dart';
 import 'package:dearim/core/protocol/message.dart';
 
@@ -204,6 +205,7 @@ class IMMessageBuilder {
   //初始化一个IMMessage
   static IMMessage initIMMessage() {
     IMMessage imMessage = IMMessage();
+    imMessage.fromId = IMClient.getInstance().uid;
     imMessage.isReceived = false;
     imMessage.fromClient = Utils.getClientType();
     int time = Utils.currentTime();

@@ -107,6 +107,13 @@ class Result {
     return error;
   }
 
+  factory Result.update(){
+    final Result result = Result();
+    result.result = true;
+    result.code = Codes.update;
+    return result;
+  }
+
   Result(){
     code = 0;
     result = false;

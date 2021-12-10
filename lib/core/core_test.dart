@@ -36,6 +36,8 @@ class TestCoreMainState extends State<TestCoreMain> {
 
   IMMessageIncomingCallback? _imMessageIncomingCallback;
 
+  TransMessageIncomingCallback? _tranMsgIncomingCallback;
+
   late TextEditingController _editController;
   late FocusNode _focusNode;
 
@@ -71,6 +73,13 @@ class TestCoreMainState extends State<TestCoreMain> {
 
     IMClient.getInstance()
         .registerIMMessageIncomingObserver(_imMessageIncomingCallback!, true);
+
+    _tranMsgIncomingCallback = (transMessage){
+      LogUtil.log("接收透传消息 from:${transMessage.from}");
+      LogUtil.log("接收透传消息 content:${transMessage.content}");
+    };
+
+    IMClient.getInstance().registerTransMessageObserver(_tranMsgIncomingCallback!, true);
   }
 
   void login(int uid) {
@@ -164,6 +173,7 @@ class TestCoreMainState extends State<TestCoreMain> {
 
   @override
   void dispose() {
+    IMClient.getInstance().registerTransMessageObserver(_tranMsgIncomingCallback!, false);
     _editController.dispose();
     _focusNode.dispose();
     IMClient.getInstance().dispose();
