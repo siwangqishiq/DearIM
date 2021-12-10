@@ -82,11 +82,11 @@ class SessionManager {
     LogUtil.log("查询消息记录 key : $key");
     var result = _recentSessionMap[key]?.imMsgList ?? [];
 
-    LogUtil.log("历史消息查询结果:");
-    for(IMMessage msg in result){
-      LogUtil.log("${msg.sessionId} : ${msg.content}");
-    }
-    LogUtil.log("历史消息查询结果:END");
+    // LogUtil.log("历史消息查询结果:");
+    // for(IMMessage msg in result){
+    //   LogUtil.log("${msg.sessionId} : ${msg.content}");
+    // }
+    // LogUtil.log("历史消息查询结果:END");
     return result;
   }
 
