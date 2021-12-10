@@ -61,7 +61,8 @@ typedef IMLogOutCallback = Function(Result result);
 typedef SendIMMessageCallback = Function(IMMessage imMessage, Result result);
 
 //发送透传消息 回调
-typedef SendTransMessageCallback = Function(TransMessage transMessage , Result result);
+typedef SendTransMessageCallback = Function(
+    TransMessage transMessage, Result result);
 
 //状态改变回调
 typedef StateChangeCallback = Function(
@@ -71,7 +72,8 @@ typedef StateChangeCallback = Function(
 typedef KickoffCallback = Function();
 
 //接收到新消息
-typedef IMMessageIncomingCallback = Function(List<IMMessage> incomingIMMessageList);
+typedef IMMessageIncomingCallback = Function(
+    List<IMMessage> incomingIMMessageList);
 
 //接收透传消息回调
 typedef TransMessageIncomingCallback = Function(TransMessage transMessage);
@@ -83,9 +85,9 @@ abstract class MessageHandler<T> {
 
 class IMClient {
   // static String _serverAddress = "10.242.142.129"; //
-  // static const String _serverAddress = "192.168.31.230"; //
-  // static String _serverAddress = "192.168.31.37";
-  static String _serverAddress = "fuckalibaba.xyz";
+  static String _serverAddress = "192.168.31.230"; //mac
+  // static String _serverAddress = "192.168.31.37";//windows
+  // static String _serverAddress = "fuckalibaba.xyz";
 
   static int _port = 1013;
 
@@ -110,7 +112,8 @@ class IMClient {
   Map<String, SendIMMessageCallback> get sendIMMessageCallbackMap =>
       _sendIMMessageCallbackMap;
 
-  Map<String , SendTransMessageCallback> get sendTransMessageCallbackMap => _sendTransMessageCallbackMap;
+  Map<String, SendTransMessageCallback> get sendTransMessageCallbackMap =>
+      _sendTransMessageCallbackMap;
 
   //用户id
   int _uid = -1;
@@ -138,8 +141,8 @@ class IMClient {
   final Map<String, SendIMMessageCallback> _sendIMMessageCallbackMap =
       <String, SendIMMessageCallback>{};
 
-  final Map<String , SendTransMessageCallback> _sendTransMessageCallbackMap = 
-      <String , SendTransMessageCallback>{};
+  final Map<String, SendTransMessageCallback> _sendTransMessageCallbackMap =
+      <String, SendTransMessageCallback>{};
 
   final List<IMMessageIncomingCallback> _imMessageIncomingCallbackList =
       <IMMessageIncomingCallback>[];
@@ -149,7 +152,8 @@ class IMClient {
   final List<StateChangeCallback> _stateChangeCallbackList =
       <StateChangeCallback>[];
 
-  final List<TransMessageIncomingCallback> _transMsgIncomingCallback = <TransMessageIncomingCallback>[];
+  final List<TransMessageIncomingCallback> _transMsgIncomingCallback =
+      <TransMessageIncomingCallback>[];
 
   //final List _todoList = []; //缓存要发送的消息
 
@@ -238,7 +242,8 @@ class IMClient {
   }
 
   //发送透传消息
-  void sendTransMessage(TransMessage transMessage , {SendTransMessageCallback? callback}){
+  void sendTransMessage(TransMessage transMessage,
+      {SendTransMessageCallback? callback}) {
     transMessage.from = _uid;
     if (Utils.isTextEmpty(transMessage.msgId)) {
       transMessage.msgId = Utils.genUniqueMsgId();
@@ -311,7 +316,8 @@ class IMClient {
   }
 
   //注册 或 解绑 透传消息事件监听
-  bool registerTransMessageObserver(TransMessageIncomingCallback callback, bool register) {
+  bool registerTransMessageObserver(
+      TransMessageIncomingCallback callback, bool register) {
     if (register) {
       //注册
       if (!Utils.listContainObj(_transMsgIncomingCallback, callback)) {
@@ -375,12 +381,12 @@ class IMClient {
   }
 
   //接收到透传消息
-  void receivedTransMessage(TransMessage receivedTransMessage){
+  void receivedTransMessage(TransMessage receivedTransMessage) {
     _fireTransMessageIncomingCallback(receivedTransMessage);
   }
 
-  void _fireTransMessageIncomingCallback(final TransMessage tMsg){
-    for(TransMessageIncomingCallback cb in _transMsgIncomingCallback){
+  void _fireTransMessageIncomingCallback(final TransMessage tMsg) {
+    for (TransMessageIncomingCallback cb in _transMsgIncomingCallback) {
       cb.call(tMsg);
     }
   }
@@ -534,10 +540,10 @@ class IMClient {
       case MessageTypes.KICK_OFF: //被踢掉
         result = KickoffMessage();
         break;
-      case MessageTypes.SEND_TRANS_MESSAGE_RESP://发送透传消息 请求响应
+      case MessageTypes.SEND_TRANS_MESSAGE_RESP: //发送透传消息 请求响应
         result = SendTransMessageRespMsg.from(msgHead, buf);
         break;
-      case MessageTypes.PUSH_TRANS_MESSAGE_REQ://发送过来的透传消息
+      case MessageTypes.PUSH_TRANS_MESSAGE_REQ: //发送过来的透传消息
         result = PushTransMessageReqMsg.from(msgHead, buf);
         break;
       default:
@@ -571,10 +577,10 @@ class IMClient {
       case MessageTypes.KICK_OFF: //被踢掉
         handler = KickOffHandler();
         break;
-      case MessageTypes.SEND_TRANS_MESSAGE_RESP://透传消息响应
+      case MessageTypes.SEND_TRANS_MESSAGE_RESP: //透传消息响应
         handler = SendTransMessageHandler();
         break;
-      case MessageTypes.PUSH_TRANS_MESSAGE_REQ://接收到新的透传消息
+      case MessageTypes.PUSH_TRANS_MESSAGE_REQ: //接收到新的透传消息
         handler = PushTransMessageHandler();
         break;
       default:

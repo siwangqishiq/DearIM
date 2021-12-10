@@ -11,8 +11,8 @@ import 'core/core_test.dart';
 import 'tcp/tcp_manager.dart';
 
 void main() {
-  runApp(const MyApp());
-  // coreTestRun();
+  // runApp(const MyApp());
+  coreTestRun();
 }
 
 class MyApp extends StatelessWidget {

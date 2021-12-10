@@ -1,6 +1,7 @@
 import 'package:dearim/core/estore/estore.dart';
 import 'package:dearim/core/immessage.dart';
 import 'package:dearim/core/log.dart';
+import 'package:dearim/core/protocol/trans.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'imcore.dart';
@@ -74,12 +75,13 @@ class TestCoreMainState extends State<TestCoreMain> {
     IMClient.getInstance()
         .registerIMMessageIncomingObserver(_imMessageIncomingCallback!, true);
 
-    _tranMsgIncomingCallback = (transMessage){
+    _tranMsgIncomingCallback = (transMessage) {
       LogUtil.log("接收透传消息 from:${transMessage.from}");
       LogUtil.log("接收透传消息 content:${transMessage.content}");
     };
 
-    IMClient.getInstance().registerTransMessageObserver(_tranMsgIncomingCallback!, true);
+    IMClient.getInstance()
+        .registerTransMessageObserver(_tranMsgIncomingCallback!, true);
   }
 
   void login(int uid) {
@@ -120,8 +122,8 @@ class TestCoreMainState extends State<TestCoreMain> {
                   height: 20,
                 ),
                 ElevatedButton(
-                  onPressed: () => login(1001),
-                  child: const Text("登录1001"),
+                  onPressed: () => login(2),
+                  child: const Text("登录2"),
                 ),
                 const SizedBox(
                   height: 20,
@@ -151,8 +153,8 @@ class TestCoreMainState extends State<TestCoreMain> {
                   height: 20,
                 ),
                 ElevatedButton(
-                  onPressed: () => sendTextMessage(1001),
-                  child: const Text("发送文本消息给1001"),
+                  onPressed: () => sendTextMessage(2),
+                  child: const Text("发送文本消息给2"),
                 ),
                 const SizedBox(
                   height: 20,
@@ -160,6 +162,13 @@ class TestCoreMainState extends State<TestCoreMain> {
                 ElevatedButton(
                   onPressed: () => imLogout(),
                   child: const Text("退出IM登录"),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                ElevatedButton(
+                  onPressed: () => sendTransMessage(2),
+                  child: const Text("发送透传消息给2"),
                 ),
                 const SizedBox(
                   height: 20,
@@ -173,7 +182,8 @@ class TestCoreMainState extends State<TestCoreMain> {
 
   @override
   void dispose() {
-    IMClient.getInstance().registerTransMessageObserver(_tranMsgIncomingCallback!, false);
+    IMClient.getInstance()
+        .registerTransMessageObserver(_tranMsgIncomingCallback!, false);
     _editController.dispose();
     _focusNode.dispose();
     IMClient.getInstance().dispose();
@@ -184,6 +194,18 @@ class TestCoreMainState extends State<TestCoreMain> {
     IMClient.getInstance().imLoginOut(loginOutCallback: (r) {
       LogUtil.log("退出登录: ${r.result}");
     });
+  }
+
+  void sendTransMessage(int toId) {
+    String content = _editController.text;
+
+    TransMessage? msg = TransMessageBuilder.create(toId, content, null);
+    if (msg != null) {
+      IMClient.getInstance().sendTransMessage(msg,
+          callback: (transMessage, result) {
+        LogUtil.log("send trans message ${result.code}");
+      });
+    }
   }
 
   void sendTextMessage(int toId) {
