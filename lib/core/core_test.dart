@@ -2,6 +2,7 @@ import 'package:dearim/core/estore/estore.dart';
 import 'package:dearim/core/immessage.dart';
 import 'package:dearim/core/log.dart';
 import 'package:dearim/core/protocol/trans.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'imcore.dart';
@@ -173,6 +174,13 @@ class TestCoreMainState extends State<TestCoreMain> {
                 const SizedBox(
                   height: 20,
                 ),
+                ElevatedButton(
+                  onPressed: () => selectFile(),
+                  child: const Text("选择文件"),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
                 Text("接收消息 : $mIncomingMessage"),
               ],
             ),
@@ -188,6 +196,17 @@ class TestCoreMainState extends State<TestCoreMain> {
     _focusNode.dispose();
     IMClient.getInstance().dispose();
     super.dispose();
+  }
+
+  //文件选择
+  void selectFile() async {
+    FilePickerResult? pickerResult = await FilePicker.platform.pickFiles();
+
+    if(pickerResult != null){
+      LogUtil.log("用户选择文件 ${pickerResult.files.single.path}");
+    }else{
+      LogUtil.log("用户选择取消");
+    }
   }
 
   void imLogout() {

@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 ///
 /// 云存储 服务
 ///
@@ -19,3 +21,18 @@ abstract class FileUploadManager{
   //文件上传 
   void uploadFile(String localPath , UploadFileType fileType , UploadCallback? callback);
 }//end class 
+
+
+//文件上传 默认实现
+class DefaultFileUploadManager extends FileUploadManager{
+  late Dio _dio;
+
+  DefaultFileUploadManager(){
+    _dio = Dio();
+  }
+
+  @override
+  void uploadFile(String localPath, UploadFileType fileType, UploadCallback? callback) {
+    _dio.post("" , );
+  }
+}
