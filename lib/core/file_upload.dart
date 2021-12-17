@@ -46,8 +46,8 @@ class DefaultFileUploadManager extends FileUploadManager{
   @override
   void uploadFile(String localPath, UploadFileType fileType, UploadCallback? callback) {
     File uploadFile = File(localPath);
-    String fileName = uploadFile.path.split('/').last;
-    
+    String fileName = uploadFile.path.split(Platform.pathSeparator).last;
+
     FormData formData = FormData.fromMap({"file" : MultipartFile.fromFileSync(localPath , filename: fileName)});
     _dio.post<String>(UPLOAD_URL , data:formData).then((resp){
       LogUtil.log("上传返回: $resp");
