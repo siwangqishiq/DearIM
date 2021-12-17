@@ -44,6 +44,7 @@ class ProtocolConfig {
 class Codes {
   static const int success = 200; //响应成功
   static const int error = 500;//响应失败
+  static const int failed = 400;
 
   static const int update = 201;//状态更新
 

@@ -1,4 +1,14 @@
+// ignore_for_file: constant_identifier_names
+
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:dearim/core/log.dart';
+import 'package:dearim/core/protocol/protocol.dart';
 import 'package:dio/dio.dart';
+
+import 'imcore.dart';
+import 'utils.dart';
 
 ///
 /// 云存储 服务
@@ -25,6 +35,8 @@ abstract class FileUploadManager{
 
 //文件上传 默认实现
 class DefaultFileUploadManager extends FileUploadManager{
+  static const String UPLOAD_URL = "http://fuckalibaba.xyz:9090/uploadfile";
+
   late Dio _dio;
 
   DefaultFileUploadManager(){
@@ -33,6 +45,22 @@ class DefaultFileUploadManager extends FileUploadManager{
 
   @override
   void uploadFile(String localPath, UploadFileType fileType, UploadCallback? callback) {
-    _dio.post("" , );
+    File uploadFile = File(localPath);
+    String fileName = uploadFile.path.split('/').last;
+    
+    FormData formData = FormData.fromMap({"file" : MultipartFile.fromFileSync(localPath , filename: fileName)});
+    _dio.post<String>(UPLOAD_URL , data:formData).then((resp){
+      LogUtil.log("上传返回: $resp");
+      if(Utils.isTextEmpty(resp.data)){
+        callback?.call(Codes.error , null ,null);
+      }else{
+        var respData = jsonDecode(resp.data??"{}");
+        var data = respData["data"];
+        callback?.call(Codes.success , data["url"] ,null);
+      }
+    }).onError((error, stackTrace){
+      LogUtil.log("上传文件发生异常");
+      callback?.call(Codes.failed , null ,null);
+    });
   }
 }

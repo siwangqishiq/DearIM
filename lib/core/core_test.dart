@@ -1,6 +1,8 @@
 import 'package:dearim/core/estore/estore.dart';
+import 'package:dearim/core/file_upload.dart';
 import 'package:dearim/core/immessage.dart';
 import 'package:dearim/core/log.dart';
+import 'package:dearim/core/protocol/protocol.dart';
 import 'package:dearim/core/protocol/trans.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -204,6 +206,16 @@ class TestCoreMainState extends State<TestCoreMain> {
 
     if(pickerResult != null){
       LogUtil.log("用户选择文件 ${pickerResult.files.single.path}");
+
+      String? path = pickerResult.files.single.path;
+
+      FileUploadManager uploadMgr = DefaultFileUploadManager();
+      uploadMgr.uploadFile(path!, UploadFileType.file, (result, url, attach){
+        LogUtil.log("result = $result");
+        if(result == Codes.success){
+          LogUtil.log("url = $url");
+        }
+      });
     }else{
       LogUtil.log("用户选择取消");
     }
