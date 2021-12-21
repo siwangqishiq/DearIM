@@ -3,10 +3,13 @@ import 'package:dearim/core/file_upload.dart';
 import 'package:dearim/core/log.dart';
 import 'package:dearim/core/protocol/protocol.dart';
 import 'package:dearim/core/utils.dart';
+import 'package:dearim/network/request.dart';
 import 'package:dearim/views/color_utils.dart';
 import 'package:dearim/views/head_view.dart';
+import 'package:dearim/views/toast_show_utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -17,10 +20,10 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   String? _avatar;
-  String? _username;
-  String? _password;
-  String? _confirmPassword;
-  String? _nickname;
+  late TextEditingController usernameController;
+  late TextEditingController passwordController;
+  late TextEditingController confirmPasswordController;
+  late TextEditingController nicknameController;
 
   late FileUploadManager fileUploadManager;
 
@@ -28,6 +31,11 @@ class _RegisterPageState extends State<RegisterPage> {
   void initState() {
     super.initState();
     fileUploadManager = DefaultFileUploadManager();
+
+    usernameController = TextEditingController();
+    passwordController = TextEditingController();
+    confirmPasswordController = TextEditingController();
+    nicknameController = TextEditingController();
   }
 
   @override
@@ -46,21 +54,28 @@ class _RegisterPageState extends State<RegisterPage> {
           child: Column(
             children: [
               const SizedBox(height: 20),
-              const TextField(
-                decoration: InputDecoration(hintText: "用户名(必填)"),
+              TextField(
+                decoration: const InputDecoration(hintText: "用户名(必填)"),
+                controller: usernameController,
+                inputFormatters: [
+                  FilteringTextInputFormatter(RegExp("[a-zA-Z]|[0-9]"), allow: true)
+                ],
               ),
               const SizedBox(height: 8),
-              const TextField(
-                decoration: InputDecoration(hintText: "密码(必填)"),
+              TextField(
+                decoration:const InputDecoration(hintText: "密码(必填)"),
                 obscureText: true,
+                controller: passwordController,
               ),
-              const TextField(
-                decoration: InputDecoration(hintText: "确认密码(必填)"),
+              TextField(
+                decoration:const InputDecoration(hintText: "确认密码(必填)"),
                 obscureText: true,
+                controller: confirmPasswordController,
               ),
               const SizedBox(height: 8),
-              const TextField(
-                decoration: InputDecoration(hintText: "昵称(必填)"),
+              TextField(
+                decoration:const InputDecoration(hintText: "昵称(必填)"),
+                controller: nicknameController,
               ),
               const SizedBox(height: 8),
               const Align(
@@ -73,8 +88,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               const SizedBox(height: 8 , ),
               MaterialButton(
-                onPressed: () {
-                },
+                onPressed: () => register(),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(6),
                   child: Container(
@@ -117,5 +131,71 @@ class _RegisterPageState extends State<RegisterPage> {
     }else{
       LogUtil.log("用户选择取消");
     }
+  }
+
+  //校验输入
+  bool _validateInput(){
+    String? account = usernameController.text;
+    if(Utils.isTextEmpty(account)){
+      ToastShowUtils.show("用户名不能为空", context);
+      return false;
+    }
+
+    String? password = passwordController.text;
+    if(Utils.isTextEmpty(password)){
+      ToastShowUtils.show("密码不能为空", context);
+      return false;
+    }
+
+    String? confirmPassword = confirmPasswordController.text;
+    if(password != confirmPassword){
+      ToastShowUtils.show("密码输入不一致", context);
+      return false;
+    }
+
+    String? nickname = nicknameController.text;
+    if(Utils.isTextEmpty(nickname)){
+      ToastShowUtils.show("昵称不能为空", context);
+      return false;
+    }
+
+    return true;
+  }
+
+  //注册账号
+  void register(){
+    if(!_validateInput()){
+      return;
+    }
+
+    String? account = usernameController.text;
+    String? password = passwordController.text;
+    String? nickname = nicknameController.text;
+    String? avatar = _avatar;
+
+    _doRegister(account , password , nickname , avatar);
+  }
+
+  //调用注册接口
+  void _doRegister(String account , String pwd , String nickname , String? avatar){
+    Map<String, dynamic> params = {};
+    params["username"] = account;
+    params["pwd"] = pwd;
+    params["nickname"] = nickname;
+    params["avatar"] = avatar;
+    params["description"] = null;
+
+    Request().postRequest(
+      "createAccount",
+      params,
+      Callback(
+        successCallback: (data) async {
+          
+        }, 
+        failureCallback: (code, errorStr, data) {
+          
+        }
+      )
+    );
   }
 }

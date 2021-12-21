@@ -113,6 +113,8 @@ class _LoginPageState extends State<LoginPage> {
           FocusManager.instance.primaryFocus!.unfocus();
         }, failureCallback: (code, errorStr, data) {
           ToastShowUtils.show(errorStr, context);
-        }));
+        }
+      )
+    );
   }
 }
