@@ -2,6 +2,7 @@
 
 import 'dart:ffi';
 
+import 'package:dearim/core/log.dart';
 import 'package:dearim/views/color_utils.dart';
 import 'package:dearim/views/toast_show_utils.dart';
 import 'package:dearim/network/request.dart';
@@ -82,11 +83,24 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-                )),
+                )
+            ),
+            const SizedBox(
+              height: 30,
+            ),
+            InkWell(
+              child: const Text("注册新账号" , style: TextStyle(color: Colors.green),),
+              onTap: () => toRegisterPage(),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  void toRegisterPage(){
+    LogUtil.log("跳转注册新账户");
+    Navigator.of(context).pushNamed("/register");
   }
 
   void login() {

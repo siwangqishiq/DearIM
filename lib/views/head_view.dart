@@ -1,3 +1,4 @@
+import 'package:dearim/core/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -18,11 +19,13 @@ class HeadView extends StatelessWidget{
       return "";
     }
 
+    
+
     switch(size){
       case ImageSize.middle:
-        return "$url?imageMogr2/thumbnail/256x/interlace/0";
+        return "$url!imgmiddle";
       case ImageSize.small:
-        return "$url?imageMogr2/thumbnail/128x/interlace/0";
+        return "$url!imgsmall";
       default:
         return url;
     }//end switch
@@ -44,6 +47,7 @@ class HeadView extends StatelessWidget{
         fit: BoxFit.cover, 
         image: urlFromSize(originUrl , size), 
         imageErrorBuilder: (context, error, st) {
+          LogUtil.log("图片加载 发生错误 $error");
           return Icon(Icons.face_rounded , size: width,);
         },
         placeholder: 'avatar_loading.png', 
@@ -54,7 +58,7 @@ class HeadView extends StatelessWidget{
 }
 
 enum ImageSize{
-  normal,//原图
+  origin,//原图
   middle,//中等
   small,//小图
 }

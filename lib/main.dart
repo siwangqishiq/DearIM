@@ -1,5 +1,7 @@
+import 'package:dearim/config.dart';
 import 'package:dearim/pages/login_page.dart';
 import 'package:dearim/pages/main_page.dart';
+import 'package:dearim/pages/register_page.dart';
 import 'package:dearim/routers/routers.dart';
 import 'package:dearim/user/user.dart';
 import 'package:dearim/user/user_manager.dart';
@@ -11,8 +13,8 @@ import 'core/core_test.dart';
 import 'tcp/tcp_manager.dart';
 
 void main() {
-  // runApp(const MyApp());
-  coreTestRun();
+  runApp(const MyApp());
+  // coreTestRun();
 }
 
 class MyApp extends StatelessWidget {
@@ -23,9 +25,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     Routers().addRouter("/login", (context) => const LoginPage());
     Routers().addRouter("/main", (context) => const MainPage());
+    Routers().addRouter("/register" , (context) => const RegisterPage());
+
     // Routers().addRouter("/chat", (context, {model}) => ChatPage(model: model));
     return MaterialApp(
-      title: 'dearIM',
+      title: APP_NAME,
       debugShowCheckedModeBanner: isNeedShowDebug(),
       theme: ThemeData(primarySwatch: ColorThemes.themeColor),
       home: FutureBuilder(

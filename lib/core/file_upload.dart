@@ -28,6 +28,12 @@ typedef UploadCallback = Function(int result , String? url , String? attach);
 //文件上传基类 为不同的云存储服务统一方法
 abstract class FileUploadManager{
 
+  factory FileUploadManager.createDefault(){
+    return DefaultFileUploadManager();
+  }
+  
+  FileUploadManager();
+
   //文件上传 
   void uploadFile(String localPath , UploadFileType fileType , UploadCallback? callback);
 }//end class 
@@ -35,7 +41,7 @@ abstract class FileUploadManager{
 
 //文件上传 默认实现
 class DefaultFileUploadManager extends FileUploadManager{
-  static const String UPLOAD_URL = "http://fuckalibaba.xyz:9090/uploadfile";
+  static const String UPLOAD_URL = "http://101.34.247.16:9090/uploadfile";
 
   late Dio _dio;
 
