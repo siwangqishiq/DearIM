@@ -190,10 +190,13 @@ class _RegisterPageState extends State<RegisterPage> {
       params,
       Callback(
         successCallback: (data) async {
-          
+          LogUtil.log("注册接口成功 $data");
+          ToastShowUtils.show("注册成功", context);
+          Navigator.of(context).pop();
         }, 
         failureCallback: (code, errorStr, data) {
-          
+          LogUtil.log("注册接口错误 $data");
+          ToastShowUtils.show("$errorStr", context);
         }
       )
     );

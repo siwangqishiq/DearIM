@@ -84,10 +84,10 @@ abstract class MessageHandler<T> {
 }
 
 class IMClient {
-  // static String _serverAddress = "10.242.142.129"; //
+  static String _serverAddress = "10.242.142.129"; //
   // static String _serverAddress = "192.168.31.230"; //mac
   // static String _serverAddress = "192.168.31.37";//windows
-  static String _serverAddress = "fuckalibaba.xyz";
+  // static String _serverAddress = "101.34.247.16";
 
   static int _port = 1013;
 

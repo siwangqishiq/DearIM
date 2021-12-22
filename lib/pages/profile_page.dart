@@ -83,7 +83,7 @@ class MyInfoState extends State<MyInfoWidget>{
           const SizedBox(height: 8,),
           Text(name??"" , style:const TextStyle(fontSize: 20 , color: Colors.black),),
           const SizedBox(height: 4,),
-          Text(uid.toString(),style:const TextStyle(fontSize: 16 , color: Colors.black))
+          Text(account!,style:const TextStyle(fontSize: 16 , color: Colors.black))
         ],
       ),
     );

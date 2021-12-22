@@ -89,7 +89,7 @@ class Request {
         // 返回失败内容 给出回调
         if (callback.failureCallback != null) {
           callback.failureCallback!(
-              responseMap["code"], responseMap["message"], responseMap["data"]);
+              responseMap["code"], responseMap["msg"], responseMap["data"]);
         }
       } else {
         if (callback.successCallback != null) {
