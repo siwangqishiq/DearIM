@@ -42,6 +42,7 @@ class Reconnect{
   }
 
   void tiggerReconnect(){
+    LogUtil.log("_isReconnecting = $_isReconnecting");
     if(_isReconnecting){//防止重复调用
       return;
     }

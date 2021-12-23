@@ -2,9 +2,7 @@ import 'dart:developer';
 
 import 'package:dearim/pages/chat_page.dart';
 import 'package:dearim/models/contact_model.dart';
-import 'package:dearim/network/request.dart';
 import 'package:dearim/user/contacts.dart';
-import 'package:dearim/user/user_manager.dart';
 import 'package:dearim/views/contact_view.dart';
 import 'package:flutter/material.dart';
 
@@ -17,11 +15,21 @@ class ContactPage extends StatefulWidget {
 
 class ContactPageState extends State<ContactPage> {
   List<ContactModel> models = <ContactModel>[];
+
+  VoidCallback? _contactsChangeCallback;
   @override
   void initState() {
     super.initState();
     //requestChatList();
     
+    _resetContacts();
+    _contactsChangeCallback = (){
+      _resetContacts();
+    };
+    ContactsDataCache.instance.addListener(_contactsChangeCallback!);
+  }
+
+  void _resetContacts(){
     models.clear();
     models.addAll(ContactsDataCache.instance.allContacts);
   }
@@ -57,33 +65,12 @@ class ContactPageState extends State<ContactPage> {
     );
   }
 
-  // requestChatList() {
-  //   Request().postRequest(
-  //     "/contacts",
-  //     {},
-  //     Callback(successCallback: (data) {
-  //       models.clear();
-  //       List list = data["list"];
-  //       for (Map item in list) {
-  //         ContactModel model = ContactModel(item["name"], item["uid"]);
-  //         model.avatar = item["avatar"] ?? "";
-
-  //         model.user.uid = item["uid"];
-  //         model.user.name = item["name"];
-  //         model.user.avatar = item["avatar"] ?? "";
-  //         model.user.account = item["account"]??"";
-          
-  //         if (item["uid"] == UserManager.getInstance()!.user!.uid) {
-  //           UserManager.getInstance()!.user!.avatar = item["avatar"] ?? "";
-  //         }
-  //         models.add(model);
-  //       }
-
-  //       ContactsDataCache.instance.resetContacts(models);
-  //       setState(() {});
-  //     }, failureCallback: (code, msgStr, data) {
-  //       log(data);
-  //     }),
-  //   );
-  // }
+  @override
+  void dispose() {
+    if(_contactsChangeCallback != null){
+      ContactsDataCache.instance.removeListener(_contactsChangeCallback!);
+    }
+    super.dispose();
+  }
+  
 }

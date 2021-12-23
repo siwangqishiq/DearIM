@@ -1,5 +1,7 @@
 
 import 'package:dearim/models/contact_model.dart';
+import 'package:dearim/network/request.dart';
+import 'package:dearim/user/user_manager.dart';
 import 'package:flutter/cupertino.dart';
 
 ///
@@ -46,6 +48,36 @@ class ContactsDataCache with ChangeNotifier{
       list.add(contacts[key]!);
     }
     return list;
+  }
+
+  //重新获取联系人数据
+  void fetchContacts() {
+    Request().postRequest(
+      "/contacts",
+      {},
+      Callback(
+          successCallback: (data) {
+            List list = data["list"];
+            List<ContactModel> models = [];
+            for (Map item in list) {
+              ContactModel model = ContactModel(item["name"], item["uid"]);
+              model.avatar = item["avatar"] ?? "";
+
+              model.user.uid = item["uid"];
+              model.user.name = item["name"];
+              model.user.avatar = item["avatar"] ?? "";
+              model.user.account = item["account"] ?? "";
+              
+              if (item["uid"] == UserManager.getInstance()!.user!.uid) {
+                UserManager.getInstance()!.user!.avatar = item["avatar"] ?? "";
+              }
+              models.add(model);
+            }
+
+            ContactsDataCache.instance.resetContacts(models);
+          },
+          failureCallback: (code, msgStr, data) {}),
+    );
   }
 
 }//end class

@@ -79,10 +79,10 @@ class _ChatPageState extends State<ChatPage> {
         //不属于此会话的消息 不做处理
         return;
       }
-      if (incomingMessage.sessionId == UserManager.getInstance()!.user!.uid) {
-        //本人发给本人的消息的消息 不做处理
-        return;
-      }
+      // if (incomingMessage.sessionId == UserManager.getInstance()!.user!.uid) {
+      //   //本人发给本人的消息的消息 不做处理
+      //   return;
+      // }
 
       setState(() {
         receiveText = incomingIMMessageList.last.content;

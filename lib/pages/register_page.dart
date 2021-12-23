@@ -84,9 +84,16 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               InkWell(
                 onTap: ()=> pickAvatar(),
-                child: HeadView(_avatar ,size: ImageSize.origin, width: 128, height:128 , key: UniqueKey(),),
+                child: HeadView(
+                  _avatar ,
+                  size: ImageSize.origin, 
+                  width: 128, 
+                  height:128 , 
+                  circle: 100, 
+                  key: UniqueKey(),
+                ),
               ),
-              const SizedBox(height: 8 , ),
+              const SizedBox(height: 8),
               MaterialButton(
                 onPressed: () => register(),
                 child: ClipRRect(
