@@ -50,7 +50,7 @@ class MyInfoState extends State<MyInfoWidget>{
   void initState() {
     super.initState();
     _infoChangeCallback = (){
-        LogUtil.log("个人信息页 _infoChangeCallback");
+      LogUtil.log("个人信息页 _infoChangeCallback");
       _displayMyInfo();
     };
     ContactsDataCache.instance.addListener(_infoChangeCallback);

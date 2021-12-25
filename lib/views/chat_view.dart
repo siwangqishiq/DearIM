@@ -1,10 +1,8 @@
 // ignore_for_file: must_be_immutable, no_logic_in_create_state, constant_identifier_names
 
-import 'package:dearim/datas/chat_data.dart';
 import 'package:dearim/models/chat_message_model.dart';
 import 'package:dearim/models/contact_model.dart';
 import 'package:dearim/user/contacts.dart';
-import 'package:dearim/user/user.dart';
 import 'package:dearim/user/user_manager.dart';
 import 'package:dearim/utils/timer_utils.dart';
 import 'package:dearim/views/color_utils.dart';

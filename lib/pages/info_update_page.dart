@@ -1,5 +1,7 @@
 
 
+import 'dart:io';
+
 import 'package:dearim/core/file_upload.dart';
 import 'package:dearim/core/log.dart';
 import 'package:dearim/core/protocol/protocol.dart';
@@ -111,6 +113,10 @@ class InfoUpdateState extends State<InfoUpdatePage>{
     if(pickerResult != null){
       LogUtil.log("用户选择文件 ${pickerResult.files.single.path}");
       String? path = pickerResult.files.single.path;
+
+      // File file = File(path!);
+      // var imageInfo = await decodeImageFromList(await file.readAsBytes());
+      // LogUtil.log("图片大小 ${imageInfo.width} x ${imageInfo.height}");
       
       fileUploadManager.uploadFile(path!, UploadFileType.image, (result, url, attach){
         LogUtil.log("result = $result");
