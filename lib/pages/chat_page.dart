@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dearim/core/imcore.dart';
 import 'package:dearim/core/immessage.dart';
 import 'package:dearim/core/log.dart';
+import 'package:dearim/core/protocol/trans.dart';
 import 'package:dearim/models/chat_message_model.dart';
 import 'package:dearim/models/contact_model.dart';
+import 'package:dearim/models/trans.dart';
 import 'package:dearim/tcp/tcp_manager.dart';
 import 'package:dearim/views/chat_view.dart';
 import 'package:flutter/material.dart';
@@ -31,12 +34,14 @@ class ChatPageState extends State<ChatPage>{
 
   late InputPanelWidget inputPanelWidget;
 
+  late ChatTitleWidget titleWidget;
 
-  
   @override
   void initState() {
     super.initState();
     initMessageList();
+
+    titleWidget = ChatTitleWidget(this);
     inputPanelWidget = InputPanelWidget(this);    
   }
 
@@ -82,12 +87,7 @@ class ChatPageState extends State<ChatPage>{
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.model.name,
-          style: const TextStyle(color: Colors.white),
-        ),
-      ),
+      appBar: AppBar(title: titleWidget),
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -144,6 +144,85 @@ class ChatPageState extends State<ChatPage>{
   }
 }
 
+class ChatTitleWidget extends StatefulWidget{
+  final ChatPageState chatContext;
+
+  const ChatTitleWidget(this.chatContext);
+
+  @override
+  State<StatefulWidget> createState() => ChatTitleState();
+}
+
+class ChatTitleState extends State<ChatTitleWidget>{
+  late ContactModel contactModel;
+  String? showTitle;
+  bool isShowingInput = false;
+
+  TransMessageIncomingCallback? _transMessageIncomingCallback;
+
+  @override
+  void initState() {
+    super.initState();
+    contactModel = widget.chatContext.widget.model;
+    showTitle = contactModel.name;
+
+    _transMessageIncomingCallback = (transMessage){
+      handleTransMessage(transMessage);
+    };
+    IMClient.getInstance().registerTransMessageObserver(_transMessageIncomingCallback!, true);
+  }
+
+  void handleTransMessage(TransMessage transMessage){
+    if(transMessage.from != contactModel.userId){
+      return;
+    }
+
+    String? content = transMessage.content;
+    if(content != null){
+      Map<String , dynamic> json = jsonDecode(content);
+      int type = json[CustomTransTypes.KEY_TYPE];
+      
+      if(type == CustomTransTypes.TYPE_INPUTTING){
+        displayInputtingTips();
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      showTitle??"",
+      style: const TextStyle(color: Colors.white),
+    );
+  }
+
+  void displayInputtingTips(){
+    if(isShowingInput){
+      return;
+    }
+
+    setState(() {
+      isShowingInput = true;
+      showTitle = "正在输入中...";
+    });
+
+    Future.delayed(const Duration(seconds: 3) , (){
+      setState(() {
+        showTitle = contactModel.name;
+        isShowingInput = false;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    if(_transMessageIncomingCallback != null){
+      IMClient.getInstance().registerTransMessageObserver(_transMessageIncomingCallback!, false);
+    }
+    super.dispose();
+  }
+}
+
 ///
 /// 输入面板
 ///
@@ -187,9 +266,7 @@ class InputPanelState extends State<InputPanelWidget>{
               maxLines: null,
               controller: _textFieldController,
               focusNode: _focusNode,
-              onChanged: (_text) {
-                text = _text;
-              },
+              onChanged: (_text) => onInputTextChange(_text),
               decoration: const InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(
@@ -211,6 +288,18 @@ class InputPanelState extends State<InputPanelWidget>{
         ),
       ],
     );
+  }
+
+  void onInputTextChange(String _text){
+    text = _text;
+    sendInputCustomTransMsg();
+  }
+
+  void sendInputCustomTransMsg(){
+    TransMessage? msg = TransMessageBuilder.create(widget.chatPageContext.widget.model.userId, 
+      CustomTransBuilder.build(CustomTransTypes.TYPE_INPUTTING, null), null);
+    
+    IMClient.getInstance().sendTransMessage(msg!);
   }
 
   //发送文本消息
