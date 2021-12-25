@@ -3,11 +3,13 @@ import 'dart:developer';
 
 import 'package:dearim/core/imcore.dart';
 import 'package:dearim/core/immessage.dart';
+import 'package:dearim/core/log.dart';
 import 'package:dearim/models/chat_message_model.dart';
 import 'package:dearim/models/contact_model.dart';
 import 'package:dearim/tcp/tcp_manager.dart';
 import 'package:dearim/views/chat_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 ///
 /// P2P聊天页
@@ -28,6 +30,8 @@ class ChatPageState extends State<ChatPage>{
   IMMessageIncomingCallback? _msgIncomingCallback;
 
   late InputPanelWidget inputPanelWidget;
+
+
   
   @override
   void initState() {
@@ -66,12 +70,17 @@ class ChatPageState extends State<ChatPage>{
       });
     };
     TCPManager().registerMessageCommingCallbck(_msgIncomingCallback!);
+
+    // scrollToBottom();
   }
 
   @override
   Widget build(BuildContext context) {
-    scrollToBottom();
-    
+    SchedulerBinding.instance?.addPostFrameCallback((timeStamp) { 
+      LogUtil.log("一帧渲染完成后回调 $timeStamp");
+      scrollToBottom();
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -110,11 +119,20 @@ class ChatPageState extends State<ChatPage>{
     );
   }
 
+
   void scrollToBottom() {
-    int microseconds = 1000;
-    Timer(Duration(microseconds: microseconds), () {
-      _listViewController.jumpTo(_listViewController.position.maxScrollExtent);
-    });
+    // int microseconds = 1000;
+    // Timer(Duration(microseconds: microseconds), () {
+    //   _listViewController.jumpTo(_listViewController.position.maxScrollExtent);
+    // });
+    //_listViewController.jumpTo(_listViewController.position.maxScrollExtent);
+
+    final bottomOffset = _listViewController.position.maxScrollExtent;
+    _listViewController.animateTo(
+      bottomOffset,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
@@ -208,15 +226,20 @@ class InputPanelState extends State<InputPanelWidget>{
       return;
     }
 
-    var msgList = widget.chatPageContext.msgModels;
-    msgList.add(ChatMessageModel.fromIMMessage(msg));
+
 
     setState(() {
       _textFieldController.text = "";
     });
 
     //refresh message list
+    var msgList = widget.chatPageContext.msgModels;
+    msgList.add(ChatMessageModel.fromIMMessage(msg));
     widget.chatPageContext.setState(() {
+    });
+
+    Future.delayed(const Duration(milliseconds: 500) , (){
+       widget.chatPageContext.scrollToBottom();
     });
   }
 }
