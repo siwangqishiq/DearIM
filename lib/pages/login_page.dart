@@ -31,70 +31,73 @@ class _LoginPageState extends State<LoginPage> {
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: Container(
-        padding: EdgeInsets.all(space),
-        child: Column(
-          children: [
-            const SizedBox(
-              height: 100,
-            ),
-            TextField(
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(hintText: "请输入账号名"),
-              onChanged: (String text) {
-                username = text;
-                Logger().d(text);
-              },
-            ),
-            SizedBox(
-              height: space,
-            ),
-            TextField(
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(hintText: "请输入密码"),
-              obscureText: true,
-              onChanged: (String text) {
-                password = text;
-                Logger().d(text);
-              },
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            MaterialButton(
-                onPressed: () {
-                  if (username.isEmpty || password.isEmpty) {
-                    ToastShowUtils.show("用户名或密码为空", context);
-                    return;
-                  }
-                  login();
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Container(
+          padding: EdgeInsets.all(space),
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 100,
+              ),
+              TextField(
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(hintText: "请输入账号名"),
+                onChanged: (String text) {
+                  username = text;
+                  Logger().d(text);
                 },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: Container(
-                    width: 400,
-                    height: 40,
-                    color: ColorThemes.themeColor,
-                    child: const Center(
-                      child: Text(
-                        "登录",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.white),
+              ),
+              SizedBox(
+                height: space,
+              ),
+              TextField(
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(hintText: "请输入密码"),
+                obscureText: true,
+                onChanged: (String text) {
+                  password = text;
+                  Logger().d(text);
+                },
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              MaterialButton(
+                  onPressed: () {
+                    if (username.isEmpty || password.isEmpty) {
+                      ToastShowUtils.show("用户名或密码为空", context);
+                      return;
+                    }
+                    login();
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: Container(
+                      width: 400,
+                      height: 40,
+                      color: ColorThemes.themeColor,
+                      child: const Center(
+                        child: Text(
+                          "登录",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
-                  ),
-                )
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            InkWell(
-              child: const Text("注册新账号" , style: TextStyle(color: Colors.green),),
-              onTap: () => toRegisterPage(),
-            ),
-          ],
+                  )
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              InkWell(
+                child: const Text("注册新账号" , style: TextStyle(color: Colors.green),),
+                onTap: () => toRegisterPage(),
+              ),
+            ],
+          ),
         ),
-      ),
+      )
     );
   }
 
