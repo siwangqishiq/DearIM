@@ -242,6 +242,8 @@ class InputPanelState extends State<InputPanelWidget>{
   final TextEditingController _textFieldController = TextEditingController();
   String text = "";
 
+  bool _sendBtnVisible = false;
+
   @override
   void initState() {
     super.initState();
@@ -268,6 +270,7 @@ class InputPanelState extends State<InputPanelWidget>{
               focusNode: _focusNode,
               onChanged: (_text) => onInputTextChange(_text),
               decoration: const InputDecoration(
+                contentPadding: EdgeInsets.fromLTRB(10, 4, 10, 4),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(
                     Radius.circular(8),
@@ -277,11 +280,28 @@ class InputPanelState extends State<InputPanelWidget>{
             ),
           ),
         ),
-        
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(fixedSize:const Size(60 ,40)),
-          onPressed: () => sendTextIMMsg(text),
-          child:const Text("发送" , style: TextStyle(color: Colors.white)),
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              child:const Icon(Icons.add , color: Colors.grey,),
+              decoration:BoxDecoration(
+                border: Border.all(color:  Colors.grey ,width: 2.0),
+                borderRadius:const BorderRadius.all(Radius.circular(30)),
+              ),
+            ),
+           AnimatedContainer(
+              duration: const Duration(milliseconds: 100),
+              width: _sendBtnVisible? 60 :0,
+              height:_sendBtnVisible? 40 :0,
+              child: ElevatedButton(
+                onPressed: () => sendTextIMMsg(text),
+                child:const Text("发送" , style: TextStyle(color: Colors.white)),
+              ),
+            ),
+          ],
         ),
         const SizedBox(
           width: 16,
@@ -292,6 +312,10 @@ class InputPanelState extends State<InputPanelWidget>{
 
   void onInputTextChange(String _text){
     text = _text;
+
+    setState(() {
+       _sendBtnVisible = text.isNotEmpty;
+    });
     sendInputCustomTransMsg();
   }
 
@@ -315,9 +339,8 @@ class InputPanelState extends State<InputPanelWidget>{
       return;
     }
 
-
-
     setState(() {
+      _sendBtnVisible = false;
       _textFieldController.text = "";
     });
 

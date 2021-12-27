@@ -1,12 +1,7 @@
 import 'package:dearim/config.dart';
 import 'package:dearim/core/imcore.dart';
-import 'package:dearim/models/contact_model.dart';
-import 'package:dearim/network/request.dart';
 import 'package:dearim/user/contacts.dart';
-import 'package:dearim/user/user_manager.dart';
 import 'package:dearim/views/color_utils.dart';
-import 'package:dearim/views/toast_show_utils.dart';
-
 import 'package:flutter/material.dart';
 
 import 'chat_list_page.dart';
@@ -62,6 +57,7 @@ class _MainPageState extends State<MainPage>
             controller: controller,
             labelColor: ColorThemes.themeColor,
             unselectedLabelColor: ColorThemes.unselectColor,
+            indicator: const BoxDecoration(),
             tabs: const [
               Tab(
                 text: "聊天",
