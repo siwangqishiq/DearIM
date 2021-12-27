@@ -14,24 +14,24 @@ class ToastShowUtils {
     }
   }
 
-  static void showAlert(String title, String content, BuildContext context,
+  static void showAlertDialog(String title, String content, BuildContext context,
       VoidCallback? sureCallback, VoidCallback? cancelCallback) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return new AlertDialog(
-          title: new Text(
+        return AlertDialog(
+          title: Text(
             title,
           ),
-          content: new Text(content),
+          content: Text(content),
           actions: <Widget>[
-            new Container(
-              decoration: BoxDecoration(
+            Container(
+              decoration:const BoxDecoration(
                   border: Border(
                       right: BorderSide(color: Colors.white, width: 1.0),
                       top: BorderSide(color: Colors.white, width: 1.0))),
               child: FlatButton(
-                child: new Text("确定"),
+                child: const Text("确定"),
                 onPressed: () {
                   Navigator.pop(context);
                   if (sureCallback != null) {
@@ -40,12 +40,12 @@ class ToastShowUtils {
                 },
               ),
             ),
-            new Container(
-              decoration: BoxDecoration(
+            Container(
+              decoration:const BoxDecoration(
                   border:
                       Border(top: BorderSide(color: Colors.white, width: 1.0))),
               child: FlatButton(
-                child: new Text("取消"),
+                child: const Text("取消"),
                 onPressed: () {
                   Navigator.pop(context);
                   if (cancelCallback != null) {

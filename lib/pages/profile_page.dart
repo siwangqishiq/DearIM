@@ -1,11 +1,14 @@
 import 'package:dearim/core/imcore.dart';
 import 'package:dearim/core/log.dart';
 import 'package:dearim/models/contact_model.dart';
+import 'package:dearim/network/request.dart';
 import 'package:dearim/pages/contact_page.dart';
 import 'package:dearim/pages/info_update_page.dart';
 import 'package:dearim/user/contacts.dart';
+import 'package:dearim/user/user_manager.dart';
 import 'package:dearim/views/contact_view.dart';
 import 'package:dearim/views/head_view.dart';
+import 'package:dearim/views/toast_show_utils.dart';
 import 'package:flutter/material.dart';
 
 
@@ -90,11 +93,41 @@ class MyInfoState extends State<MyInfoWidget>{
             const SizedBox(height: 8,),
             Text(name??"" , style:const TextStyle(fontSize: 20 , color: Colors.black),),
             const SizedBox(height: 4,),
-            Text(account!,style:const TextStyle(fontSize: 16 , color: Colors.black))
+            Text(account!,style:const TextStyle(fontSize: 16 , color: Colors.black)),
+            const SizedBox(height: 80),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(40, 8, 40, 40),
+              child: ElevatedButton(
+                onPressed: () => loginOut() , 
+                child:const Text("退出登录"),
+                style: ElevatedButton.styleFrom(
+                  minimumSize:const Size.fromHeight(40), 
+                  primary: Colors.redAccent
+                ),
+              ),
+            )
           ],
         ),
       ),
     );
+  }
+
+  void loginOut(){
+    ToastShowUtils.showAlertDialog(
+      "确定登出吗?", 
+      "", 
+      context, 
+      () => doLoginOut(), 
+      (){}
+    );
+  }
+
+  void doLoginOut(){
+    UserManager.getInstance()?.logout(Callback(successCallback: (data)async{
+      await UserManager.getInstance()!.user?.clear();
+      Navigator.of(context).pop();
+      Navigator.of(context).pushNamed("/login");
+    }));
   }
 
   //更新个人信息页

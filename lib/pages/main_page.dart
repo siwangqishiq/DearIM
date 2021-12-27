@@ -46,24 +46,6 @@ class _MainPageState extends State<MainPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          MaterialButton(
-            child: const Icon(
-              Icons.logout,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              ToastShowUtils.showAlert("确定登出吗?", "", context, () {
-                UserManager.getInstance()!
-                    .logout(Callback(successCallback: (data) async {
-                  await UserManager.getInstance()!.user?.clear();
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pushNamed("/login");
-                }));
-              }, () {});
-            },
-          )
-        ],
         title: const Text(
           APP_NAME,
           style: TextStyle(color: Colors.white),
