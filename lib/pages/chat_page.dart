@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:math';
 
 import 'package:dearim/core/imcore.dart';
 import 'package:dearim/core/immessage.dart';
@@ -11,6 +12,7 @@ import 'package:dearim/models/contact_model.dart';
 import 'package:dearim/models/trans.dart';
 import 'package:dearim/tcp/tcp_manager.dart';
 import 'package:dearim/views/chat_view.dart';
+import 'package:dearim/widget/emoji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -68,7 +70,7 @@ class ChatPageState extends State<ChatPage>{
 
       setState(() {
         receiveText = incomingIMMessageList.last.content;
-        log(receiveText!);
+        LogUtil.log(receiveText!);
         ChatMessageModel incomingMsgModel =
             ChatMessageModel.fromIMMessage(incomingIMMessageList.last);
         msgModels.add(incomingMsgModel);
@@ -82,7 +84,7 @@ class ChatPageState extends State<ChatPage>{
   @override
   Widget build(BuildContext context) {
     SchedulerBinding.instance?.addPostFrameCallback((timeStamp) { 
-      LogUtil.log("一帧渲染完成后回调 $timeStamp");
+      // LogUtil.log("一帧渲染完成后回调 $timeStamp");
       scrollToBottom();
     });
 
@@ -238,11 +240,13 @@ class InputPanelWidget extends StatefulWidget{
 }
 
 class InputPanelState extends State<InputPanelWidget>{
-  final FocusNode _focusNode = FocusNode();
-  final TextEditingController _textFieldController = TextEditingController();
-  String text = "";
+  final FocusNode _inputFocusNode = FocusNode();
+  final TextEditingController _textFieldController = RichTextEditingController();
 
+  String text = "";
   bool _sendBtnVisible = false;
+  bool _showEmojiGridPanel = false;
+  List<String> emojiNames = EmojiManager.instance.listAllEmoji();
 
   @override
   void initState() {
@@ -251,11 +255,89 @@ class InputPanelState extends State<InputPanelWidget>{
 
   @override
   Widget build(BuildContext context) {
+    return Column(
+      children: [
+        inputWidget(),
+        emojiWidget()
+      ],
+    );
+  }
+
+  //插入文本
+  void insertText(String insert, TextEditingController controller) {
+    int cursorPos = controller.selection.base.offset;
+    LogUtil.log("cursorPos : $cursorPos");
+
+    String newText = controller.text.replaceRange(max(cursorPos, 0), max(cursorPos, 0), insert);
+    controller.value = controller.value.copyWith(
+      text: newText,
+      selection: TextSelection.collapsed(offset: newText.length)
+    );
+
+    onInputTextChange(controller.text);
+    cursorPos = controller.selection.base.offset;
+
+    LogUtil.log("After cursorPos : $cursorPos");
+  }
+
+  Widget emojiWidget(){
+    return Visibility(
+      visible: _showEmojiGridPanel,
+      child: SizedBox(
+        height: 300,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: _emojiGridWidget(),
+        ),
+      ) 
+    );
+  }
+
+  Widget _emojiGridWidget(){
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 8,
+        mainAxisSpacing: 4.0,
+        crossAxisSpacing: 4.0,
+        childAspectRatio: 1,
+      ), 
+      itemBuilder: (BuildContext context, int index){
+        final String emojiName = emojiNames[index];
+        return InkWell(
+          onTap: () => _onSelectEmoji(emojiName),
+          child: Image.asset(EmojiManager.instance.emojiAssetPath(emojiName)),
+        );
+      },
+      itemCount: emojiNames.length,
+    );
+  }
+
+  //选中一个表情
+  void _onSelectEmoji(String emojiName){
+    LogUtil.log("emoji: $emojiName");
+    insertText("[$emojiName]" , _textFieldController);
+  }
+
+  //打开 或 关闭 表情输入面板
+  void _toggleInputGridPanel(){
+    _showEmojiGridPanel = !_showEmojiGridPanel;
+
+    if(_showEmojiGridPanel){
+      _inputFocusNode.unfocus();//关闭键盘
+      Future.delayed(const Duration(milliseconds: 200) , (){
+        setState(() {});
+      });
+    }else{
+       setState(() {});
+    }
+  }
+
+  Widget inputWidget(){
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const SizedBox(
-          width: 16,
+          width: 8,
         ),
         Expanded(
           child: Padding(
@@ -264,10 +346,21 @@ class InputPanelState extends State<InputPanelWidget>{
               onSubmitted: (text) {
                 sendTextIMMsg(text);
               },
+              onTap: (){
+                // LogUtil.log("input tap");
+                if(_showEmojiGridPanel){
+                  setState(() {
+                    _showEmojiGridPanel = false;
+                  });
+                }
+                
+                _textFieldController.selection = TextSelection.collapsed(offset: _textFieldController.text.length);
+              },
+              showCursor: true,
               textInputAction: TextInputAction.send,
               maxLines: null,
               controller: _textFieldController,
-              focusNode: _focusNode,
+              focusNode: _inputFocusNode,
               onChanged: (_text) => onInputTextChange(_text),
               decoration: const InputDecoration(
                 contentPadding: EdgeInsets.fromLTRB(10, 4, 10, 4),
@@ -279,6 +372,21 @@ class InputPanelState extends State<InputPanelWidget>{
               ),
             ),
           ),
+        ),
+        GestureDetector(
+          onTap: _toggleInputGridPanel,
+          child: Container(
+            width: 40,
+            height: 40,
+            child:const Icon(Icons.face_rounded , color: Colors.grey),
+            decoration:BoxDecoration(
+              border: Border.all(color:  Colors.grey ,width: 2.0),
+              borderRadius:const BorderRadius.all(Radius.circular(30)),
+            ),
+          ),
+        ),
+        const SizedBox(
+          width: 4,
         ),
         Stack(
           alignment: Alignment.center,
@@ -292,7 +400,7 @@ class InputPanelState extends State<InputPanelWidget>{
                 borderRadius:const BorderRadius.all(Radius.circular(30)),
               ),
             ),
-           AnimatedContainer(
+            AnimatedContainer(
               duration: const Duration(milliseconds: 100),
               width: _sendBtnVisible? 60 :0,
               height:_sendBtnVisible? 40 :0,
@@ -304,7 +412,7 @@ class InputPanelState extends State<InputPanelWidget>{
           ],
         ),
         const SizedBox(
-          width: 16,
+          width: 8,
         ),
       ],
     );

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 ///
@@ -22,6 +24,10 @@ class EmojiManager{
 
   bool checkHasEmoji(String emojiStr){
     return emojis.containsKey(findEmojiRealName(emojiStr));
+  }
+
+  String emojiAssetPath(String emojiName){
+    return emojis[emojiName]??"";
   }
 
   List<String> listAllEmoji(){
@@ -240,7 +246,7 @@ class EmojiInputText extends StatefulWidget{
   late RichTextEditingController controller;
   late final FocusNode? node;
 
-  EmojiInputText({Key? key ,FocusNode? focusNode, this.onChangeCallback ,}) : super(key: key){
+  EmojiInputText({Key? key ,FocusNode? focusNode, this.onChangeCallback}) : super(key: key){
     controller = RichTextEditingController();
     node = focusNode;
   }
@@ -266,7 +272,7 @@ class EmojiInputTextState extends State<EmojiInputText>{
     if(_originContent != null && _originContent!.length > content.length){
       _handleDel(widget.controller.selection.start , content , _originContent);
     }
-
+    
     String currentContent = widget.controller.text;
     widget.onChangeCallback?.call(currentContent);
     _originContent = currentContent;
@@ -299,7 +305,7 @@ class EmojiInputTextState extends State<EmojiInputText>{
 
     String name = origin.substring(leftIndex , rightIndex + 1);
     // print("name : $name");
-
+    
     if(EmojiManager.instance.checkHasEmoji(name)){
       widget.controller.text = origin.substring(0 , leftIndex) 
         + origin.substring(rightIndex + 1);
