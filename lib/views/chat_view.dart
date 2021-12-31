@@ -7,6 +7,7 @@ import 'package:dearim/user/user_manager.dart';
 import 'package:dearim/utils/timer_utils.dart';
 import 'package:dearim/views/color_utils.dart';
 import 'package:dearim/views/head_view.dart';
+import 'package:dearim/widget/emoji.dart';
 import 'package:flutter/material.dart';
 
 class ChatView extends StatefulWidget {
@@ -43,7 +44,7 @@ class _ChatViewState extends State<ChatView> {
             color: ColorThemes.themeColor,
             child: Padding(
               padding: EdgeInsets.all(innerSpace),
-              child: Text(
+              child: EmojiText(
                 msgModel.content,
                 style: const TextStyle(color: Colors.white, fontSize: 16),
               ),

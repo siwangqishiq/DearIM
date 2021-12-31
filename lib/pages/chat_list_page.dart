@@ -5,6 +5,7 @@ import 'package:dearim/models/contact_model.dart';
 import 'package:dearim/user/contacts.dart';
 import 'package:dearim/utils/timer_utils.dart';
 import 'package:dearim/views/head_view.dart';
+import 'package:dearim/widget/emoji.dart';
 import 'package:flutter/material.dart';
 
 import 'chat_page.dart';
@@ -198,12 +199,12 @@ class RecentSessionListState extends State<RecentSessionListWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(name , style:const TextStyle(color: Colors.black , fontSize: 18.0),maxLines: 1),
-                        Text(content , style:const TextStyle(color: Colors.grey , fontSize: 14.0),maxLines: 1,),
+                        EmojiText(content , style:const TextStyle(color: Colors.grey , fontSize: 14.0), maxLines: 1,),
                       ],
                     )
                   ),
                   Text(
-                    TimerUtils.getMessageFormatTime(sessionTime) , 
+                    TimerUtils.getMessageFormatTime(sessionTime , detailShow: false) , 
                     style:const TextStyle(color: Colors.grey , fontSize: 12.0),
                   )
                 ],
