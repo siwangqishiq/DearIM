@@ -11,7 +11,6 @@ import 'package:dearim/views/head_view.dart';
 import 'package:dearim/views/toast_show_utils.dart';
 import 'package:flutter/material.dart';
 
-
 class ProfilePage extends StatelessWidget {
   const ProfilePage({Key? key}) : super(key: key);
   @override
@@ -29,7 +28,7 @@ class ProfilePage extends StatelessWidget {
 ///
 /// 个人信息栏
 ///
-class MyInfoWidget extends StatefulWidget{
+class MyInfoWidget extends StatefulWidget {
   // ignore: prefer_const_constructors_in_immutables
   MyInfoWidget({Key? key}) : super(key: key);
 
@@ -39,10 +38,10 @@ class MyInfoWidget extends StatefulWidget{
   }
 }
 
-class MyInfoState extends State<MyInfoWidget>{
+class MyInfoState extends State<MyInfoWidget> {
   String? name;
   String? avatar;
-  String? account ="";
+  String? account = "";
   int uid = 0;
 
   ContactModel _info = ContactModel("", 0);
@@ -52,7 +51,7 @@ class MyInfoState extends State<MyInfoWidget>{
   @override
   void initState() {
     super.initState();
-    _infoChangeCallback = (){
+    _infoChangeCallback = () {
       LogUtil.log("个人信息页 _infoChangeCallback");
       _displayMyInfo();
     };
@@ -61,16 +60,16 @@ class MyInfoState extends State<MyInfoWidget>{
     _displayMyInfo();
   }
 
-  void _displayMyInfo(){
+  void _displayMyInfo() {
     setState(() {
-       uid = IMClient.getInstance().uid;
-    
+      uid = IMClient.getInstance().uid;
+
       ContactModel? info = ContactsDataCache.instance.getContact(uid);
       name = info?.name;
       avatar = info?.avatar;
       account = info?.account;
 
-      _info = info??ContactModel("", 0);
+      _info = info ?? ContactModel("", 0);
     });
   }
 
@@ -82,28 +81,37 @@ class MyInfoState extends State<MyInfoWidget>{
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(height: 40,),
+            const SizedBox(
+              height: 40,
+            ),
             HeadView(
-              avatar , 
+              avatar,
               size: ImageSize.middle,
               width: 150,
               height: 150,
               circle: 100,
             ),
-            const SizedBox(height: 8,),
-            Text(name??"" , style:const TextStyle(fontSize: 20 , color: Colors.black),),
-            const SizedBox(height: 4,),
-            Text(account!,style:const TextStyle(fontSize: 16 , color: Colors.black)),
+            const SizedBox(
+              height: 8,
+            ),
+            Text(
+              name ?? "",
+              style: const TextStyle(fontSize: 20, color: Colors.black),
+            ),
+            const SizedBox(
+              height: 4,
+            ),
+            Text(account ?? "",
+                style: const TextStyle(fontSize: 16, color: Colors.black)),
             const SizedBox(height: 80),
             Padding(
               padding: const EdgeInsets.fromLTRB(40, 8, 40, 40),
               child: ElevatedButton(
-                onPressed: () => loginOut() , 
-                child:const Text("退出登录"),
+                onPressed: () => loginOut(),
+                child: const Text("退出登录"),
                 style: ElevatedButton.styleFrom(
-                  minimumSize:const Size.fromHeight(40), 
-                  primary: Colors.redAccent
-                ),
+                    minimumSize: const Size.fromHeight(40),
+                    primary: Colors.redAccent),
               ),
             )
           ],
@@ -112,18 +120,13 @@ class MyInfoState extends State<MyInfoWidget>{
     );
   }
 
-  void loginOut(){
+  void loginOut() {
     ToastShowUtils.showAlertDialog(
-      "确定登出吗?", 
-      "", 
-      context, 
-      () => doLoginOut(), 
-      (){}
-    );
+        "确定登出吗?", "", context, () => doLoginOut(), () {});
   }
 
-  void doLoginOut(){
-    UserManager.getInstance()?.logout(Callback(successCallback: (data)async{
+  void doLoginOut() {
+    UserManager.getInstance()?.logout(Callback(successCallback: (data) async {
       await UserManager.getInstance()!.user?.clear();
       Navigator.of(context).pop();
       Navigator.of(context).pushNamed("/login");
@@ -131,8 +134,9 @@ class MyInfoState extends State<MyInfoWidget>{
   }
 
   //更新个人信息页
-  void _updateInfo(){
-    Navigator.of(context).push(MaterialPageRoute(builder: (context)=> InfoUpdatePage(_info)));
+  void _updateInfo() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => InfoUpdatePage(_info)));
   }
 
   @override
