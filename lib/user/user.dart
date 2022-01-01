@@ -46,7 +46,7 @@ class User {
     prefs ??= await SharedPreferences.getInstance();
     String? userJson = prefs?.getString(_user_key);
 
-    print("userJson = $userJson");
+    //print("userJson = $userJson");
 
     if(!Utils.isTextEmpty(userJson)){
       Map<String , dynamic> userMap = jsonDecode(userJson!);

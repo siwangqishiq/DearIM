@@ -251,6 +251,9 @@ class InputPanelState extends State<InputPanelWidget>{
   @override
   void initState() {
     super.initState();
+    _textFieldController.addListener(() {
+      LogUtil.log("text field change ${_textFieldController.text}");
+    });
   }
 
   @override
@@ -353,7 +356,6 @@ class InputPanelState extends State<InputPanelWidget>{
                     _showEmojiGridPanel = false;
                   });
                 }
-                
                 _textFieldController.selection = TextSelection.collapsed(offset: _textFieldController.text.length);
               },
               showCursor: true,
