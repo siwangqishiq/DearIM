@@ -11,6 +11,7 @@ import 'package:dearim/models/chat_message_model.dart';
 import 'package:dearim/models/contact_model.dart';
 import 'package:dearim/models/trans.dart';
 import 'package:dearim/tcp/tcp_manager.dart';
+import 'package:dearim/utils/timer_utils.dart';
 import 'package:dearim/views/chat_view.dart';
 import 'package:dearim/widget/emoji.dart';
 import 'package:flutter/material.dart';
@@ -208,7 +209,7 @@ class ChatTitleState extends State<ChatTitleWidget>{
       showTitle = "正在输入中...";
     });
 
-    Future.delayed(const Duration(seconds: 3) , (){
+    Future.delayed(const Duration(seconds: 2) , (){
       setState(() {
         showTitle = contactModel.name;
         isShowingInput = false;
@@ -241,19 +242,20 @@ class InputPanelWidget extends StatefulWidget{
 
 class InputPanelState extends State<InputPanelWidget>{
   final FocusNode _inputFocusNode = FocusNode();
-  final TextEditingController _textFieldController = RichTextEditingController();
+  final RichTextEditingController _textFieldController = RichTextEditingController();
+
+  GlobalKey inputKey = GlobalKey();
 
   String text = "";
   bool _sendBtnVisible = false;
   bool _showEmojiGridPanel = false;
   List<String> emojiNames = EmojiManager.instance.listAllEmoji();
 
+  int lastTransMsgSendTime = 0;
+
   @override
   void initState() {
     super.initState();
-    _textFieldController.addListener(() {
-      LogUtil.log("text field change ${_textFieldController.text}");
-    });
   }
 
   @override
@@ -269,7 +271,7 @@ class InputPanelState extends State<InputPanelWidget>{
   //插入文本
   void insertText(String insert, TextEditingController controller) {
     int cursorPos = controller.selection.base.offset;
-    LogUtil.log("cursorPos : $cursorPos");
+    //LogUtil.log("cursorPos : $cursorPos");
 
     String newText = controller.text.replaceRange(max(cursorPos, 0), max(cursorPos, 0), insert);
     controller.value = controller.value.copyWith(
@@ -277,10 +279,14 @@ class InputPanelState extends State<InputPanelWidget>{
       selection: TextSelection.collapsed(offset: newText.length)
     );
 
-    onInputTextChange(controller.text);
+    // onInputTextChange(controller.text);
     cursorPos = controller.selection.base.offset;
+    //LogUtil.log("After cursorPos : $cursorPos");
 
-    LogUtil.log("After cursorPos : $cursorPos");
+    EmojiInputTextState inputTextState = inputKey.currentState as EmojiInputTextState;
+    //LogUtil.log("input globay key $type");
+    inputTextState.onChange(controller.text);
+    //onInputTextChange(controller.text);
   }
 
   Widget emojiWidget(){
@@ -345,7 +351,8 @@ class InputPanelState extends State<InputPanelWidget>{
         Expanded(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-            child: TextField(
+            child: EmojiInputText(
+              key: inputKey,
               onSubmitted: (text) {
                 sendTextIMMsg(text);
               },
@@ -358,20 +365,10 @@ class InputPanelState extends State<InputPanelWidget>{
                 }
                 _textFieldController.selection = TextSelection.collapsed(offset: _textFieldController.text.length);
               },
-              showCursor: true,
-              textInputAction: TextInputAction.send,
-              maxLines: null,
-              controller: _textFieldController,
+              showCursor: false,
+              richTextController: _textFieldController,
               focusNode: _inputFocusNode,
-              onChanged: (_text) => onInputTextChange(_text),
-              decoration: const InputDecoration(
-                contentPadding: EdgeInsets.fromLTRB(10, 4, 10, 4),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(8),
-                  ),
-                ),
-              ),
+              onChangeCallback: (_text) => onInputTextChange(_text),
             ),
           ),
         ),
@@ -426,14 +423,23 @@ class InputPanelState extends State<InputPanelWidget>{
     setState(() {
        _sendBtnVisible = text.isNotEmpty;
     });
+    
     sendInputCustomTransMsg();
   }
 
+  //发送透传消息  告知对方 正在输入中...
   void sendInputCustomTransMsg(){
+    int curTime = TimerUtils.getCurrentTimeStamp();
+
+    if(curTime - lastTransMsgSendTime < 10 * 1000){//距离上一次发送间隔小于10s 不再发送
+      return;
+    }
+    
     TransMessage? msg = TransMessageBuilder.create(widget.chatPageContext.widget.model.userId, 
       CustomTransBuilder.build(CustomTransTypes.TYPE_INPUTTING, null), null);
     
     IMClient.getInstance().sendTransMessage(msg!);
+    lastTransMsgSendTime = curTime;
   }
 
   //发送文本消息

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:dearim/core/log.dart';
 import 'package:flutter/material.dart';
 
 ///
@@ -244,11 +245,19 @@ class EmojiText extends StatelessWidget{
 class EmojiInputText extends StatefulWidget{
   ValueChanged<String>? onChangeCallback;
   late RichTextEditingController controller;
-  late final FocusNode? node;
+  FocusNode? focusNode;
+  ValueChanged<String>? onSubmitted;
+  GestureTapCallback? onTap;
+  bool? showCursor;
 
-  EmojiInputText({Key? key ,FocusNode? focusNode, this.onChangeCallback}) : super(key: key){
-    controller = RichTextEditingController();
-    node = focusNode;
+  EmojiInputText({Key? key ,
+    RichTextEditingController? richTextController, 
+    this.focusNode, 
+    this.onTap,
+    this.showCursor, 
+    this.onChangeCallback,
+    this.onSubmitted}) : super(key: key){
+    controller = richTextController?? RichTextEditingController();
   }
 
   @override
@@ -261,14 +270,28 @@ class EmojiInputTextState extends State<EmojiInputText>{
   @override
   Widget build(BuildContext context) {
     return TextField(
-      onChanged: _onChange,
+      onChanged: onChange,
       controller: widget.controller,
-      focusNode: widget.node,
-      showCursor: false,
+      showCursor: widget.showCursor,
+      onSubmitted: widget.onSubmitted,
+      onTap: widget.onTap,
+      textInputAction: TextInputAction.send,
+      maxLines: null,
+      focusNode: widget.focusNode,
+      decoration: const InputDecoration(
+        contentPadding: EdgeInsets.fromLTRB(10, 4, 10, 4),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(8),
+          ),
+        ),
+      ),
     );
   }
 
-  void _onChange(String content){
+  void onChange(String content){
+    //LogUtil.log("on change $content");
+    LogUtil.log("_onChange  $_originContent $content");
     if(_originContent != null && _originContent!.length > content.length){
       _handleDel(widget.controller.selection.start , content , _originContent);
     }
@@ -279,9 +302,11 @@ class EmojiInputTextState extends State<EmojiInputText>{
   }
 
   void _handleDel(int delPosition , String? current , String? origin){
+
     if(origin == null || delPosition <0 || delPosition >= origin.length){
       return;
     }
+    LogUtil.log("current : $current $origin  delPosition:$delPosition");
 
     String originStr = origin;
     int leftIndex = 0;
