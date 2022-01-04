@@ -25,7 +25,7 @@ class IMLoginReqMessage extends Message {
     body["token"] = token;
     body["device"] = device??DeviceManager.getDeviceInstant();
     body["manual"] = manual;
-
+    
     String jsonBody = jsonEncode(body);
     LogUtil.log("jsonBody:$jsonBody");
 

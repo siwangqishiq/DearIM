@@ -302,7 +302,7 @@ class EmojiInputTextState extends State<EmojiInputText>{
   }
 
   void _handleDel(int delPosition , String? current , String? origin){
-
+    
     if(origin == null || delPosition <0 || delPosition >= origin.length){
       return;
     }

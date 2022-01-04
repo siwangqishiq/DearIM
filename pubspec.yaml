@@ -39,6 +39,7 @@ dependencies:
   date_format: ^2.0.4
   path_provider: ^2.0.7 #获取工作目录
   file_picker: ^4.2.7 #文件选择器
+  lpinyin: ^2.0.2 #中文转拼音
   
 dev_dependencies:
   flutter_test:

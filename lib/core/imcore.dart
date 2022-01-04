@@ -489,7 +489,7 @@ class IMClient {
   void _receiveRemoteData(Uint8List data) {
     ByteBuf recvBuf = ByteBuf.allocator(size: data.length);
     recvBuf.writeUint8List(data);
-
+    
     _heartBeat.recordTime();
 
     _dataBuf.writeByteBuf(recvBuf);

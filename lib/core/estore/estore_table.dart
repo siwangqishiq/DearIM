@@ -61,7 +61,7 @@ class StoreTable {
       int dataSize = buf.readInt32();
       int state = buf.readInt8();
       int itemSize = dataSize - dataHeadSize();
-
+      
       ByteBuf itemDataBuf = buf.readUint8ListAsByteBuf(itemSize);
       var item = codec.decode(itemDataBuf);
 

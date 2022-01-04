@@ -6,6 +6,7 @@ class ContactModel {
   String message = "";
   String avatar = "";
   String account = "";
+  int updatetime = 0;
   
   User user = User();
   ContactModel(this.name, this.userId);

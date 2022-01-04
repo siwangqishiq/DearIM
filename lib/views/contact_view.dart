@@ -27,8 +27,7 @@ class _ContactViewState extends State<ContactView> {
 
   @override
   Widget build(BuildContext context) {
-    String imageURL =
-        "https://seopic.699pic.com/photo/50046/5562.jpg_wh1200.jpg";
+    String imageURL = "";
     if (model.avatar.isNotEmpty) {
       imageURL = model.avatar;
     }

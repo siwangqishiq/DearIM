@@ -1,8 +1,10 @@
 
+import 'package:dearim/core/log.dart';
 import 'package:dearim/models/contact_model.dart';
 import 'package:dearim/network/request.dart';
 import 'package:dearim/user/user_manager.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:lpinyin/lpinyin.dart';
 
 ///
 ///联系人数据 全局缓存
@@ -47,6 +49,14 @@ class ContactsDataCache with ChangeNotifier{
     for(var key in contacts.keys){
       list.add(contacts[key]!);
     }
+
+    //sort by update time
+    list.sort((left, right) {
+      String leftPinyin = PinyinHelper.getPinyinE(left.name);
+      String rightPinyin = PinyinHelper.getPinyinE(right.name);
+      //LogUtil.log("${left.name}   ${right.name} leftPinyin $leftPinyin rightPinyin $rightPinyin");
+      return leftPinyin.compareTo(rightPinyin);
+    });
     return list;
   }
 
