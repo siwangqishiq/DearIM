@@ -14,6 +14,7 @@ import 'package:dearim/tcp/tcp_manager.dart';
 import 'package:dearim/utils/timer_utils.dart';
 import 'package:dearim/views/chat_view.dart';
 import 'package:dearim/widget/emoji.dart';
+import 'package:dearim/widget/more_action.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -29,7 +30,7 @@ class ChatPage extends StatefulWidget {
   State<StatefulWidget> createState() => ChatPageState();
 }
 
-class ChatPageState extends State<ChatPage>{
+class ChatPageState extends State<ChatPage> {
   late List<ChatMessageModel> msgModels = [];
   final ScrollController _listViewController = ScrollController();
   String? receiveText = "";
@@ -45,21 +46,21 @@ class ChatPageState extends State<ChatPage>{
     initMessageList();
 
     titleWidget = ChatTitleWidget(this);
-    inputPanelWidget = InputPanelWidget(this);    
+    inputPanelWidget = InputPanelWidget(this);
   }
 
-    //查询历史消息
+  //查询历史消息
   List<ChatMessageModel> queryHistoryMessage() {
     List<ChatMessageModel> result = <ChatMessageModel>[];
     var imMsgList = IMClient.getInstance()
-          .queryIMMessageList(IMMessageSessionType.P2P, widget.model.userId);
+        .queryIMMessageList(IMMessageSessionType.P2P, widget.model.userId);
     for (IMMessage imMsg in imMsgList) {
       result.add(ChatMessageModel.fromIMMessage(imMsg));
     } //end for each
     return result;
   }
 
-  void initMessageList(){
+  void initMessageList() {
     msgModels.addAll(queryHistoryMessage()); //查询历史消息
     _msgIncomingCallback = (incomingIMMessageList) {
       IMMessage incomingMessage = incomingIMMessageList.last;
@@ -84,7 +85,7 @@ class ChatPageState extends State<ChatPage>{
 
   @override
   Widget build(BuildContext context) {
-    SchedulerBinding.instance?.addPostFrameCallback((timeStamp) { 
+    SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
       // LogUtil.log("一帧渲染完成后回调 $timeStamp");
       scrollToBottom();
     });
@@ -104,7 +105,10 @@ class ChatPageState extends State<ChatPage>{
                   itemCount: msgModels.length,
                   itemBuilder: (BuildContext context, int index) {
                     ChatMessageModel msgModel = msgModels[index];
-                    return ChatView(msgModel , preMsgModel: index - 1 >=0?msgModels[index - 1]:null,);
+                    return ChatView(
+                      msgModel,
+                      preMsgModel: index - 1 >= 0 ? msgModels[index - 1] : null,
+                    );
                   },
                 ),
               ),
@@ -121,7 +125,6 @@ class ChatPageState extends State<ChatPage>{
       ),
     );
   }
-
 
   void scrollToBottom() {
     // int microseconds = 1000;
@@ -147,7 +150,7 @@ class ChatPageState extends State<ChatPage>{
   }
 }
 
-class ChatTitleWidget extends StatefulWidget{
+class ChatTitleWidget extends StatefulWidget {
   final ChatPageState chatContext;
 
   const ChatTitleWidget(this.chatContext);
@@ -156,7 +159,7 @@ class ChatTitleWidget extends StatefulWidget{
   State<StatefulWidget> createState() => ChatTitleState();
 }
 
-class ChatTitleState extends State<ChatTitleWidget>{
+class ChatTitleState extends State<ChatTitleWidget> {
   late ContactModel contactModel;
   String? showTitle;
   bool isShowingInput = false;
@@ -169,23 +172,24 @@ class ChatTitleState extends State<ChatTitleWidget>{
     contactModel = widget.chatContext.widget.model;
     showTitle = contactModel.name;
 
-    _transMessageIncomingCallback = (transMessage){
+    _transMessageIncomingCallback = (transMessage) {
       handleTransMessage(transMessage);
     };
-    IMClient.getInstance().registerTransMessageObserver(_transMessageIncomingCallback!, true);
+    IMClient.getInstance()
+        .registerTransMessageObserver(_transMessageIncomingCallback!, true);
   }
 
-  void handleTransMessage(TransMessage transMessage){
-    if(transMessage.from != contactModel.userId){
+  void handleTransMessage(TransMessage transMessage) {
+    if (transMessage.from != contactModel.userId) {
       return;
     }
 
     String? content = transMessage.content;
-    if(content != null){
-      Map<String , dynamic> json = jsonDecode(content);
+    if (content != null) {
+      Map<String, dynamic> json = jsonDecode(content);
       int type = json[CustomTransTypes.KEY_TYPE];
-      
-      if(type == CustomTransTypes.TYPE_INPUTTING){
+
+      if (type == CustomTransTypes.TYPE_INPUTTING) {
         displayInputtingTips();
       }
     }
@@ -194,13 +198,13 @@ class ChatTitleState extends State<ChatTitleWidget>{
   @override
   Widget build(BuildContext context) {
     return Text(
-      showTitle??"",
+      showTitle ?? "",
       style: const TextStyle(color: Colors.white),
     );
   }
 
-  void displayInputtingTips(){
-    if(isShowingInput){
+  void displayInputtingTips() {
+    if (isShowingInput) {
       return;
     }
 
@@ -209,7 +213,7 @@ class ChatTitleState extends State<ChatTitleWidget>{
       showTitle = "正在输入中...";
     });
 
-    Future.delayed(const Duration(seconds: 2) , (){
+    Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         showTitle = contactModel.name;
         isShowingInput = false;
@@ -219,8 +223,9 @@ class ChatTitleState extends State<ChatTitleWidget>{
 
   @override
   void dispose() {
-    if(_transMessageIncomingCallback != null){
-      IMClient.getInstance().registerTransMessageObserver(_transMessageIncomingCallback!, false);
+    if (_transMessageIncomingCallback != null) {
+      IMClient.getInstance()
+          .registerTransMessageObserver(_transMessageIncomingCallback!, false);
     }
     super.dispose();
   }
@@ -229,10 +234,10 @@ class ChatTitleState extends State<ChatTitleWidget>{
 ///
 /// 输入面板
 ///
-class InputPanelWidget extends StatefulWidget{
+class InputPanelWidget extends StatefulWidget {
   final ChatPageState chatPageContext;
 
-  const InputPanelWidget(this.chatPageContext , {Key? key}) : super(key: key);
+  const InputPanelWidget(this.chatPageContext, {Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -240,9 +245,10 @@ class InputPanelWidget extends StatefulWidget{
   }
 }
 
-class InputPanelState extends State<InputPanelWidget>{
+class InputPanelState extends State<InputPanelWidget> {
   final FocusNode _inputFocusNode = FocusNode();
-  final RichTextEditingController _textFieldController = RichTextEditingController();
+  final RichTextEditingController _textFieldController =
+      RichTextEditingController();
 
   GlobalKey inputKey = GlobalKey();
 
@@ -255,6 +261,9 @@ class InputPanelState extends State<InputPanelWidget>{
 
   bool _showMoreActionsVisible = false;
 
+  //输入更多操作
+  List<InputAction> inputActions = InputActionHelper.findP2PSessionActions();
+
   @override
   void initState() {
     super.initState();
@@ -263,39 +272,50 @@ class InputPanelState extends State<InputPanelWidget>{
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: [
-        inputWidget(),
-        emojiWidget(),
-        moreActionsWidget()
-      ],
+      children: [inputWidget(), emojiWidget(), moreActionsWidget()],
+    );
+  }
+
+  int _inputActionsPageSize() {
+    return inputActions.length ~/ InputActionHelper.PAGE_PER_SIZE + 1;
+  }
+
+  Widget _moreActionPanelWidget(int index) {
+    return Container(
+      color: Colors.blueAccent,
+      child: Text("HAHHA $index", style: const TextStyle(fontSize: 50)),
     );
   }
 
   //更多操作
-  Widget moreActionsWidget(){
+  Widget moreActionsWidget() {
     return Visibility(
-      visible: _showMoreActionsVisible,
-      child: SizedBox(
-        height: 300,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          child: Container(color: Colors.blue),
-        ),
-      ) 
-    );
+        visible: _showMoreActionsVisible,
+        child: SizedBox(
+          height: 300,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: PageView.builder(
+                physics: const BouncingScrollPhysics(),
+                itemCount: _inputActionsPageSize(),
+                itemBuilder: (BuildContext context, int index) {
+                  return _moreActionPanelWidget(index);
+                }),
+          ),
+        ));
   }
 
-  void _toggleMoreActionsPanel(){
-     _showMoreActionsVisible = !_showMoreActionsVisible;
+  void _toggleMoreActionsPanel() {
+    _showMoreActionsVisible = !_showMoreActionsVisible;
 
-    if(_showMoreActionsVisible){
+    if (_showMoreActionsVisible) {
       _showEmojiGridPanel = false;
-      _inputFocusNode.unfocus();//关闭键盘
-      Future.delayed(const Duration(milliseconds: 200) , (){
+      _inputFocusNode.unfocus(); //关闭键盘
+      Future.delayed(const Duration(milliseconds: 200), () {
         setState(() {});
       });
-    }else{
-       setState(() {});
+    } else {
+      setState(() {});
     }
   }
 
@@ -304,44 +324,44 @@ class InputPanelState extends State<InputPanelWidget>{
     int cursorPos = controller.selection.base.offset;
     //LogUtil.log("cursorPos : $cursorPos");
 
-    String newText = controller.text.replaceRange(max(cursorPos, 0), max(cursorPos, 0), insert);
+    String newText = controller.text
+        .replaceRange(max(cursorPos, 0), max(cursorPos, 0), insert);
     controller.value = controller.value.copyWith(
-      text: newText,
-      selection: TextSelection.collapsed(offset: newText.length)
-    );
+        text: newText,
+        selection: TextSelection.collapsed(offset: newText.length));
 
     // onInputTextChange(controller.text);
     cursorPos = controller.selection.base.offset;
     //LogUtil.log("After cursorPos : $cursorPos");
 
-    EmojiInputTextState inputTextState = inputKey.currentState as EmojiInputTextState;
+    EmojiInputTextState inputTextState =
+        inputKey.currentState as EmojiInputTextState;
     //LogUtil.log("input globay key $type");
     inputTextState.onChange(controller.text);
     //onInputTextChange(controller.text);
   }
 
-  Widget emojiWidget(){
+  Widget emojiWidget() {
     return Visibility(
-      visible: _showEmojiGridPanel,
-      child: SizedBox(
-        height: 300,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          child: _emojiGridWidget(),
-        ),
-      ) 
-    );
+        visible: _showEmojiGridPanel,
+        child: SizedBox(
+          height: 300,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: _emojiGridWidget(),
+          ),
+        ));
   }
 
-  Widget _emojiGridWidget(){
+  Widget _emojiGridWidget() {
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 8,
         mainAxisSpacing: 4.0,
         crossAxisSpacing: 4.0,
         childAspectRatio: 1,
-      ), 
-      itemBuilder: (BuildContext context, int index){
+      ),
+      itemBuilder: (BuildContext context, int index) {
         final String emojiName = emojiNames[index];
         return InkWell(
           onTap: () => _onSelectEmoji(emojiName),
@@ -353,27 +373,27 @@ class InputPanelState extends State<InputPanelWidget>{
   }
 
   //选中一个表情
-  void _onSelectEmoji(String emojiName){
+  void _onSelectEmoji(String emojiName) {
     LogUtil.log("emoji: $emojiName");
-    insertText("[$emojiName]" , _textFieldController);
+    insertText("[$emojiName]", _textFieldController);
   }
 
   //打开 或 关闭 表情输入面板
-  void _toggleInputGridPanel(){
+  void _toggleInputGridPanel() {
     _showEmojiGridPanel = !_showEmojiGridPanel;
 
-    if(_showEmojiGridPanel){
+    if (_showEmojiGridPanel) {
       _showMoreActionsVisible = false;
-      _inputFocusNode.unfocus();//关闭键盘
-      Future.delayed(const Duration(milliseconds: 200) , (){
+      _inputFocusNode.unfocus(); //关闭键盘
+      Future.delayed(const Duration(milliseconds: 200), () {
         setState(() {});
       });
-    }else{
-       setState(() {});
+    } else {
+      setState(() {});
     }
   }
 
-  Widget inputWidget(){
+  Widget inputWidget() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -388,15 +408,16 @@ class InputPanelState extends State<InputPanelWidget>{
               onSubmitted: (text) {
                 sendTextIMMsg(text);
               },
-              onTap: (){
+              onTap: () {
                 // LogUtil.log("input tap");
-                if(_showEmojiGridPanel || _showMoreActionsVisible){
+                if (_showEmojiGridPanel || _showMoreActionsVisible) {
                   setState(() {
                     _showEmojiGridPanel = false;
                     _showMoreActionsVisible = false;
                   });
                 }
-                _textFieldController.selection = TextSelection.collapsed(offset: _textFieldController.text.length);
+                _textFieldController.selection = TextSelection.collapsed(
+                    offset: _textFieldController.text.length);
               },
               showCursor: false,
               richTextController: _textFieldController,
@@ -410,10 +431,10 @@ class InputPanelState extends State<InputPanelWidget>{
           child: Container(
             width: 40,
             height: 40,
-            child:const Icon(Icons.face_rounded , color: Colors.grey),
-            decoration:BoxDecoration(
-              border: Border.all(color:  Colors.grey ,width: 2.0),
-              borderRadius:const BorderRadius.all(Radius.circular(30)),
+            child: const Icon(Icons.face_rounded, color: Colors.grey),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey, width: 2.0),
+              borderRadius: const BorderRadius.all(Radius.circular(30)),
             ),
           ),
         ),
@@ -428,20 +449,23 @@ class InputPanelState extends State<InputPanelWidget>{
               child: Container(
                 width: 40,
                 height: 40,
-                child:const Icon(Icons.add , color: Colors.grey,),
-                decoration:BoxDecoration(
-                  border: Border.all(color:  Colors.grey ,width: 2.0),
-                  borderRadius:const BorderRadius.all(Radius.circular(30)),
+                child: const Icon(
+                  Icons.add,
+                  color: Colors.grey,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey, width: 2.0),
+                  borderRadius: const BorderRadius.all(Radius.circular(30)),
                 ),
               ),
             ),
             AnimatedContainer(
               duration: const Duration(milliseconds: 100),
-              width: _sendBtnVisible? 60 :0,
-              height:_sendBtnVisible? 40 :0,
+              width: _sendBtnVisible ? 60 : 0,
+              height: _sendBtnVisible ? 40 : 0,
               child: ElevatedButton(
                 onPressed: () => sendTextIMMsg(text),
-                child:const Text("发送" , style: TextStyle(color: Colors.white)),
+                child: const Text("发送", style: TextStyle(color: Colors.white)),
               ),
             ),
           ],
@@ -453,39 +477,42 @@ class InputPanelState extends State<InputPanelWidget>{
     );
   }
 
-  void onInputTextChange(String _text){
+  void onInputTextChange(String _text) {
     text = _text;
 
     setState(() {
-       _sendBtnVisible = text.isNotEmpty;
+      _sendBtnVisible = text.isNotEmpty;
     });
-    
+
     sendInputCustomTransMsg();
   }
 
   //发送透传消息  告知对方 正在输入中...
-  void sendInputCustomTransMsg(){
+  void sendInputCustomTransMsg() {
     int curTime = TimerUtils.getCurrentTimeStamp();
 
-    if(curTime - lastTransMsgSendTime < 10 * 1000){//距离上一次发送间隔小于10s 不再发送
+    if (curTime - lastTransMsgSendTime < 10 * 1000) {
+      //距离上一次发送间隔小于10s 不再发送
       return;
     }
-    
-    TransMessage? msg = TransMessageBuilder.create(widget.chatPageContext.widget.model.userId, 
-      CustomTransBuilder.build(CustomTransTypes.TYPE_INPUTTING, null), null);
-    
+
+    TransMessage? msg = TransMessageBuilder.create(
+        widget.chatPageContext.widget.model.userId,
+        CustomTransBuilder.build(CustomTransTypes.TYPE_INPUTTING, null),
+        null);
+
     IMClient.getInstance().sendTransMessage(msg!);
     lastTransMsgSendTime = curTime;
   }
 
   //发送文本消息
-  void sendTextIMMsg(String content){
+  void sendTextIMMsg(String content) {
     var model = widget.chatPageContext.widget.model;
 
     if (_textFieldController.text.isEmpty) {
       return;
     }
-    
+
     var msg = TCPManager().sendMessage(text, model.userId);
     if (msg == null) {
       return;
@@ -499,12 +526,10 @@ class InputPanelState extends State<InputPanelWidget>{
     //refresh message list
     var msgList = widget.chatPageContext.msgModels;
     msgList.add(ChatMessageModel.fromIMMessage(msg));
-    widget.chatPageContext.setState(() {
-    });
+    widget.chatPageContext.setState(() {});
 
-    Future.delayed(const Duration(milliseconds: 500) , (){
-       widget.chatPageContext.scrollToBottom();
+    Future.delayed(const Duration(milliseconds: 500), () {
+      widget.chatPageContext.scrollToBottom();
     });
   }
 }
-
