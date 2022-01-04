@@ -69,7 +69,7 @@ class EasyStore {
     _readDb();
 
     isInit = true;
-
+    
     return Future.value(0);
   }
 

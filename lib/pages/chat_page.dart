@@ -253,6 +253,8 @@ class InputPanelState extends State<InputPanelWidget>{
 
   int lastTransMsgSendTime = 0;
 
+  bool _showMoreActionsVisible = false;
+
   @override
   void initState() {
     super.initState();
@@ -263,9 +265,38 @@ class InputPanelState extends State<InputPanelWidget>{
     return Column(
       children: [
         inputWidget(),
-        emojiWidget()
+        emojiWidget(),
+        moreActionsWidget()
       ],
     );
+  }
+
+  //更多操作
+  Widget moreActionsWidget(){
+    return Visibility(
+      visible: _showMoreActionsVisible,
+      child: SizedBox(
+        height: 300,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: Container(color: Colors.blue),
+        ),
+      ) 
+    );
+  }
+
+  void _toggleMoreActionsPanel(){
+     _showMoreActionsVisible = !_showMoreActionsVisible;
+
+    if(_showMoreActionsVisible){
+      _showEmojiGridPanel = false;
+      _inputFocusNode.unfocus();//关闭键盘
+      Future.delayed(const Duration(milliseconds: 200) , (){
+        setState(() {});
+      });
+    }else{
+       setState(() {});
+    }
   }
 
   //插入文本
@@ -332,6 +363,7 @@ class InputPanelState extends State<InputPanelWidget>{
     _showEmojiGridPanel = !_showEmojiGridPanel;
 
     if(_showEmojiGridPanel){
+      _showMoreActionsVisible = false;
       _inputFocusNode.unfocus();//关闭键盘
       Future.delayed(const Duration(milliseconds: 200) , (){
         setState(() {});
@@ -358,9 +390,10 @@ class InputPanelState extends State<InputPanelWidget>{
               },
               onTap: (){
                 // LogUtil.log("input tap");
-                if(_showEmojiGridPanel){
+                if(_showEmojiGridPanel || _showMoreActionsVisible){
                   setState(() {
                     _showEmojiGridPanel = false;
+                    _showMoreActionsVisible = false;
                   });
                 }
                 _textFieldController.selection = TextSelection.collapsed(offset: _textFieldController.text.length);
@@ -390,13 +423,16 @@ class InputPanelState extends State<InputPanelWidget>{
         Stack(
           alignment: Alignment.center,
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              child:const Icon(Icons.add , color: Colors.grey,),
-              decoration:BoxDecoration(
-                border: Border.all(color:  Colors.grey ,width: 2.0),
-                borderRadius:const BorderRadius.all(Radius.circular(30)),
+            GestureDetector(
+              onTap: _toggleMoreActionsPanel,
+              child: Container(
+                width: 40,
+                height: 40,
+                child:const Icon(Icons.add , color: Colors.grey,),
+                decoration:BoxDecoration(
+                  border: Border.all(color:  Colors.grey ,width: 2.0),
+                  borderRadius:const BorderRadius.all(Radius.circular(30)),
+                ),
               ),
             ),
             AnimatedContainer(

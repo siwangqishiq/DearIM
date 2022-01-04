@@ -15,12 +15,10 @@ class HeadView extends StatelessWidget{
   final double circle;
 
   static String urlFromSize(String? url ,ImageSize size){
-    if(url == null){
+    if(url == null || url == ""){
       return "";
     }
-
     
-
     switch(size){
       case ImageSize.middle:
         return "$url!imgmiddle";
