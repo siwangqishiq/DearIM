@@ -35,6 +35,7 @@ class InputActionHelper {
     actions.add(PickImageFromAblumAction());
     actions.add(PickImageFromAblumAction());
     actions.add(PickImageFromAblumAction());
+    
     actions.add(PickImageFromAblumAction());
     actions.add(PickImageFromAblumAction());
 

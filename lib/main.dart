@@ -31,7 +31,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: APP_NAME,
       debugShowCheckedModeBanner: isNeedShowDebug(),
-      theme: ThemeData(primarySwatch: ColorThemes.themeColor),
+      theme: ThemeData(
+        primarySwatch: ColorThemes.themeColor,
+        fontFamily: "cn",
+      ),
       home: FutureBuilder(
         future: getUser(),
         builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
