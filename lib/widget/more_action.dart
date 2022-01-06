@@ -28,7 +28,18 @@ class InputActionHelper {
     List<InputAction> actions = <InputAction>[];
 
     actions.add(PickImageFromAblumAction());
-    
+
+    // actions.add(PickImageFromAblumAction());
+    // actions.add(PickImageFromAblumAction());
+    // actions.add(PickImageFromAblumAction());
+    // actions.add(PickImageFromAblumAction());
+    // actions.add(PickImageFromAblumAction());
+    // actions.add(PickImageFromAblumAction());
+    // actions.add(PickImageFromAblumAction());
+    // actions.add(PickImageFromAblumAction());
+    // actions.add(PickImageFromAblumAction());
+    // actions.add(PickImageFromAblumAction());
+
     return actions;
   }
 }
