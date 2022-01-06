@@ -7,6 +7,7 @@ import 'package:dearim/user/user.dart';
 import 'package:dearim/user/user_manager.dart';
 import 'package:dearim/views/color_utils.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'core/core_test.dart';
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: APP_NAME,
       debugShowCheckedModeBanner: isNeedShowDebug(),
+      scrollBehavior: MyCustomScrollBehavior(),
       theme: ThemeData(
         primarySwatch: ColorThemes.themeColor,
         fontFamily: "cn",
@@ -45,8 +47,12 @@ class MyApp extends StatelessWidget {
                 color: ColorThemes.themeColor,
                 child: const Center(
                   child: Text(
-                    "Welcome",
-                    style: TextStyle(fontSize: 30.0, color: Colors.white),
+                    "Welcome iM",
+                    style: TextStyle(
+                      fontSize: 30.0, 
+                      color: Colors.white , 
+                      fontWeight: FontWeight.bold
+                    ),
                   ),
                 ),
               ),
@@ -83,4 +89,13 @@ class MyApp extends StatelessWidget {
     }
     return const LoginPage();
   }
+}
+
+//适配桌面端的鼠标拖动
+class MyCustomScrollBehavior extends MaterialScrollBehavior{
+  @override
+  Set<PointerDeviceKind> get dragDevices => { 
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+  };
 }

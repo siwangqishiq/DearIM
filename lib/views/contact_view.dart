@@ -1,5 +1,6 @@
 // ignore_for_file: no_logic_in_create_state
 
+import 'package:dearim/core/log.dart';
 import 'package:dearim/models/contact_model.dart';
 import 'package:dearim/views/head_view.dart';
 import 'package:dearim/views/red_point.dart';
@@ -31,9 +32,11 @@ class _ContactViewState extends State<ContactView> {
     if (model.avatar.isNotEmpty) {
       imageURL = model.avatar;
     }
-    return FlatButton(
-      onPressed: onPress,
-      child: Container(
+    //LogUtil.log("contact ${model.name}  $imageURL");
+    
+    return InkWell(
+      onTap: onPress,
+      child: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Column(
           children: [

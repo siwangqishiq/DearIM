@@ -1,4 +1,5 @@
 import 'package:dearim/core/log.dart';
+import 'package:dearim/utils/text_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -37,6 +38,11 @@ class HeadView extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+
+    if(TextHelper.isTextEmpty(originUrl)){
+      return _errorOrEmptyViewHolder(width);
+    }
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(circle),
       child: FadeInImage.assetNetwork(
@@ -46,10 +52,18 @@ class HeadView extends StatelessWidget{
         image: urlFromSize(originUrl , size), 
         imageErrorBuilder: (context, error, st) {
           LogUtil.log("图片加载 发生错误 $error");
-          return Icon(Icons.face_rounded , size: width,);
+          return _errorOrEmptyViewHolder(width);
         },
         placeholder: 'avatar_loading.png', 
       ),  
+    );
+  }
+
+  Widget _errorOrEmptyViewHolder(double size){
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Image.asset("avatar_loading.png"),
     );
   }
 
