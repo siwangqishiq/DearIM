@@ -4,7 +4,7 @@ import 'package:dearim/user/contacts.dart';
 import 'package:dearim/views/color_utils.dart';
 import 'package:flutter/material.dart';
 
-import 'chat_list_page.dart';
+import 'session_list_page.dart';
 import 'contact_page.dart';
 import 'profile_page.dart';
 

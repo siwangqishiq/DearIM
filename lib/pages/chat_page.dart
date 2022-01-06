@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:ffi';
 import 'dart:math';
 
 import 'package:dearim/core/imcore.dart';
@@ -13,6 +14,7 @@ import 'package:dearim/models/trans.dart';
 import 'package:dearim/tcp/tcp_manager.dart';
 import 'package:dearim/utils/timer_utils.dart';
 import 'package:dearim/views/chat_view.dart';
+import 'package:dearim/views/color_utils.dart';
 import 'package:dearim/widget/emoji.dart';
 import 'package:dearim/widget/more_action.dart';
 import 'package:flutter/material.dart';
@@ -98,6 +100,7 @@ class ChatPageState extends State<ChatPage> {
           children: [
             Expanded(
               child: Container(
+                color:ColorThemes.grayColor,
                 constraints:
                     BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
                 child: ListView.builder(
@@ -277,13 +280,55 @@ class InputPanelState extends State<InputPanelWidget> {
   }
 
   int _inputActionsPageSize() {
+    if(inputActions.length % InputActionHelper.PAGE_PER_SIZE == 0){
+      return inputActions.length ~/ InputActionHelper.PAGE_PER_SIZE;
+    }
     return inputActions.length ~/ InputActionHelper.PAGE_PER_SIZE + 1;
   }
 
   Widget _moreActionPanelWidget(int index) {
-    return Container(
-      color: Colors.blueAccent,
-      child: Text("HAHHA $index", style: const TextStyle(fontSize: 50)),
+    int offset = InputActionHelper.PAGE_PER_SIZE * index;
+    int end = offset + InputActionHelper.PAGE_PER_SIZE >= inputActions.length ?
+        inputActions.length : offset + InputActionHelper.PAGE_PER_SIZE;
+    List<InputAction> subInputActions = inputActions.sublist(offset , end);
+
+    // LogUtil.log("index : $index  subInputActions : ${subInputActions.length}");
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 4,
+        mainAxisSpacing: 4.0,
+        crossAxisSpacing: 4.0,
+        childAspectRatio: 1,
+      ),
+      itemBuilder: (BuildContext context, int index) {
+        final InputAction action = subInputActions[index];
+        return InkWell(
+          onTap: (){},
+          child: Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    width: 60,
+                    height: 60,
+                    color: ColorThemes.grayBgColor,
+                    child: Center(
+                      child: SizedBox(
+                        child: Image.asset(action.icon , width: 32, height: 32, fit: BoxFit.fitWidth),
+                      ),
+                    )
+                  )
+                ),
+                Text(action.name , style:const TextStyle(fontSize: 14 , color: Colors.grey))
+              ],
+            )
+          ),
+        );
+      },
+      itemCount: subInputActions.length,
     );
   }
 
@@ -292,16 +337,28 @@ class InputPanelState extends State<InputPanelWidget> {
     return Visibility(
         visible: _showMoreActionsVisible,
         child: SizedBox(
-          height: 300,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: PageView.builder(
-                physics: const BouncingScrollPhysics(),
-                itemCount: _inputActionsPageSize(),
-                itemBuilder: (BuildContext context, int index) {
-                  return _moreActionPanelWidget(index);
-                }),
-          ),
+          height: 260,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 16),
+              const Divider(color: ColorThemes.grayBgDiv , height: 1,),
+              const SizedBox(height: 8),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                  child: PageView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: _inputActionsPageSize(),
+                    itemBuilder: (BuildContext context, int index) {
+                      return _moreActionPanelWidget(index);
+                    }
+                  ),
+                ), 
+              )
+            ],
+          )
         ));
   }
 
@@ -345,7 +402,7 @@ class InputPanelState extends State<InputPanelWidget> {
     return Visibility(
         visible: _showEmojiGridPanel,
         child: SizedBox(
-          height: 300,
+          height: 260,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: _emojiGridWidget(),
@@ -491,8 +548,8 @@ class InputPanelState extends State<InputPanelWidget> {
   void sendInputCustomTransMsg() {
     int curTime = TimerUtils.getCurrentTimeStamp();
 
+    //距离上一次发送间隔小于10s 不再发送
     if (curTime - lastTransMsgSendTime < 10 * 1000) {
-      //距离上一次发送间隔小于10s 不再发送
       return;
     }
 

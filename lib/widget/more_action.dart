@@ -28,17 +28,7 @@ class InputActionHelper {
     List<InputAction> actions = <InputAction>[];
 
     actions.add(PickImageFromAblumAction());
-    actions.add(PickImageFromAblumAction());
-    actions.add(PickImageFromAblumAction());
-    actions.add(PickImageFromAblumAction());
-    actions.add(PickImageFromAblumAction());
-    actions.add(PickImageFromAblumAction());
-    actions.add(PickImageFromAblumAction());
-    actions.add(PickImageFromAblumAction());
     
-    actions.add(PickImageFromAblumAction());
-    actions.add(PickImageFromAblumAction());
-
     return actions;
   }
 }
@@ -48,7 +38,7 @@ class InputActionHelper {
 ///
 class PickImageFromAblumAction extends InputAction {
   PickImageFromAblumAction()
-      : super(InputActionHelper.PICK_IMAGE_ABLUM, "相册", "");
+      : super(InputActionHelper.PICK_IMAGE_ABLUM, "相册", "ic_photo.png");
 
   @override
   void onClickAction(BuildContext context) {
