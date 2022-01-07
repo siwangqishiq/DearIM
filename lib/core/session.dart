@@ -138,11 +138,13 @@ class SessionManager {
   }
 
   //发送新IM消息
-  void onSendIMMessage(final IMMessage msg){
+  void onSendIMMessage(final IMMessage msg , {bool saveLocal = true}){
     _updateRecentSession(msg,recentSort: true, fireCallback: true);
 
     //保存消息到本地
-    _store?.save(msg);
+    if(saveLocal){
+      _store?.save(msg);
+    }
   }
 
   ///

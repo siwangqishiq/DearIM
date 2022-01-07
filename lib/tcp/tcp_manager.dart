@@ -63,7 +63,7 @@ class TCPManager {
     });
   }
 
-  IMMessage? sendMessage(String content, int toUid) {
+  Future<IMMessage?> sendMessage(String content, int toUid) async {
     IMMessage? msg =
         IMMessageBuilder.createText(toUid, IMMessageSessionType.P2P, content);
     if (msg != null) {

@@ -462,8 +462,13 @@ class InputPanelState extends State<InputPanelWidget> {
             padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
             child: EmojiInputText(
               key: inputKey,
-              onSubmitted: (text) {
-                sendTextIMMsg(text);
+              onSubmitted: (content) {
+                // LogUtil.log("on submit content : $content");
+                // LogUtil.log("=================================");
+                // LogUtil.log("on submit text : $text");
+                // LogUtil.log("=================================");
+
+                sendTextIMMsg(content.trim());
               },
               onTap: () {
                 // LogUtil.log("input tap");
@@ -563,14 +568,14 @@ class InputPanelState extends State<InputPanelWidget> {
   }
 
   //发送文本消息
-  void sendTextIMMsg(String content) {
+  void sendTextIMMsg(String content) async {
     var model = widget.chatPageContext.widget.model;
 
     if (_textFieldController.text.isEmpty) {
       return;
     }
 
-    var msg = TCPManager().sendMessage(text, model.userId);
+    var msg = await TCPManager().sendMessage(content, model.userId);
     if (msg == null) {
       return;
     }

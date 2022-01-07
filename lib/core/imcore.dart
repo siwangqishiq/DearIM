@@ -265,7 +265,7 @@ class IMClient {
   }
 
   //发送IM消息
-  void sendIMMessage(IMMessage imMessage, {SendIMMessageCallback? callback}) {
+  void sendIMMessage(IMMessage imMessage, {SendIMMessageCallback? callback}) async{
     imMessage.fromId = _uid;
     if (Utils.isTextEmpty(imMessage.msgId)) {
       imMessage.msgId = Utils.genUniqueMsgId();
@@ -284,11 +284,16 @@ class IMClient {
       _sendIMMessageCallbackMap[imMessage.msgId] = callback;
     }
 
-    //发送
-    sendData(SendIMMessageReqMsg(imMessage).encode());
+    if(imMessage.needUpload){//有资源需要上传
+      //先上传资源
+      //上传完成后再发送
 
-    //更新最近会话session
-    _sessionManager.onSendIMMessage(imMessage);
+    }else{
+      //发送
+      sendData(SendIMMessageReqMsg(imMessage).encode());
+      //更新最近会话session
+      _sessionManager.onSendIMMessage(imMessage);
+    }
   }
 
   //注册 或 解绑 状态改变事件监听

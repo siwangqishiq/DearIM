@@ -97,6 +97,9 @@ class IMMessage with Codec<IMMessage>{
   //会话ID
   int get sessionId => isReceived ? fromId : toId;
 
+  //消息资源 是否需要上传 文件相关消息需要
+  bool get needUpload => imMsgType == IMMessageType.Image;
+
   @override
   IMMessage decode(ByteBuf buf) {
     final IMMessage msg  = IMMessage();
@@ -163,6 +166,7 @@ class IMMessage with Codec<IMMessage>{
 
 class IMMessageType {
   static const int Text = 1; //文本消息
+  static const int Image = 2;//图片消息
 }
 
 class IMMessageSessionType {
@@ -199,6 +203,29 @@ class IMMessageBuilder {
     imMessage.toId = toUid;
     imMessage.imMsgType = IMMessageType.Text;
     imMessage.content = content;
+    return imMessage;
+  }
+
+  //创建图片消息
+  static IMMessage? createImage(int toUid ,int sessionType, String imagePath){
+    if (toUid <= 0) {
+      LogUtil.errorLog("error uid for $toUid");
+      return null;
+    }
+
+    final File file = File(imagePath);
+    if(imagePath.isEmpty || !file.existsSync()){
+      LogUtil.errorLog("$imagePath file not exist");
+      return null;
+    }
+
+    IMMessage imMessage = initIMMessage();
+
+    imMessage.sessionType = sessionType;
+    imMessage.toId = toUid;
+    imMessage.localPath = imagePath;
+    imMessage.imMsgType = IMMessageType.Image;
+
     return imMessage;
   }
 
