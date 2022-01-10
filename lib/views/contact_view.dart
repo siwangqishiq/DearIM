@@ -2,6 +2,7 @@
 
 import 'package:dearim/core/log.dart';
 import 'package:dearim/models/contact_model.dart';
+import 'package:dearim/pages/explorer_image.dart';
 import 'package:dearim/views/head_view.dart';
 import 'package:dearim/views/red_point.dart';
 import 'package:flutter/material.dart';
@@ -45,18 +46,21 @@ class _ContactViewState extends State<ContactView> {
             ),
             Row(
               children: [
-                RedPoint(
-                  width: imageWidth + 10,
-                  height: imageWidth + 10,
-                  child: HeadView(
-                    imageURL,
-                    width: imageWidth,
-                    height: imageWidth, 
-                    size: ImageSize.small,
-                    circle: 16,
+                GestureDetector(
+                  onTap: ()=>_explorerHeadView(imageURL),
+                  child: RedPoint(
+                    width: imageWidth + 10,
+                    height: imageWidth + 10,
+                    child: HeadView(
+                      imageURL,
+                      width: imageWidth,
+                      height: imageWidth, 
+                      size: ImageSize.small,
+                      circle: 16,
+                    ),
+                    number: 0,
+                    pointStyle: RedPointStyle.number,
                   ),
-                  number: 0,
-                  pointStyle: RedPointStyle.number,
                 ),
                 const SizedBox(
                   width: 10,
@@ -79,6 +83,20 @@ class _ContactViewState extends State<ContactView> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _explorerHeadView(String? imageUrl){
+    if(imageUrl == null){
+      return;
+    }
+                    
+    Navigator.of(context).push(
+    PageRouteBuilder(
+      pageBuilder: (BuildContext context, Animation<double> animation,Animation<double> secondaryAnimation) {
+          return ExplorerImagePage(imageUrl , heroId: imageUrl);
+        },
       ),
     );
   }

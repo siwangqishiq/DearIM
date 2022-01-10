@@ -26,7 +26,7 @@ class ExplorerImagePage extends StatelessWidget{
         color: Colors.black,
         child: ScanImageWidget(
           imageUrl,
-          heroId: heroId,
+          heroId: heroId??imageUrl,
         ),
       ),
     );
