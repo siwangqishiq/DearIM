@@ -13,15 +13,16 @@ class ScanImageWidget extends StatelessWidget{
 
   final String mImageUrl;
   final int type;
+  final String? heroId;
   
-  const ScanImageWidget(this.mImageUrl , {Key? key, this.type = TYPE_HTTP}) : super(key: key);
+  const ScanImageWidget(this.mImageUrl , {Key? key,this.heroId, this.type = TYPE_HTTP}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return  GestureDetector(
       child: Center(
         child:Hero(
-          tag: mImageUrl, 
+          tag: heroId??mImageUrl, 
           child: InteractiveViewer(
             child: type == TYPE_FILE ?Image.file(File(mImageUrl) , width: double.infinity) :Image.network(mImageUrl , width: double.infinity),
             panEnabled: true, 

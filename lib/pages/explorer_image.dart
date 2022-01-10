@@ -7,8 +7,9 @@ import 'package:flutter/material.dart';
 ///
 class ExplorerImagePage extends StatelessWidget{
   final String imageUrl;
+  final String? heroId;
 
-  const ExplorerImagePage(this.imageUrl , {Key? key}):super(key: key);
+  const ExplorerImagePage(this.imageUrl , {Key? key , this.heroId}):super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,8 @@ class ExplorerImagePage extends StatelessWidget{
         height: double.infinity,
         color: Colors.black,
         child: ScanImageWidget(
-          imageUrl
+          imageUrl,
+          heroId: heroId,
         ),
       ),
     );

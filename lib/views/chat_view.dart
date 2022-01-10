@@ -1,6 +1,7 @@
 // ignore_for_file: must_be_immutable, no_logic_in_create_state, constant_identifier_names
 
 import 'package:dearim/core/log.dart';
+import 'package:dearim/core/utils.dart';
 import 'package:dearim/models/chat_message_model.dart';
 import 'package:dearim/models/contact_model.dart';
 import 'package:dearim/pages/explorer_image.dart';
@@ -35,7 +36,8 @@ class _ChatViewState extends State<ChatView> {
     
     int uid = msgModel.isReceived?(msgModel.sessionId):(UserManager.getInstance()?.user?.uid??0);
     final ContactModel contactModel = ContactsDataCache.instance.getContact(uid)??ContactModel("",0);
-    String avatar = contactModel.avatar;
+    final String avatar = contactModel.avatar;
+    final String heroId = "$avatar?${Utils.genUnique()}";
     
     List<Widget> children = [
       createImmessageView(),
@@ -49,13 +51,13 @@ class _ChatViewState extends State<ChatView> {
             PageRouteBuilder(
               pageBuilder: (BuildContext context, Animation<double> animation,
                             Animation<double> secondaryAnimation) {
-                return ExplorerImagePage(avatar);
+                return ExplorerImagePage(avatar , heroId: heroId);
               },
             ),
           );
         },
         child: Hero(
-          tag: avatar,
+          tag: heroId,
           child: HeadView(avatar , circle: 8 , width: 38 , height: 38, size:ImageSize.small),
         ),
       ),
