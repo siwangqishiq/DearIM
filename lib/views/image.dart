@@ -18,22 +18,20 @@ class ScanImageWidget extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-      body: GestureDetector(
-        child: Center(
-          child:Hero(
-            tag: mImageUrl, 
-            child: InteractiveViewer(
-              child: type == TYPE_FILE ?Image.file(File(mImageUrl) , width: double.infinity) :Image.network(mImageUrl , width: double.infinity),
-              panEnabled: true, 
-              boundaryMargin:const EdgeInsets.all(8),
-              minScale: 0.5,
-              maxScale: 4.5,
-              clipBehavior: Clip.none
-            )
+    return  GestureDetector(
+      child: Center(
+        child:Hero(
+          tag: mImageUrl, 
+          child: InteractiveViewer(
+            child: type == TYPE_FILE ?Image.file(File(mImageUrl) , width: double.infinity) :Image.network(mImageUrl , width: double.infinity),
+            panEnabled: true, 
+            boundaryMargin:const EdgeInsets.all(8),
+            minScale: 0.5,
+            maxScale: 4.5,
+            clipBehavior: Clip.none
           )
         )
-      ),
+      )
     );
   }
 }//end class

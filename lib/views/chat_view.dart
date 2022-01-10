@@ -1,7 +1,9 @@
 // ignore_for_file: must_be_immutable, no_logic_in_create_state, constant_identifier_names
 
+import 'package:dearim/core/log.dart';
 import 'package:dearim/models/chat_message_model.dart';
 import 'package:dearim/models/contact_model.dart';
+import 'package:dearim/pages/explorer_image.dart';
 import 'package:dearim/user/contacts.dart';
 import 'package:dearim/user/user_manager.dart';
 import 'package:dearim/utils/timer_utils.dart';
@@ -21,6 +23,8 @@ class ChatView extends StatefulWidget {
 
 class _ChatViewState extends State<ChatView> {
   late ChatMessageModel msgModel;
+  final double space = 8;
+  final double innerSpace = 10;
 
   _ChatViewState(this.msgModel);
 
@@ -28,32 +32,33 @@ class _ChatViewState extends State<ChatView> {
   Widget build(BuildContext context) {
     
     bool isSendOutMsg = !msgModel.isReceived;
-    double space = 8;
-    double innerSpace = 10;
     
     int uid = msgModel.isReceived?(msgModel.sessionId):(UserManager.getInstance()?.user?.uid??0);
     final ContactModel contactModel = ContactsDataCache.instance.getContact(uid)??ContactModel("",0);
     String avatar = contactModel.avatar;
     
     List<Widget> children = [
-      ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: Container(
-            constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width - 200),
-            color: ColorThemes.themeColor,
-            child: Padding(
-              padding: EdgeInsets.all(innerSpace),
-              child: EmojiText(
-                msgModel.content,
-                style: const TextStyle(color: Colors.white, fontSize: 16),
-              ),
-            ),
-          )),
+      createImmessageView(),
       SizedBox(
         width: innerSpace,
       ),
-      HeadView(avatar , circle: 8 , width: 38 , height: 38, size:ImageSize.small),
+      GestureDetector(
+        onTap: (){
+          //LogUtil.log("click $avatar");
+          Navigator.of(context).push(
+            PageRouteBuilder(
+              pageBuilder: (BuildContext context, Animation<double> animation,
+                            Animation<double> secondaryAnimation) {
+                return ExplorerImagePage(avatar);
+              },
+            ),
+          );
+        },
+        child: Hero(
+          tag: avatar,
+          child: HeadView(avatar , circle: 8 , width: 38 , height: 38, size:ImageSize.small),
+        ),
+      ),
       SizedBox(
         width: space,
       ),
@@ -119,5 +124,34 @@ class _ChatViewState extends State<ChatView> {
       return false;
     }
     return true;
+  }
+
+  Widget createImmessageView(){
+    switch(msgModel.msgType){
+      case MessageType.text:
+        return _textMsgView();
+      case MessageType.picture:
+        return const Text("图片消息");
+      default:
+        return const Text("未知消息");
+    }//end switch
+  }
+
+
+  Widget _textMsgView(){
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(6),
+      child: Container(
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 200),
+        color: ColorThemes.themeColor,
+        child: Padding(
+          padding: EdgeInsets.all(innerSpace),
+          child: EmojiText(
+            msgModel.content,
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+          ),
+        ),
+      )
+    );
   }
 }

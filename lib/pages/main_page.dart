@@ -54,24 +54,25 @@ class _MainPageState extends State<MainPage>
       bottomNavigationBar: Material(
         color: Colors.white,
         child: TabBar(
-            controller: controller,
-            labelColor: ColorThemes.themeColor,
-            unselectedLabelColor: ColorThemes.unselectColor,
-            indicator: const BoxDecoration(),
-            tabs: const [
-              Tab(
-                text: "聊天",
-                icon: Icon(Icons.chat),
-              ),
-              Tab(
-                text: "通讯录",
-                icon: Icon(Icons.contact_mail),
-              ),
-              Tab(
-                text: "我的",
-                icon: Icon(Icons.portable_wifi_off_outlined),
-              ),
-            ]),
+          controller: controller,
+          labelColor: ColorThemes.themeColor,
+          unselectedLabelColor: ColorThemes.unselectColor,
+          indicator: const BoxDecoration(),
+          tabs: const [
+            Tab(
+              text: "聊天",
+              icon: Icon(Icons.chat),
+            ),
+            Tab(
+              text: "通讯录",
+              icon: Icon(Icons.contact_mail),
+            ),
+            Tab(
+              text: "我的",
+              icon: Icon(Icons.portable_wifi_off_outlined),
+            ),
+          ]
+        ),
       ),
     );
   }
