@@ -14,7 +14,7 @@ class MessageTypes {
 
   static const int PUSH_IMMESSAGE_REQ = 7;//接收推送消息
   static const int PUSH_IMMESSAGE_RESP = 8;//接收推送消息 响应
-
+  
   //心跳包
   static const int PING = 10;// 心跳包 请求
   static const int PONG = 11;// 心跳包 响应

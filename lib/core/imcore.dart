@@ -18,6 +18,7 @@ import 'package:dearim/core/session.dart';
 import 'package:dearim/core/sync.dart';
 import 'package:dearim/core/utils.dart';
 
+import '../config.dart';
 import 'device.dart';
 import 'log.dart';
 import 'heart_beat.dart';
@@ -87,7 +88,7 @@ class IMClient {
   // static String _serverAddress = "10.242.142.129"; //
   // static String _serverAddress = "192.168.31.230"; //mac
   // static String _serverAddress = "192.168.31.37";//windows
-  static String _serverAddress = "101.34.247.16";
+  static String _serverAddress = HOST;
 
   static int _port = 1013;
 
@@ -526,6 +527,8 @@ class IMClient {
   Message? parseByteBufToMessage(ByteBuf buf) {
     Message msgHead = Message.fromBytebuf(buf);
     Message? result;
+    LogUtil.log("msgHead:${msgHead.type}");
+    
     switch (msgHead.type) {
       case MessageTypes.LOGIN_RESP: //登录消息响应
         result = IMLoginRespMessage.from(msgHead, buf);

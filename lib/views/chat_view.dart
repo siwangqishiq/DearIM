@@ -99,10 +99,10 @@ class _ChatViewState extends State<ChatView> {
               height: space,
             ),
             Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment:
-                    !isSendOutMsg ? MainAxisAlignment.start : MainAxisAlignment.end,
-                children: children)
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment:!isSendOutMsg ? MainAxisAlignment.start : MainAxisAlignment.end,
+              children: children
+            )
           ],
         )
       ],

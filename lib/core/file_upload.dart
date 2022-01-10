@@ -7,6 +7,7 @@ import 'package:dearim/core/log.dart';
 import 'package:dearim/core/protocol/protocol.dart';
 import 'package:dio/dio.dart';
 
+import '../config.dart';
 import 'imcore.dart';
 import 'utils.dart';
 
@@ -41,7 +42,7 @@ abstract class FileUploadManager{
 
 //文件上传 默认实现
 class DefaultFileUploadManager extends FileUploadManager{
-  static const String UPLOAD_URL = "http://101.34.247.16:9090/uploadfile";
+  static const String UPLOAD_URL = "http://$HOST:9090/uploadfile";
 
   late Dio _dio;
 

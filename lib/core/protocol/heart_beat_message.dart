@@ -9,6 +9,10 @@ class PingMessage extends Message{
 }
 
 class PongMessage extends Message{
+  PongMessage(){
+    type = MessageTypes.PONG;
+  }
+
   @override
   int getType() {
     return MessageTypes.PONG;
