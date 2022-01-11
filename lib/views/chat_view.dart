@@ -1,5 +1,9 @@
 // ignore_for_file: must_be_immutable, no_logic_in_create_state, constant_identifier_names
 
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:dearim/core/immessage.dart';
 import 'package:dearim/core/log.dart';
 import 'package:dearim/core/utils.dart';
 import 'package:dearim/models/chat_message_model.dart';
@@ -45,16 +49,19 @@ class _ChatViewState extends State<ChatView> {
         width: innerSpace,
       ),
       GestureDetector(
-        onTap: (){
+        onTap: () {
           //LogUtil.log("click $avatar");
           Navigator.of(context).push(
-            PageRouteBuilder(
-              pageBuilder: (BuildContext context, Animation<double> animation,
-                            Animation<double> secondaryAnimation) {
-                return ExplorerImagePage(avatar , heroId: heroId);
-              },
-            ),
+            MaterialPageRoute(builder: (context) => ExplorerImagePage(avatar , heroId: heroId))
           );
+          // Navigator.of(context).push(
+          //   PageRouteBuilder(
+          //     pageBuilder: (BuildContext context, Animation<double> animation,
+          //                   Animation<double> secondaryAnimation) {
+          //       return ExplorerImagePage(avatar , heroId: heroId);
+          //     },
+          //   ),
+          // );
         },
         child: Hero(
           tag: heroId,
@@ -65,6 +72,7 @@ class _ChatViewState extends State<ChatView> {
         width: space,
       ),
     ];
+
     if (!isSendOutMsg) {
       List<Widget> reverses = [];
       for (var i = children.length - 1; i >= 0; i--) {
@@ -128,18 +136,19 @@ class _ChatViewState extends State<ChatView> {
     return true;
   }
 
+  //根据消息类型 创建消息视图
   Widget createImmessageView(){
     switch(msgModel.msgType){
       case MessageType.text:
         return _textMsgView();
       case MessageType.picture:
-        return const Text("图片消息");
+        return _imageMsgView();
       default:
         return const Text("未知消息");
     }//end switch
   }
 
-
+  //文本消息
   Widget _textMsgView(){
     return ClipRRect(
       borderRadius: BorderRadius.circular(6),
@@ -155,5 +164,48 @@ class _ChatViewState extends State<ChatView> {
         ),
       )
     );
+  }
+
+  //图片消息
+  Widget _imageMsgView(){
+    final IMMessage msg = msgModel.immessage!;
+
+    //计算实际显示宽高
+    String attachInfo = msg.attachInfo??"{}";
+    var info = jsonDecode(attachInfo);
+    var width = info["w"];
+    var height = info["h"];
+    Size imageSize = _calulateImageSize(width , height);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(6),
+      child: Container(
+        width: imageSize.width,
+        height: imageSize.height,
+        color: Colors.green,
+        child: msg.url == null?
+          Image.file(File(msg.localPath!) , width: double.infinity , height: double.infinity , fit: BoxFit.fitWidth)
+        :Image.network(msg.url!)
+      )
+    );
+  }
+
+  //计算image合适的显示大小
+  Size _calulateImageSize(int width , int height){
+    final double maxWidth = MediaQuery.of(context).size.width / 2.0;
+    final double maxHeight = maxWidth * 1.5;
+    final double ratio = width / height;//宽高比
+
+    double newWidth = width.toDouble();
+    double newHeight = height.toDouble();
+    if(width >= height){//宽图
+      newWidth = width >= maxWidth ?maxWidth:width.toDouble();
+      newHeight = newWidth / ratio;
+    }else{
+      newHeight = height>= maxHeight?maxHeight:height.toDouble();
+      newWidth = newHeight * ratio;
+    }
+
+    return Size(newWidth,newHeight);
   }
 }

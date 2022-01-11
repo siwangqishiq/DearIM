@@ -1,7 +1,6 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class GridItemModel {
   String image = "";
@@ -24,7 +23,7 @@ class _ChatKeyboardState extends State<ChatKeyboard> {
   _ChatKeyboardState(this.itemModels);
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width,
       height: 180,
       child: GridView.builder(
@@ -62,7 +61,7 @@ class GridItem extends StatelessWidget {
             width: 50,
             height: 50,
           ),
-          SizedBox(
+          const SizedBox(
             height: 5,
           ),
           Text(

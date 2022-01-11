@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:dearim/core/log.dart';
 import 'package:flutter/material.dart';
 
 ///
@@ -16,9 +17,10 @@ class ScanImageWidget extends StatelessWidget{
   final String? heroId;
   
   const ScanImageWidget(this.mImageUrl , {Key? key,this.heroId, this.type = TYPE_HTTP}) : super(key: key);
-
+  
   @override
   Widget build(BuildContext context) {
+    // LogUtil.log("heroID:$heroId  \n mImageUrl : $mImageUrl");
     return  GestureDetector(
       child: Center(
         child:Hero(

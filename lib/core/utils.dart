@@ -3,6 +3,8 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:uuid/uuid.dart';
 import 'dart:convert' show utf8;
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 class Utils {
   static Uuid uuid = const Uuid();
@@ -94,4 +96,20 @@ class ClientType{
   static const int Web = 4;
   static const int Android = 5;
   static const int Ios = 6;
+}
+
+class MD5Utils{
+  static const encoder = Utf8Encoder();
+
+  static String genMd5(String data){
+    var content = encoder.convert(data);
+    var digest = md5.convert(content);
+    return digest.toString();
+  }
+  
+  //生成文件md5值
+  static Future<String> genFileMd5(String path) async{
+    var file = File(path);
+    return md5.convert(await file.readAsBytes()).toString();
+  }
 }

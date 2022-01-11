@@ -16,6 +16,7 @@ class ChatMessageModel {
   MessageType msgType = MessageType.text;
   bool isReceived = false;//是否是消息的接收者
   int sessionId = 0;//会话ID
+  IMMessage? immessage;
   
   ChatMessageModel();
 
@@ -37,6 +38,8 @@ class ChatMessageModel {
     model.content = msg.content??"";
     model.updateTime = msg.updateTime;
     model.msgType = typeOf(msg.imMsgType);
+
+    model.immessage = msg;
     //LogUtil.log("messageTyep ${msg.imMsgType} ");
     return model;
   }

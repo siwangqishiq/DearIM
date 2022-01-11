@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
     // Routers().addRouter("/chat", (context, {model}) => ChatPage(model: model));
     return MaterialApp(
       title: APP_NAME,
-      debugShowCheckedModeBanner: isNeedShowDebug(),
+      debugShowCheckedModeBanner: false,
       scrollBehavior: MyCustomScrollBehavior(),
       theme: ThemeData(
         primarySwatch: ColorThemes.themeColor,

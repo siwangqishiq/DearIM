@@ -48,14 +48,7 @@ class ContactPageState extends State<ContactPage> {
             children: [
               ContactView(contactModel, () {
                 //跳转传参
-                Navigator.of(context).push(
-                  PageRouteBuilder(
-                    pageBuilder: (BuildContext context, Animation<double> animation,
-                        Animation<double> secondaryAnimation) {
-                      return ChatPage(contactModel);
-                    },
-                  ),
-                );
+                 Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(contactModel)));
               }),
               const Divider(height: 1,color: Colors.grey,)
             ],

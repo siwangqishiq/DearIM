@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dearim/core/byte_buffer.dart';
 import 'package:dearim/core/imcore.dart';
 import 'package:dearim/core/log.dart';
 import 'package:dearim/core/protocol/message.dart';
+import 'package:flutter/widgets.dart';
+import 'package:mime/mime.dart';
 
 import 'estore/estore.dart';
 import 'utils.dart';
@@ -207,7 +210,7 @@ class IMMessageBuilder {
   }
 
   //创建图片消息
-  static IMMessage? createImage(int toUid ,int sessionType, String imagePath){
+  static Future<IMMessage?> createImage(int toUid ,int sessionType, String imagePath) async{
     if (toUid <= 0) {
       LogUtil.errorLog("error uid for $toUid");
       return null;
@@ -225,6 +228,19 @@ class IMMessageBuilder {
     imMessage.toId = toUid;
     imMessage.localPath = imagePath;
     imMessage.imMsgType = IMMessageType.Image;
+    imMessage.content = "[图片]";
+
+    Map<String , dynamic> info = {};
+    var imageInfo = await decodeImageFromList(await file.readAsBytes());
+    LogUtil.log("图片大小 ${imageInfo.width} x ${imageInfo.height}");
+    info["w"] = imageInfo.width;
+    info["h"] = imageInfo.height;
+    info["size"] = file.lengthSync();
+    info["mime"] = lookupMimeType(file.path);
+    info["md5"] = await MD5Utils.genFileMd5(file.path);
+    imMessage.attachInfo = jsonEncode(info);
+    
+    LogUtil.log("attach: ${imMessage.attachInfo}");
 
     return imMessage;
   }

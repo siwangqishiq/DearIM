@@ -288,7 +288,7 @@ class IMClient {
     if(imMessage.needUpload){//有资源需要上传
       //先上传资源
       //上传完成后再发送
-
+      
     }else{
       //发送
       sendData(SendIMMessageReqMsg(imMessage).encode());

@@ -48,18 +48,21 @@ class _ContactViewState extends State<ContactView> {
               children: [
                 GestureDetector(
                   onTap: ()=>_explorerHeadView(imageURL),
-                  child: RedPoint(
-                    width: imageWidth + 10,
-                    height: imageWidth + 10,
-                    child: HeadView(
-                      imageURL,
-                      width: imageWidth,
-                      height: imageWidth, 
-                      size: ImageSize.small,
-                      circle: 16,
+                  child: Hero(
+                    tag: imageURL??"",
+                    child: RedPoint(
+                      width: imageWidth + 10,
+                      height: imageWidth + 10,
+                      child: HeadView(
+                        imageURL,
+                        width: imageWidth,
+                        height: imageWidth, 
+                        size: ImageSize.small,
+                        circle: 16,
+                      ),
+                      number: 0,
+                      pointStyle: RedPointStyle.number,
                     ),
-                    number: 0,
-                    pointStyle: RedPointStyle.number,
                   ),
                 ),
                 const SizedBox(
@@ -91,6 +94,10 @@ class _ContactViewState extends State<ContactView> {
     if(imageUrl == null){
       return;
     }
+
+    // Navigator.of(context).push(
+    //   MaterialPageRoute(builder: (context) => ExplorerImagePage(imageUrl))
+    // );
                     
     Navigator.of(context).push(
     PageRouteBuilder(

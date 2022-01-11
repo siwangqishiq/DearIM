@@ -136,7 +136,7 @@ class ChatPageState extends State<ChatPage> {
     // });
     //_listViewController.jumpTo(_listViewController.position.maxScrollExtent);
 
-    final bottomOffset = _listViewController.position.maxScrollExtent;
+    final double bottomOffset = _listViewController.position.maxScrollExtent;
     _listViewController.animateTo(
       bottomOffset,
       duration: const Duration(milliseconds: 300),
@@ -248,6 +248,9 @@ class InputPanelWidget extends StatefulWidget {
   }
 }
 
+///
+/// 输入框控件
+///
 class InputPanelState extends State<InputPanelWidget> {
   final FocusNode _inputFocusNode = FocusNode();
   final RichTextEditingController _textFieldController =
@@ -303,7 +306,7 @@ class InputPanelState extends State<InputPanelWidget> {
       itemBuilder: (BuildContext context, int index) {
         final InputAction action = subInputActions[index];
         return InkWell(
-          onTap: (){},
+          onTap: () => action.onClickAction(context , this),
           child: Center(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -567,6 +570,17 @@ class InputPanelState extends State<InputPanelWidget> {
     lastTransMsgSendTime = curTime;
   }
 
+  //添加新IM消息到消息列表中
+  void _addIMMessageToList(IMMessage msg){
+    var msgList = widget.chatPageContext.msgModels;
+    msgList.add(ChatMessageModel.fromIMMessage(msg));
+    widget.chatPageContext.setState(() {});
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      widget.chatPageContext.scrollToBottom();
+    });
+  }
+
   //发送文本消息
   void sendTextIMMsg(String content) async {
     var model = widget.chatPageContext.widget.model;
@@ -586,12 +600,20 @@ class InputPanelState extends State<InputPanelWidget> {
     });
 
     //refresh message list
-    var msgList = widget.chatPageContext.msgModels;
-    msgList.add(ChatMessageModel.fromIMMessage(msg));
-    widget.chatPageContext.setState(() {});
-
-    Future.delayed(const Duration(milliseconds: 500), () {
-      widget.chatPageContext.scrollToBottom();
-    });
+    _addIMMessageToList(msg);
   }
-}
+
+  //发送图片消息
+  void sendImageIMMessage(String path) async{
+    ContactModel model = widget.chatPageContext.widget.model;
+    IMMessage? imageMsg = await IMMessageBuilder.createImage(model.userId, IMMessageSessionType.P2P, path);
+    if(imageMsg == null){
+      return;
+    }
+
+    _addIMMessageToList(imageMsg);
+
+    //send image im message
+
+  }
+}//end class input_panel_state
