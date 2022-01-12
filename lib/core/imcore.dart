@@ -17,9 +17,11 @@ import 'package:dearim/core/protocol/trans.dart';
 import 'package:dearim/core/session.dart';
 import 'package:dearim/core/sync.dart';
 import 'package:dearim/core/utils.dart';
+import 'package:dearim/utils/text_utils.dart';
 
 import '../config.dart';
 import 'device.dart';
+import 'file_upload.dart';
 import 'log.dart';
 import 'heart_beat.dart';
 import 'protocol/kickoff.dart';
@@ -60,6 +62,9 @@ typedef IMLogOutCallback = Function(Result result);
 
 //发送IM消息 回调
 typedef SendIMMessageCallback = Function(IMMessage imMessage, Result result);
+
+//发送IM消息 附件状态回调
+typedef IMMessageAttachStatusChangeCallback = Function(IMMessage imMessage , AttachState attachState);
 
 //发送透传消息 回调
 typedef SendTransMessageCallback = Function(
@@ -166,6 +171,8 @@ class IMClient {
 
   late SyncManager _syncManager;
 
+  late FileUploadManager fileUploadManager;
+
   IMClient() {
     DeviceManager.getDevice();
 
@@ -187,6 +194,8 @@ class IMClient {
     _syncManager = SyncManager(this);
 
     //_sessionManager = SessionManager();
+
+    fileUploadManager = DefaultFileUploadManager();//默认文件上传类
   }
 
   static IMClient getInstance() {
@@ -286,15 +295,38 @@ class IMClient {
     }
 
     if(imMessage.needUpload){//有资源需要上传
-      //先上传资源
-      //上传完成后再发送
-      
+      _uploadIMMessageAttachAndSend(imMessage , UploadFileType.image);
     }else{
-      //发送
-      sendData(SendIMMessageReqMsg(imMessage).encode());
-      //更新最近会话session
-      _sessionManager.onSendIMMessage(imMessage);
+      _doSendIMMessage(imMessage);
     }
+  }
+
+  // 上传资源并发送消息
+  void _uploadIMMessageAttachAndSend(IMMessage imMessage , UploadFileType fileType , {SendIMMessageCallback? callback}){
+    if(TextUtils.isEmpty(imMessage.localPath) || !File(imMessage.localPath!).existsSync()){
+      callback?.call(imMessage, Result.Error("immessage file status error!"));
+      return;
+    }
+
+    //上传文件
+    imMessage.attachState = AttachState.UPLOADING;
+    fileUploadManager.uploadFile(imMessage.localPath!, fileType, (result, url, attach){
+      if(result == Codes.success && !TextUtils.isEmpty(url)){//上传成功
+        imMessage.url = url;
+        imMessage.attachState = AttachState.UPLOADED;
+        _doSendIMMessage(imMessage);
+      }else{//上传失败
+        callback?.call(imMessage, Result.Error("immessage file upload error!"));
+      }
+    });
+  }
+
+  //讲IM消息编码 并发送  同时更新session会话列表  im消息本地持久化
+  void _doSendIMMessage(IMMessage imMessage){
+    //发送
+    sendData(SendIMMessageReqMsg(imMessage).encode());
+    //更新最近会话session
+    _sessionManager.onSendIMMessage(imMessage);
   }
 
   //注册 或 解绑 状态改变事件监听

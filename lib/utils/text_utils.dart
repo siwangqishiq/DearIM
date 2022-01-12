@@ -1,10 +1,10 @@
 ///
 /// 文本显示
 ///
-class TextHelper{
+class TextUtils{
   static void createDisplayText(String? originText){
     
   }
 
-  static bool isTextEmpty(String? text) => text == null || text == "";
+  static bool isEmpty(String? text) => text == null || text == "";
 }

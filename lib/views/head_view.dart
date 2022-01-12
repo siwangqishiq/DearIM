@@ -39,7 +39,7 @@ class HeadView extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
 
-    if(TextHelper.isTextEmpty(originUrl)){
+    if(TextUtils.isEmpty(originUrl)){
       return _errorOrEmptyViewHolder(width);
     }
 

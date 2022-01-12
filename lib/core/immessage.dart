@@ -5,6 +5,7 @@ import 'package:dearim/core/byte_buffer.dart';
 import 'package:dearim/core/imcore.dart';
 import 'package:dearim/core/log.dart';
 import 'package:dearim/core/protocol/message.dart';
+import 'package:dearim/utils/text_utils.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mime/mime.dart';
 
@@ -101,7 +102,7 @@ class IMMessage with Codec<IMMessage>{
   int get sessionId => isReceived ? fromId : toId;
 
   //消息资源 是否需要上传 文件相关消息需要
-  bool get needUpload => imMsgType == IMMessageType.Image;
+  bool get needUpload => imMsgType == IMMessageType.Image && TextUtils.isEmpty(url);
 
   @override
   IMMessage decode(ByteBuf buf) {
@@ -177,6 +178,18 @@ class IMMessageSessionType {
   static const int TEAM = 2;
 }
 
+class AttachState {
+  static const int UNUPLOAD = 0;//未上传
+  static const int UPLOADING = 1;//上传中
+  static const int UPLOADED = 2;//上传完成
+}
+
+//消息状态
+class IMMessageState{
+  static const int INITED = 0;//
+  static const int SENDED = 200;//发送成功
+}
+
 //IM消息返回结果
 class IMMessageResult extends Result {
   int createTime = 0;
@@ -239,7 +252,8 @@ class IMMessageBuilder {
     info["mime"] = lookupMimeType(file.path);
     info["md5"] = await MD5Utils.genFileMd5(file.path);
     imMessage.attachInfo = jsonEncode(info);
-    
+    imMessage.attachState = AttachState.UNUPLOAD;//未上传附件
+
     LogUtil.log("attach: ${imMessage.attachInfo}");
 
     return imMessage;

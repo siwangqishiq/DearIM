@@ -613,7 +613,15 @@ class InputPanelState extends State<InputPanelWidget> {
 
     _addIMMessageToList(imageMsg);
 
-    //send image im message
+    //关闭更多操作面板
+    setState(() {
+      _showMoreActionsVisible = false;
+    });
 
+    //send image im message
+    IMClient.getInstance().sendIMMessage(imageMsg, callback: (imMessage, result) {
+      LogUtil.log("图片消息 发送成功! ${imMessage.url}");
+      widget.chatPageContext.setState(() {});
+    });
   }
 }//end class input_panel_state

@@ -177,16 +177,35 @@ class _ChatViewState extends State<ChatView> {
     var height = info["h"];
     Size imageSize = _calulateImageSize(width , height);
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(6),
-      child: Container(
-        width: imageSize.width,
-        height: imageSize.height,
-        color: Colors.green,
-        child: msg.url == null?
-          Image.file(File(msg.localPath!) , width: double.infinity , height: double.infinity , fit: BoxFit.fitWidth)
-        :Image.network(msg.url!)
-      )
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Visibility(
+          visible: !(msg.attachState == AttachState.UPLOADED),
+          child: const Padding(
+            padding: EdgeInsets.fromLTRB(0, 0, 8, 4),
+            child: SizedBox(
+              width: 12,
+              height: 12,
+              child: CircularProgressIndicator(
+                color: Colors.green,
+                strokeWidth: 2.0,
+              ),
+            ) ,
+          )
+        ),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: Container(
+            width: imageSize.width,
+            height: imageSize.height,
+            color: Colors.white,
+            child: msg.url == null
+            ?Image.file(File(msg.localPath!) , fit: BoxFit.fitWidth)
+            :Image.network(HeadView.urlFromSize(msg.url, ImageSize.middle),fit: BoxFit.fitWidth)
+          )
+        )
+      ],
     );
   }
 
