@@ -194,15 +194,29 @@ class _ChatViewState extends State<ChatView> {
             ) ,
           )
         ),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: Container(
-            width: imageSize.width,
-            height: imageSize.height,
-            color: Colors.white,
-            child: msg.url == null
-            ?Image.file(File(msg.localPath!) , fit: BoxFit.fitWidth)
-            :Image.network(HeadView.urlFromSize(msg.url, ImageSize.middle),fit: BoxFit.fitWidth)
+        GestureDetector(
+          onTap: (){
+            Navigator.of(context).push(
+            PageRouteBuilder(
+              pageBuilder: (BuildContext context, Animation<double> animation,Animation<double> secondaryAnimation) {
+                  return ExplorerImagePage(msgModel.immessage!.url! , heroId: msgModel.immessage!.msgId);
+                },
+              ),
+            );
+          },
+          child: Hero(
+            tag: msgModel.immessage!.msgId,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: Container(
+                width: imageSize.width,
+                height: imageSize.height,
+                color: Colors.white,
+                child: msg.url == null
+                ?Image.file(File(msg.localPath!) , fit: BoxFit.fitWidth)
+                :Image.network(HeadView.urlFromSize(msg.url, ImageSize.middle),fit: BoxFit.fitWidth)
+              )
+            ),
           )
         )
       ],
