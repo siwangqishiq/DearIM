@@ -399,13 +399,22 @@ class InputPanelState extends State<InputPanelWidget> {
     TextSelection textSelection = inputTextSelection ?? controller.selection;
     // LogUtil.log(
     //     "text: $text , start : ${textSelection.start} end: ${textSelection.end}");
-    String newText =
-        text.replaceRange(textSelection.start, textSelection.end, insert);
+    String newText;
+    int startPos;
+    if (textSelection.start == -1 && textSelection.end == -1) {
+      newText = insert;
+      startPos = 0;
+    } else {
+      newText =
+          text.replaceRange(textSelection.start, textSelection.end, insert);
+      startPos = textSelection.start;
+    }
+
     final int length = insert.length;
     controller.text = newText;
     controller.selection = textSelection.copyWith(
-      baseOffset: textSelection.start + length,
-      extentOffset: textSelection.start + length,
+      baseOffset: startPos + length,
+      extentOffset: startPos + length,
     );
 
     // int cursorPos = controller.selection.base.offset;
