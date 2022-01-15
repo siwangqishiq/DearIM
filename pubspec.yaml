@@ -41,6 +41,7 @@ dependencies:
   file_picker: ^4.2.7 #文件选择器
   lpinyin: ^2.0.2 #中文转拼音
   mime: ^1.0.1 #文件类型判断
+  extended_text_field: ^9.0.3 #自定义特殊显示输入框
   
 dev_dependencies:
   flutter_test:

@@ -17,6 +17,7 @@ import 'package:dearim/views/chat_view.dart';
 import 'package:dearim/views/color_utils.dart';
 import 'package:dearim/widget/emoji.dart';
 import 'package:dearim/widget/more_action.dart';
+import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -100,7 +101,7 @@ class ChatPageState extends State<ChatPage> {
           children: [
             Expanded(
               child: Container(
-                color:ColorThemes.grayColor,
+                color: ColorThemes.grayColor,
                 constraints:
                     BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
                 child: ListView.builder(
@@ -253,8 +254,7 @@ class InputPanelWidget extends StatefulWidget {
 ///
 class InputPanelState extends State<InputPanelWidget> {
   final FocusNode _inputFocusNode = FocusNode();
-  final RichTextEditingController _textFieldController =
-      RichTextEditingController();
+  final TextEditingController _textFieldController = TextEditingController();
 
   GlobalKey inputKey = GlobalKey();
 
@@ -270,9 +270,22 @@ class InputPanelState extends State<InputPanelWidget> {
   //输入更多操作
   List<InputAction> inputActions = InputActionHelper.findP2PSessionActions();
 
+  //记录光标位置
+  TextSelection? inputTextSelection;
+
   @override
   void initState() {
     super.initState();
+
+    // _textFieldController.addListener(() {
+    //   final String text = _textFieldController.text;
+    //   _textFieldController.value = _textFieldController.value.copyWith(
+    //     text: text,
+    //     selection:
+    //         TextSelection(baseOffset: text.length, extentOffset: text.length),
+    //     composing: TextRange.empty,
+    //   );
+    // });
   }
 
   @override
@@ -283,7 +296,7 @@ class InputPanelState extends State<InputPanelWidget> {
   }
 
   int _inputActionsPageSize() {
-    if(inputActions.length % InputActionHelper.PAGE_PER_SIZE == 0){
+    if (inputActions.length % InputActionHelper.PAGE_PER_SIZE == 0) {
       return inputActions.length ~/ InputActionHelper.PAGE_PER_SIZE;
     }
     return inputActions.length ~/ InputActionHelper.PAGE_PER_SIZE + 1;
@@ -291,9 +304,10 @@ class InputPanelState extends State<InputPanelWidget> {
 
   Widget _moreActionPanelWidget(int index) {
     int offset = InputActionHelper.PAGE_PER_SIZE * index;
-    int end = offset + InputActionHelper.PAGE_PER_SIZE >= inputActions.length ?
-        inputActions.length : offset + InputActionHelper.PAGE_PER_SIZE;
-    List<InputAction> subInputActions = inputActions.sublist(offset , end);
+    int end = offset + InputActionHelper.PAGE_PER_SIZE >= inputActions.length
+        ? inputActions.length
+        : offset + InputActionHelper.PAGE_PER_SIZE;
+    List<InputAction> subInputActions = inputActions.sublist(offset, end);
 
     // LogUtil.log("index : $index  subInputActions : ${subInputActions.length}");
     return GridView.builder(
@@ -306,29 +320,28 @@ class InputPanelState extends State<InputPanelWidget> {
       itemBuilder: (BuildContext context, int index) {
         final InputAction action = subInputActions[index];
         return InkWell(
-          onTap: () => action.onClickAction(context , this),
+          onTap: () => action.onClickAction(context, this),
           child: Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ClipRRect(
+              child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: Container(
-                    width: 60,
-                    height: 60,
-                    color: ColorThemes.grayBgColor,
-                    child: Center(
-                      child: SizedBox(
-                        child: Image.asset(action.icon , width: 32, height: 32, fit: BoxFit.fitWidth),
-                      ),
-                    )
-                  )
-                ),
-                Text(action.name , style:const TextStyle(fontSize: 14 , color: Colors.grey))
-              ],
-            )
-          ),
+                      width: 60,
+                      height: 60,
+                      color: ColorThemes.grayBgColor,
+                      child: Center(
+                        child: SizedBox(
+                          child: Image.asset(action.icon,
+                              width: 32, height: 32, fit: BoxFit.fitWidth),
+                        ),
+                      ))),
+              Text(action.name,
+                  style: const TextStyle(fontSize: 14, color: Colors.grey))
+            ],
+          )),
         );
       },
       itemCount: subInputActions.length,
@@ -340,29 +353,30 @@ class InputPanelState extends State<InputPanelWidget> {
     return Visibility(
         visible: _showMoreActionsVisible,
         child: SizedBox(
-          height: 260,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 16),
-              const Divider(color: ColorThemes.grayBgDiv , height: 1,),
-              const SizedBox(height: 8),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                  child: PageView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: _inputActionsPageSize(),
-                    itemBuilder: (BuildContext context, int index) {
-                      return _moreActionPanelWidget(index);
-                    }
+            height: 260,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 16),
+                const Divider(
+                  color: ColorThemes.grayBgDiv,
+                  height: 1,
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    child: PageView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: _inputActionsPageSize(),
+                        itemBuilder: (BuildContext context, int index) {
+                          return _moreActionPanelWidget(index);
+                        }),
                   ),
-                ), 
-              )
-            ],
-          )
-        ));
+                )
+              ],
+            )));
   }
 
   void _toggleMoreActionsPanel() {
@@ -381,24 +395,46 @@ class InputPanelState extends State<InputPanelWidget> {
 
   //插入文本
   void insertText(String insert, TextEditingController controller) {
-    int cursorPos = controller.selection.base.offset;
-    //LogUtil.log("cursorPos : $cursorPos");
+    String text = controller.text;
+    TextSelection textSelection = inputTextSelection ?? controller.selection;
+    // LogUtil.log(
+    //     "text: $text , start : ${textSelection.start} end: ${textSelection.end}");
+    String newText =
+        text.replaceRange(textSelection.start, textSelection.end, insert);
+    final int length = insert.length;
+    controller.text = newText;
+    controller.selection = textSelection.copyWith(
+      baseOffset: textSelection.start + length,
+      extentOffset: textSelection.start + length,
+    );
 
-    String newText = controller.text
-        .replaceRange(max(cursorPos, 0), max(cursorPos, 0), insert);
-    controller.value = controller.value.copyWith(
-        text: newText,
-        selection: TextSelection.collapsed(offset: newText.length));
+    // int cursorPos = controller.selection.base.offset;
+    // var selection = controller.selection;
+
+    // LogUtil.log(
+    //     "start : ${selection.start}   ${selection.end}  ${selection.toString()} ${selection.extentOffset}");
+
+    // // controller.text = (controller.text + insert);
+
+    // controller.selection =
+    //     TextSelection.collapsed(offset: controller.text.length);
+
+    // String newText = controller.text
+    //     .replaceRange(max(cursorPos, 0), max(cursorPos, 0), insert);
+    // controller.value = controller.value.copyWith(
+    //     text: newText,
+    //     selection: TextSelection.collapsed(offset: newText.length));
 
     // onInputTextChange(controller.text);
-    cursorPos = controller.selection.base.offset;
-    //LogUtil.log("After cursorPos : $cursorPos");
+    // cursorPos = controller.selection.base.offset;
+    // LogUtil.log("After cursorPos : $cursorPos");
 
-    EmojiInputTextState inputTextState =
-        inputKey.currentState as EmojiInputTextState;
+    // EmojiInputTextState inputTextState =
+    //     inputKey.currentState as EmojiInputTextState;
     //LogUtil.log("input globay key $type");
-    inputTextState.onChange(controller.text);
-    //onInputTextChange(controller.text);
+    // inputTextState.onChange(controller.text);
+
+    onInputTextChange(controller.text);
   }
 
   Widget emojiWidget() {
@@ -434,8 +470,10 @@ class InputPanelState extends State<InputPanelWidget> {
 
   //选中一个表情
   void _onSelectEmoji(String emojiName) {
-    LogUtil.log("emoji: $emojiName");
-    insertText("[$emojiName]", _textFieldController);
+    // LogUtil.log("emoji: $emojiName");
+    // LogUtil.log(
+    //     "${_textFieldController.selection.hashCode} text: $text , start : ${_textFieldController.selection.start} end: ${_textFieldController.selection.end}");
+    insertText(emojiName, _textFieldController);
   }
 
   //打开 或 关闭 表情输入面板
@@ -463,7 +501,7 @@ class InputPanelState extends State<InputPanelWidget> {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-            child: EmojiInputText(
+            child: ExtendedTextField(
               key: inputKey,
               onSubmitted: (content) {
                 // LogUtil.log("on submit content : $content");
@@ -475,19 +513,31 @@ class InputPanelState extends State<InputPanelWidget> {
               },
               onTap: () {
                 // LogUtil.log("input tap");
+                _textFieldController.selection.copyWith();
                 if (_showEmojiGridPanel || _showMoreActionsVisible) {
                   setState(() {
                     _showEmojiGridPanel = false;
                     _showMoreActionsVisible = false;
                   });
                 }
-                _textFieldController.selection = TextSelection.collapsed(
-                    offset: _textFieldController.text.length);
+                // _textFieldController.selection = TextSelection.collapsed(
+                //     offset: _textFieldController.text.length);
               },
-              showCursor: false,
-              richTextController: _textFieldController,
+              specialTextSpanBuilder: CustomSpecialTextSpanBuilder(),
+              showCursor: true,
               focusNode: _inputFocusNode,
-              onChangeCallback: (_text) => onInputTextChange(_text),
+              onChanged: (_text) => onInputTextChange(_text),
+              controller: _textFieldController,
+              maxLines: null,
+              textInputAction: TextInputAction.search,
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.fromLTRB(10, 4, 10, 4),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(8),
+                  ),
+                ),
+              ),
             ),
           ),
         ),
@@ -544,6 +594,16 @@ class InputPanelState extends State<InputPanelWidget> {
 
   void onInputTextChange(String _text) {
     text = _text;
+    // String text2 = _textFieldController.text;
+    // TextSelection textSelection = _textFieldController.selection;
+    // LogUtil.log(
+    //     "${_textFieldController.selection.hashCode} text: $text2 , start : ${textSelection.start} end: ${textSelection.end}");
+    //_textFieldController.text = text;
+
+    inputTextSelection = _textFieldController.selection;
+
+    // _textFieldController.value = _textFieldController.value.copyWith(
+    //     text: text, selection: TextSelection.collapsed(offset: text.length));
 
     setState(() {
       _sendBtnVisible = text.isNotEmpty;
@@ -571,7 +631,7 @@ class InputPanelState extends State<InputPanelWidget> {
   }
 
   //添加新IM消息到消息列表中
-  void _addIMMessageToList(IMMessage msg){
+  void _addIMMessageToList(IMMessage msg) {
     var msgList = widget.chatPageContext.msgModels;
     msgList.add(ChatMessageModel.fromIMMessage(msg));
     widget.chatPageContext.setState(() {});
@@ -604,10 +664,11 @@ class InputPanelState extends State<InputPanelWidget> {
   }
 
   //发送图片消息
-  void sendImageIMMessage(String path) async{
+  void sendImageIMMessage(String path) async {
     ContactModel model = widget.chatPageContext.widget.model;
-    IMMessage? imageMsg = await IMMessageBuilder.createImage(model.userId, IMMessageSessionType.P2P, path);
-    if(imageMsg == null){
+    IMMessage? imageMsg = await IMMessageBuilder.createImage(
+        model.userId, IMMessageSessionType.P2P, path);
+    if (imageMsg == null) {
       return;
     }
 
@@ -619,7 +680,8 @@ class InputPanelState extends State<InputPanelWidget> {
     });
 
     //send image im message
-    IMClient.getInstance().sendIMMessage(imageMsg, callback: (imMessage, result) {
+    IMClient.getInstance().sendIMMessage(imageMsg,
+        callback: (imMessage, result) {
       LogUtil.log("图片消息 发送成功! ${imMessage.url}");
       widget.chatPageContext.setState(() {});
     });
