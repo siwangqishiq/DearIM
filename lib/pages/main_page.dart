@@ -39,6 +39,8 @@ class _MainPageState extends State<MainPage>
 
   @override
   Widget build(BuildContext context) {
+    const double tabSize = 64;
+    const tabMargin = EdgeInsets.only(bottom: 2);
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -46,11 +48,14 @@ class _MainPageState extends State<MainPage>
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: TabBarView(controller: controller, children:const [
-        SessionPage(),
-        ContactPage(),
-        ProfilePage(),
-      ]),
+      body: TabBarView(
+        controller: controller, 
+        children:const [
+          SessionPage(),
+          ContactPage(),
+          ProfilePage(),
+        ]
+      ),
       bottomNavigationBar: Material(
         color: Colors.white,
         child: TabBar(
@@ -62,14 +67,20 @@ class _MainPageState extends State<MainPage>
             Tab(
               text: "聊天",
               icon: Icon(Icons.chat),
+              height: tabSize,
+              iconMargin: tabMargin
             ),
             Tab(
               text: "通讯录",
               icon: Icon(Icons.contact_mail),
+              height: tabSize,
+              iconMargin: tabMargin
             ),
             Tab(
               text: "我的",
-              icon: Icon(Icons.portable_wifi_off_outlined),
+              icon: Icon(Icons.person_outline),
+              height: tabSize,
+              iconMargin: tabMargin
             ),
           ]
         ),

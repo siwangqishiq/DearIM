@@ -72,8 +72,8 @@ LazyDatabase openDataBaseConnection(int uid) {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
 
-    LogUtil.log("db路径: ${dbFolder.path}");
-    final file = File(p.join(dbFolder.path, "im${uid}db.sqlite"));
+    final file = File(p.join(dbFolder.path, "im$uid.db"));
+    LogUtil.log("db路径: ${file.path}");
     return NativeDatabase(file);
   });
 }

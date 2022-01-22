@@ -55,7 +55,7 @@ class _RegisterPageState extends State<RegisterPage> {
             children: [
               const SizedBox(height: 20),
               TextField(
-                decoration: const InputDecoration(hintText: "用户名(必填)"),
+                decoration: const InputDecoration(labelText: "用户名(必填)"),
                 controller: usernameController,
                 inputFormatters: [
                   FilteringTextInputFormatter(RegExp("[a-zA-Z]|[0-9]"), allow: true)
@@ -63,18 +63,18 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               const SizedBox(height: 8),
               TextField(
-                decoration:const InputDecoration(hintText: "密码(必填)"),
+                decoration:const InputDecoration(labelText: "密码(必填)"),
                 obscureText: true,
                 controller: passwordController,
               ),
               TextField(
-                decoration:const InputDecoration(hintText: "确认密码(必填)"),
+                decoration:const InputDecoration(labelText: "确认密码(必填)"),
                 obscureText: true,
                 controller: confirmPasswordController,
               ),
               const SizedBox(height: 8),
               TextField(
-                decoration:const InputDecoration(hintText: "昵称(必填)"),
+                decoration:const InputDecoration(labelText: "昵称(必填)"),
                 controller: nicknameController,
               ),
               const SizedBox(height: 8),

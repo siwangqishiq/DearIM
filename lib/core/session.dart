@@ -63,14 +63,15 @@ class SessionManager {
   }
 
   Future<int> loadUid(int id) async{
-    //debug
-    LogUtil.log("session loadData delay $id");
-    await Future.delayed(const Duration(seconds: 5));
-    LogUtil.log("session loadData delay fininsh $id");
+    //debug 模拟加载不出最近联系人场景
+    // LogUtil.log("session loadData delay $id");
+    // await Future.delayed(const Duration(seconds: 5));
+    // LogUtil.log("session loadData delay fininsh $id");
 
+    //uid
     _uid = id;
-    loadData();
 
+    loadData();
     return Future.value(0);
   }
 
@@ -83,7 +84,7 @@ class SessionManager {
 
     //open 
     await _openDatabase();
-    
+
     //
     _queryAllIMMessages();
   }
@@ -164,6 +165,9 @@ class SessionManager {
     } //end for each
 
     _sortRecentSessionList();
+
+    //触发回调
+    _fireRecentChangeCallback();
   }
 
   void _fireRecentChangeCallback() {

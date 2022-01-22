@@ -42,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               TextField(
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(hintText: "请输入账号名"),
+                decoration: const InputDecoration(labelText: "请输入账号名"),
                 onChanged: (String text) {
                   username = text;
                   Logger().d(text);
@@ -53,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               TextField(
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(hintText: "请输入密码"),
+                decoration: const InputDecoration(labelText: "请输入密码"),
                 obscureText: true,
                 onChanged: (String text) {
                   password = text;
