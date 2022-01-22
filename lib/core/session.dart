@@ -1,10 +1,14 @@
 import 'dart:collection';
+import 'dart:ffi';
+import 'dart:io';
 
 import 'package:dearim/core/estore/estore.dart';
 import 'package:dearim/core/immessage.dart';
 import 'package:dearim/core/log.dart';
 
+import 'estore/im_table.dart';
 import 'utils.dart';
+import 'package:sqlite3/open.dart';
 
 ///
 ///会话
@@ -50,12 +54,20 @@ class SessionManager {
   final List<RecentSessionChangeCallback> _changeCallbackList =
       <RecentSessionChangeCallback>[];
 
-  EasyStore? _store;
+  //EasyStore? _store;
 
-  SessionManager();
+  IMDatabase? imDb;
+
+  SessionManager(){
+    open.overrideFor(OperatingSystem.windows, _openOnWindows);
+  }
 
   Future<int> loadUid(int id) async{
-    LogUtil.log("session loadData $id");
+    //debug
+    LogUtil.log("session loadData delay $id");
+    await Future.delayed(const Duration(seconds: 5));
+    LogUtil.log("session loadData delay fininsh $id");
+
     _uid = id;
     loadData();
 
@@ -63,12 +75,43 @@ class SessionManager {
   }
 
   void loadData() async {
-    _store = EasyStore.open("${_uid}db");
-    await _store!.init();
+    // _store = EasyStore.open("${_uid}db");
+    // await _store!.init();
+    
+    // List<dynamic> list = _store!.query(IMMessage());
+    // LogUtil.log("用户$_uid 查询本地历史消息 ${list.length}条记录");
 
-    List<dynamic> list = _store!.query(IMMessage());
-    LogUtil.log("用户$_uid 查询本地历史消息 ${list.length}条记录");
-    _rebuildRecentSession(list.cast<IMMessage>());
+    //open 
+    await _openDatabase();
+
+    //
+    _queryAllIMMessages();
+  }
+
+  //打开本地数据库
+  Future<int> _openDatabase() async{
+    //关闭之前打开的db
+    if(imDb != null && imDb?.uid != _uid){
+      await imDb?.close();
+    }
+
+    imDb = IMDatabase(_uid); 
+    return Future.value(0);
+  } 
+
+  //查询所有的IM消息  
+  //todo 需要优化
+  void _queryAllIMMessages() async{
+    List<IMMessage> list = await imDb?.queryAllIMMessage()??[];   
+    _rebuildRecentSession(list);
+  }
+
+  //windows上打开sqlite
+  DynamicLibrary _openOnWindows(){
+    final scriptDir = File(Platform.script.toFilePath()).parent;
+    final libraryNextToScript = File('${scriptDir.path}\\sqlite3.dll');
+    //print("libraryNextToScript : ${libraryNextToScript.path}");
+    return DynamicLibrary.open(libraryNextToScript.path);
   }
 
   //获取最近消息列表
@@ -134,7 +177,8 @@ class SessionManager {
     _updateRecentSession(msg, recentSort: true, fireCallback: true);
 
     //保存消息到本地
-    _store?.save(msg);
+    // _store?.save(msg);
+    imDb?.saveIMMessage(msg);
   }
 
   //发送新IM消息
@@ -143,7 +187,8 @@ class SessionManager {
 
     //保存消息到本地
     if(saveLocal){
-      _store?.save(msg);
+      // _store?.save(msg);
+      imDb?.saveIMMessage(msg);
     }
   }
 

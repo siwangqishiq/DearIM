@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dearim/core/byte_buffer.dart';
 import 'package:dearim/core/log.dart';
 import 'package:dearim/user/user.dart';
+import 'package:drift/drift.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'estore_table.dart';
@@ -180,3 +181,9 @@ class EasyStore {
     return 0;
   }
 }
+
+//消息本地数据库model
+class IMMessageTableItem extends Table{
+  TextColumn get content => text()();
+}
+

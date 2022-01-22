@@ -44,6 +44,7 @@ class IMMessage with Codec<IMMessage>{
   String? custom; //自定义扩展字段
 
   bool isReceived = false; //是否是接收消息 此字段不参与传输
+  int id = -1;//本地存储时数据库的ID 此字段不参与传输
 
   IMMessage();
 

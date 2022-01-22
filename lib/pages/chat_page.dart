@@ -517,7 +517,7 @@ class InputPanelState extends State<InputPanelWidget> {
                 // LogUtil.log("=================================");
                 // LogUtil.log("on submit text : $text");
                 // LogUtil.log("=================================");
-
+                
                 sendTextIMMsg(content.trim());
               },
               onTap: () {
