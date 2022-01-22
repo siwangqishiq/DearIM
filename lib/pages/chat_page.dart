@@ -397,8 +397,8 @@ class InputPanelState extends State<InputPanelWidget> {
   void insertText(String insert, TextEditingController controller) {
     String text = controller.text;
     TextSelection textSelection = inputTextSelection ?? controller.selection;
-    // LogUtil.log(
-    //     "text: $text , start : ${textSelection.start} end: ${textSelection.end}");
+    LogUtil.log(
+        "text: $text , start : ${textSelection.start} end: ${textSelection.end}");
     String newText;
     int startPos;
     if (textSelection.start == -1 && textSelection.end == -1) {
@@ -665,7 +665,9 @@ class InputPanelState extends State<InputPanelWidget> {
 
     setState(() {
       _sendBtnVisible = false;
-      _textFieldController.text = "";
+      _textFieldController.clear();
+      inputTextSelection = _textFieldController.selection;
+      //_textFieldController.text = "";
     });
 
     //refresh message list

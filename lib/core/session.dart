@@ -83,7 +83,7 @@ class SessionManager {
 
     //open 
     await _openDatabase();
-
+    
     //
     _queryAllIMMessages();
   }
