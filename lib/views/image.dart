@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:dearim/core/log.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 
 ///
@@ -26,7 +27,8 @@ class ScanImageWidget extends StatelessWidget{
         child:Hero(
           tag: heroId??mImageUrl, 
           child: InteractiveViewer(
-            child: type == TYPE_FILE ?Image.file(File(mImageUrl) , width: double.infinity) :Image.network(mImageUrl , width: double.infinity),
+            child: type == TYPE_FILE ?Image.file(File(mImageUrl) , width: double.infinity) 
+                  :ExtendedImage.network(mImageUrl , width: double.infinity),
             panEnabled: true, 
             boundaryMargin:const EdgeInsets.all(8),
             minScale: 0.5,

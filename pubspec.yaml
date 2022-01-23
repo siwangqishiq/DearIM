@@ -46,6 +46,7 @@ dependencies:
   drift: ^1.3.0 #sqlite封装库
   sqlite3_flutter_libs: ^0.5.0
   sqlite3: ^1.5.1
+  extended_image: ^6.0.1 #图片加载并缓存本地
   
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,6 @@
 import 'package:dearim/core/log.dart';
 import 'package:dearim/utils/text_utils.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -45,16 +46,34 @@ class HeadView extends StatelessWidget{
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(circle),
-      child: FadeInImage.assetNetwork(
+      // child: FadeInImage.assetNetwork(
+      //   height: height,
+      //   width: width,
+      //   fit: BoxFit.cover, 
+      //   image: urlFromSize(originUrl , size), 
+      //   imageErrorBuilder: (context, error, st) {
+      //     LogUtil.log("图片加载 发生错误 $error");
+      //     return _errorOrEmptyViewHolder(width);
+      //   },
+      //   placeholder: 'avatar_loading.png', 
+      // ),
+      child: ExtendedImage.network(
+        urlFromSize(originUrl , size),
         height: height,
         width: width,
-        fit: BoxFit.cover, 
-        image: urlFromSize(originUrl , size), 
-        imageErrorBuilder: (context, error, st) {
-          LogUtil.log("图片加载 发生错误 $error");
-          return _errorOrEmptyViewHolder(width);
-        },
-        placeholder: 'avatar_loading.png', 
+        fit: BoxFit.cover,
+        cache: true,
+        loadStateChanged: (ExtendedImageState state){
+          // LogUtil.log("载入图片 ${urlFromSize(originUrl , size)} $state");
+          if(state.extendedImageLoadState == LoadState.failed 
+            || state.extendedImageLoadState == LoadState.loading){
+            return Image.asset(
+              "avatar_loading.png",
+              fit: BoxFit.fill,
+            );
+          }
+          return null;
+        }
       ),  
     );
   }

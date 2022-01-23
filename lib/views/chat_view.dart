@@ -15,6 +15,7 @@ import 'package:dearim/utils/timer_utils.dart';
 import 'package:dearim/views/color_utils.dart';
 import 'package:dearim/views/head_view.dart';
 import 'package:dearim/widget/emoji.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 
 class ChatView extends StatefulWidget {
@@ -214,7 +215,7 @@ class _ChatViewState extends State<ChatView> {
                 color: Colors.white,
                 child: msg.url == null
                 ?Image.file(File(msg.localPath!) , fit: BoxFit.fitWidth)
-                :Image.network(HeadView.urlFromSize(msg.url, ImageSize.middle),fit: BoxFit.fitWidth)
+                :ExtendedImage.network(HeadView.urlFromSize(msg.url, ImageSize.middle),fit: BoxFit.fitWidth)
               )
             ),
           )
