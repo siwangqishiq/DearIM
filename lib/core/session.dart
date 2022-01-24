@@ -32,10 +32,32 @@ class RecentSession {
 
   //更新session未读数量
   void updateUnReadCount(IMMessage msg) {
-    if (msg.isReceived) {
-      unreadCount += msg.readState;
-    }
+    // if (msg.isReceived) {
+    //   unreadCount += msg.readState;
+    // }
   }
+}
+
+//未读消息记录
+class UnreadSession {
+  int sessionType = -1;
+  int sessionId = -1;
+  int unreadCount = 0;
+  String? custom;
+
+  UnreadSession();
+
+  factory UnreadSession.build(int type , int id , int count){
+    UnreadSession result = UnreadSession();
+    result.sessionType = type;
+    result.sessionId = id;
+    result.unreadCount = count;
+    return result;
+  }
+
+  String get key => genKey(sessionType , sessionId);
+
+  static String genKey(int type , int id) => "$type/$id";
 }
 
 typedef RecentSessionChangeCallback = Function(List<RecentSession> sessionList);
@@ -57,6 +79,8 @@ class SessionManager {
   //EasyStore? _store;
 
   IMDatabase? imDb;
+
+  final Map<String , UnreadSession> unreadSessionData = <String , UnreadSession>{};
 
   SessionManager(){
     open.overrideFor(OperatingSystem.windows, _openOnWindows);
@@ -82,11 +106,15 @@ class SessionManager {
     // List<dynamic> list = _store!.query(IMMessage());
     // LogUtil.log("用户$_uid 查询本地历史消息 ${list.length}条记录");
 
-    //open 
+    //open 打开数据库 
     await _openDatabase();
+    //查询历史消息 生成最近会话列表
+    var msgList = await _queryAllIMMessages();
+    //查询未读
+    await _queryAllUnreadData();
 
     //
-    _queryAllIMMessages();
+    _rebuildRecentSession(msgList);
   }
 
   //打开本地数据库
@@ -102,9 +130,29 @@ class SessionManager {
 
   //查询所有的IM消息  
   //todo 需要优化
-  void _queryAllIMMessages() async{
+  Future<List<IMMessage>> _queryAllIMMessages() async{
     List<IMMessage> list = await imDb?.queryAllIMMessage()??[];   
-    _rebuildRecentSession(list);
+    return list;
+  }
+
+  //查询未读会话数量记录
+  Future<int> _queryAllUnreadData() async{
+    List<UnreadSession> list = await (imDb?.queryAllUnreadSessionRecords())??[];
+    unreadSessionData.clear();
+    for(var record in list){
+      if(record.sessionType < 0 || record.sessionId < 0){
+        continue;
+      }
+      unreadSessionData[record.key] = record;
+    }    
+    return Future.value(0);
+  }
+
+  ///
+  /// 查询会话未读消息数量
+  ///
+  int querySessionUnreadCount(int sessionType , int sessionId){
+    return (unreadSessionData[UnreadSession.genKey(sessionType, sessionId)]?.unreadCount)??0;
   }
 
   //windows上打开sqlite
@@ -176,8 +224,59 @@ class SessionManager {
     }
   }
 
+  //增加未读消息数
+  void _incrementUnreadRecord(IMMessage msg){
+    final String key = UnreadSession.genKey(msg.sessionType, msg.sessionId);
+    UnreadSession? unreadRecord = unreadSessionData[key];
+    bool isCreate = false;
+    if(unreadSessionData[key] == null){
+      unreadRecord = UnreadSession.build(msg.sessionType, msg.sessionId, 0);
+      unreadSessionData[unreadRecord.key] = unreadRecord;
+      isCreate = true;
+    }
+
+    unreadRecord?.unreadCount++;
+
+    //持久化保存
+    if(isCreate){
+      imDb?.insertUnreadCountSession(unreadRecord!);
+    }else{
+      imDb?.updateUnreadCountSession(unreadRecord!);
+    }
+  }
+
+  ///
+  /// 根据会话类型 清理未读消息
+  ///
+  void clearUnreadCountBySession(int sessionType , int sessionId){
+    final String key = UnreadSession.genKey(sessionType, sessionId);
+    UnreadSession? unreadRecord = unreadSessionData[key];
+
+    if(unreadRecord == null){
+      return;
+    }
+
+    //此会话下的未读消息 清空为0
+    unreadRecord.unreadCount = 0;
+
+    //更新最近会话列表
+    final String sessionKey = "${sessionType}_$sessionId";
+    //LogUtil.log("根据会话类型 清理未读消息 $sessionKey");
+    _recentSessionMap[sessionKey]?.unreadCount = querySessionUnreadCount(unreadRecord.sessionType, unreadRecord.sessionId);
+    //LogUtil.log("根据会话类型 清理未读消息222 ${_recentSessionMap[sessionKey]?.unreadCount}");
+
+    //callback
+    // _fireRecentChangeCallback();
+
+    //持久化保存
+    imDb?.updateUnreadCountSession(unreadRecord);
+  }
+
   //接收新的IM消息
   void onReceivedIMMessage(final IMMessage msg){
+    //更新未读数据
+    _incrementUnreadRecord(msg);
+
     _updateRecentSession(msg, recentSort: true, fireCallback: true);
 
     //保存消息到本地
@@ -199,18 +298,19 @@ class SessionManager {
   ///
   ///通过消息 更新最近联系人会话
   ///
-  void _updateRecentSession(final IMMessage msg,
+  RecentSession _updateRecentSession(final IMMessage msg,
       {bool recentSort = false, bool fireCallback = false}) {
     final String key = _getRecentSessionKey(msg);
 
+    final RecentSession recent;
     if (_recentSessionMap.containsKey(key)) {
       //已经包含
-      final RecentSession recent = _recentSessionMap[key]!;
+      recent = _recentSessionMap[key]!;
       addIMMessageByUpdateTime(recent.imMsgList, msg);
 
       recent.updateUnReadCount(msg);
     } else {
-      final RecentSession recent = RecentSession();
+      recent = RecentSession();
       recent.sessionId = msg.sessionId;
       recent.sessionType = msg.sessionType;
       recent.imMsgList.add(msg);
@@ -221,6 +321,9 @@ class SessionManager {
 
       recent.updateUnReadCount(msg);
     }
+
+    //更新未读数量
+    recent.unreadCount = querySessionUnreadCount(recent.sessionType, recent.sessionId);
 
     if (recentSort) {
       //重新排序
@@ -238,6 +341,7 @@ class SessionManager {
     if (fireCallback) {
       _fireRecentChangeCallback();
     }
+    return recent;
   }
 
   //删除消息 session更新

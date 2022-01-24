@@ -731,4 +731,11 @@ class IMClient {
       onSocketClose();
     }
   }
+
+  ///
+  /// 清零会话的未读消息
+  ///
+  void clearUnreadCountBySession(int sessionType , int sessionId){
+    _sessionManager.clearUnreadCountBySession(sessionType, sessionId);
+  }
 } //end class

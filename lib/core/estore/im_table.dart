@@ -1,10 +1,11 @@
 ///
-///
+/// flutter packages pub run build_runner build 自动生成
 ///
 
 import 'dart:io';
 
 import 'package:dearim/core/immessage.dart';
+import 'package:dearim/core/session.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
@@ -43,6 +44,7 @@ part 'im_table.g.dart';
 //消息表 sqlite存储
 class IMMessageData extends Table{
   IntColumn get id => integer().autoIncrement()();
+
   IntColumn get size => integer()();
   TextColumn get msgId => text()();
   IntColumn get fromId => integer()();
@@ -65,7 +67,27 @@ class IMMessageData extends Table{
   TextColumn get custom => text().nullable()();
   
   IntColumn get isReceived => integer()();
+
+  @override
+  Set<Column> get primaryKey => {msgId};
 } 
+
+//未读消息
+class SessionUnreadItem extends Table{
+  //主键
+  IntColumn get id => integer().autoIncrement()();
+  //会话类型
+  IntColumn get sessionType => integer()();
+  //会话Id 
+  IntColumn get sessionId => integer()();
+  //未读数量
+  IntColumn get unreadCount => integer()();
+  //附加信息
+  TextColumn get custom => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {sessionType , sessionId};
+}
 
 //打开数据库连接  按用户名分配
 LazyDatabase openDataBaseConnection(int uid) {
@@ -78,7 +100,7 @@ LazyDatabase openDataBaseConnection(int uid) {
   });
 }
 
-@DriftDatabase(tables:[IMMessageData])
+@DriftDatabase(tables:[IMMessageData , SessionUnreadItem])
 class IMDatabase extends _$IMDatabase{
   final int _uid;
 
@@ -87,7 +109,13 @@ class IMDatabase extends _$IMDatabase{
   IMDatabase(this._uid) : super(openDataBaseConnection(_uid));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration{
+    return MigrationStrategy(
+    );
+  }
 
   Future<int> saveIMMessage(IMMessage imMsg) async{
     return await into(iMMessageData).insert(
@@ -152,6 +180,53 @@ class IMDatabase extends _$IMDatabase{
 
     msg.isReceived = query.isReceived == 1;
     return msg;
+  }
+
+  ///
+  /// 查询所有未读记录
+  ///
+  Future<List<UnreadSession>> queryAllUnreadSessionRecords() async{
+    List<SessionUnreadItemData> queryResultSet = await select(sessionUnreadItem).get();
+    List<UnreadSession> list = [];
+
+    for(var query in queryResultSet){
+      final UnreadSession record = UnreadSession();
+      record.sessionId = query.sessionId;
+      record.sessionType = query.sessionType;
+      record.unreadCount = query.unreadCount;
+      record.custom = query.custom;
+      list.add(record);
+    }//end for each
+    return list;
+  }
+
+
+  ///
+  /// 更新未读会话
+  ///
+  Future<int> updateUnreadCountSession(UnreadSession unreadRecord) async{
+    // LogUtil.log("sessionType: ${unreadRecord.sessionType}   sessionId: ${unreadRecord.sessionId}");
+    var statement = update(sessionUnreadItem);
+    statement.where((tb) => tb.sessionId.equals(unreadRecord.sessionId) 
+                    & tb.sessionType.equals(unreadRecord.sessionType));
+    return await statement.write(SessionUnreadItemCompanion.insert(
+        sessionId: unreadRecord.sessionId,
+        sessionType: unreadRecord.sessionType,
+        unreadCount: unreadRecord.unreadCount,
+        custom: Value(unreadRecord.custom)
+      )
+    );
+  }
+
+  Future<int> insertUnreadCountSession(UnreadSession unreadRecord) async{
+    return await into(sessionUnreadItem).insert(
+      SessionUnreadItemCompanion.insert(
+        sessionType: unreadRecord.sessionType, 
+        sessionId: unreadRecord.sessionId, 
+        unreadCount: unreadRecord.unreadCount,
+        custom: Value(unreadRecord.custom)
+      )
+    );
   }
 }
 

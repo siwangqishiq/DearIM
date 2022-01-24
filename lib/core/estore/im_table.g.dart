@@ -879,11 +879,310 @@ class $IMMessageDataTable extends IMMessageData
   }
 }
 
+class SessionUnreadItemData extends DataClass
+    implements Insertable<SessionUnreadItemData> {
+  final int id;
+  final int sessionType;
+  final int sessionId;
+  final int unreadCount;
+  final String? custom;
+  SessionUnreadItemData(
+      {required this.id,
+      required this.sessionType,
+      required this.sessionId,
+      required this.unreadCount,
+      this.custom});
+  factory SessionUnreadItemData.fromData(Map<String, dynamic> data,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return SessionUnreadItemData(
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      sessionType: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}session_type'])!,
+      sessionId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}session_id'])!,
+      unreadCount: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}unread_count'])!,
+      custom: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}custom']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['session_type'] = Variable<int>(sessionType);
+    map['session_id'] = Variable<int>(sessionId);
+    map['unread_count'] = Variable<int>(unreadCount);
+    if (!nullToAbsent || custom != null) {
+      map['custom'] = Variable<String?>(custom);
+    }
+    return map;
+  }
+
+  SessionUnreadItemCompanion toCompanion(bool nullToAbsent) {
+    return SessionUnreadItemCompanion(
+      id: Value(id),
+      sessionType: Value(sessionType),
+      sessionId: Value(sessionId),
+      unreadCount: Value(unreadCount),
+      custom:
+          custom == null && nullToAbsent ? const Value.absent() : Value(custom),
+    );
+  }
+
+  factory SessionUnreadItemData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SessionUnreadItemData(
+      id: serializer.fromJson<int>(json['id']),
+      sessionType: serializer.fromJson<int>(json['sessionType']),
+      sessionId: serializer.fromJson<int>(json['sessionId']),
+      unreadCount: serializer.fromJson<int>(json['unreadCount']),
+      custom: serializer.fromJson<String?>(json['custom']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'sessionType': serializer.toJson<int>(sessionType),
+      'sessionId': serializer.toJson<int>(sessionId),
+      'unreadCount': serializer.toJson<int>(unreadCount),
+      'custom': serializer.toJson<String?>(custom),
+    };
+  }
+
+  SessionUnreadItemData copyWith(
+          {int? id,
+          int? sessionType,
+          int? sessionId,
+          int? unreadCount,
+          String? custom}) =>
+      SessionUnreadItemData(
+        id: id ?? this.id,
+        sessionType: sessionType ?? this.sessionType,
+        sessionId: sessionId ?? this.sessionId,
+        unreadCount: unreadCount ?? this.unreadCount,
+        custom: custom ?? this.custom,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('SessionUnreadItemData(')
+          ..write('id: $id, ')
+          ..write('sessionType: $sessionType, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('unreadCount: $unreadCount, ')
+          ..write('custom: $custom')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, sessionType, sessionId, unreadCount, custom);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SessionUnreadItemData &&
+          other.id == this.id &&
+          other.sessionType == this.sessionType &&
+          other.sessionId == this.sessionId &&
+          other.unreadCount == this.unreadCount &&
+          other.custom == this.custom);
+}
+
+class SessionUnreadItemCompanion
+    extends UpdateCompanion<SessionUnreadItemData> {
+  final Value<int> id;
+  final Value<int> sessionType;
+  final Value<int> sessionId;
+  final Value<int> unreadCount;
+  final Value<String?> custom;
+  const SessionUnreadItemCompanion({
+    this.id = const Value.absent(),
+    this.sessionType = const Value.absent(),
+    this.sessionId = const Value.absent(),
+    this.unreadCount = const Value.absent(),
+    this.custom = const Value.absent(),
+  });
+  SessionUnreadItemCompanion.insert({
+    this.id = const Value.absent(),
+    required int sessionType,
+    required int sessionId,
+    required int unreadCount,
+    this.custom = const Value.absent(),
+  })  : sessionType = Value(sessionType),
+        sessionId = Value(sessionId),
+        unreadCount = Value(unreadCount);
+  static Insertable<SessionUnreadItemData> createCustom({
+    Expression<int>? id,
+    Expression<int>? sessionType,
+    Expression<int>? sessionId,
+    Expression<int>? unreadCount,
+    Expression<String?>? custom,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (sessionType != null) 'session_type': sessionType,
+      if (sessionId != null) 'session_id': sessionId,
+      if (unreadCount != null) 'unread_count': unreadCount,
+      if (custom != null) 'custom': custom,
+    });
+  }
+
+  SessionUnreadItemCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? sessionType,
+      Value<int>? sessionId,
+      Value<int>? unreadCount,
+      Value<String?>? custom}) {
+    return SessionUnreadItemCompanion(
+      id: id ?? this.id,
+      sessionType: sessionType ?? this.sessionType,
+      sessionId: sessionId ?? this.sessionId,
+      unreadCount: unreadCount ?? this.unreadCount,
+      custom: custom ?? this.custom,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (sessionType.present) {
+      map['session_type'] = Variable<int>(sessionType.value);
+    }
+    if (sessionId.present) {
+      map['session_id'] = Variable<int>(sessionId.value);
+    }
+    if (unreadCount.present) {
+      map['unread_count'] = Variable<int>(unreadCount.value);
+    }
+    if (custom.present) {
+      map['custom'] = Variable<String?>(custom.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SessionUnreadItemCompanion(')
+          ..write('id: $id, ')
+          ..write('sessionType: $sessionType, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('unreadCount: $unreadCount, ')
+          ..write('custom: $custom')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SessionUnreadItemTable extends SessionUnreadItem
+    with TableInfo<$SessionUnreadItemTable, SessionUnreadItemData> {
+  final GeneratedDatabase _db;
+  final String? _alias;
+  $SessionUnreadItemTable(this._db, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _sessionTypeMeta =
+      const VerificationMeta('sessionType');
+  @override
+  late final GeneratedColumn<int?> sessionType = GeneratedColumn<int?>(
+      'session_type', aliasedName, false,
+      type: const IntType(), requiredDuringInsert: true);
+  final VerificationMeta _sessionIdMeta = const VerificationMeta('sessionId');
+  @override
+  late final GeneratedColumn<int?> sessionId = GeneratedColumn<int?>(
+      'session_id', aliasedName, false,
+      type: const IntType(), requiredDuringInsert: true);
+  final VerificationMeta _unreadCountMeta =
+      const VerificationMeta('unreadCount');
+  @override
+  late final GeneratedColumn<int?> unreadCount = GeneratedColumn<int?>(
+      'unread_count', aliasedName, false,
+      type: const IntType(), requiredDuringInsert: true);
+  final VerificationMeta _customMeta = const VerificationMeta('custom');
+  @override
+  late final GeneratedColumn<String?> custom = GeneratedColumn<String?>(
+      'custom', aliasedName, true,
+      type: const StringType(), requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, sessionType, sessionId, unreadCount, custom];
+  @override
+  String get aliasedName => _alias ?? 'session_unread_item';
+  @override
+  String get actualTableName => 'session_unread_item';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<SessionUnreadItemData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('session_type')) {
+      context.handle(
+          _sessionTypeMeta,
+          sessionType.isAcceptableOrUnknown(
+              data['session_type']!, _sessionTypeMeta));
+    } else if (isInserting) {
+      context.missing(_sessionTypeMeta);
+    }
+    if (data.containsKey('session_id')) {
+      context.handle(_sessionIdMeta,
+          sessionId.isAcceptableOrUnknown(data['session_id']!, _sessionIdMeta));
+    } else if (isInserting) {
+      context.missing(_sessionIdMeta);
+    }
+    if (data.containsKey('unread_count')) {
+      context.handle(
+          _unreadCountMeta,
+          unreadCount.isAcceptableOrUnknown(
+              data['unread_count']!, _unreadCountMeta));
+    } else if (isInserting) {
+      context.missing(_unreadCountMeta);
+    }
+    if (data.containsKey('custom')) {
+      context.handle(_customMeta,
+          custom.isAcceptableOrUnknown(data['custom']!, _customMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SessionUnreadItemData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return SessionUnreadItemData.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  $SessionUnreadItemTable createAlias(String alias) {
+    return $SessionUnreadItemTable(_db, alias);
+  }
+}
+
 abstract class _$IMDatabase extends GeneratedDatabase {
   _$IMDatabase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   late final $IMMessageDataTable iMMessageData = $IMMessageDataTable(this);
+  late final $SessionUnreadItemTable sessionUnreadItem =
+      $SessionUnreadItemTable(this);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [iMMessageData];
+  List<DatabaseSchemaEntity> get allSchemaEntities =>
+      [iMMessageData, sessionUnreadItem];
 }

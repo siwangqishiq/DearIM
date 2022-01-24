@@ -27,7 +27,10 @@ import 'package:flutter/scheduler.dart';
 class ChatPage extends StatefulWidget {
   final ContactModel model;
 
-  const ChatPage(this.model, {Key? key}) : super(key: key);
+  final int sessionType = IMMessageSessionType.P2P;
+
+  const ChatPage(this.model, {int sessionType = IMMessageSessionType.P2P,Key? key}) 
+        : super(key: key);
 
   @override
   State<StatefulWidget> createState() => ChatPageState();
@@ -73,6 +76,9 @@ class ChatPageState extends State<ChatPage> {
         return;
       }
 
+      //
+      IMClient.getInstance().clearUnreadCountBySession(incomingMessage.sessionType , incomingMessage.sessionId);
+
       setState(() {
         receiveText = incomingIMMessageList.last.content;
         LogUtil.log(receiveText!);
@@ -84,6 +90,9 @@ class ChatPageState extends State<ChatPage> {
     TCPManager().registerMessageCommingCallbck(_msgIncomingCallback!);
 
     // scrollToBottom();
+
+    //清零未读
+    IMClient.getInstance().clearUnreadCountBySession(widget.sessionType , widget.model.userId);
   }
 
   @override

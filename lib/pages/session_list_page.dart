@@ -166,31 +166,44 @@ class RecentSessionListState extends State<RecentSessionListWidget> {
     final int sessionTime = recentSession.time;
 
     return InkWell(
-      onTap: (){
+      onTap: () async{
         if(contact == null){
           return;
         }
-        Navigator.of(context).push(
+
+        await Navigator.of(context).push(
           PageRouteBuilder(
-            pageBuilder: (_,__,___) => ChatPage(contact)
+            pageBuilder: (_,__,___) => ChatPage(contact , sessionType: recentSession.sessionType)
           ),
         );
+
+        //refresh
+        setState(() {
+        });
       },
       child: Padding(
         padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
         child: Column(
             children: [
               SizedBox(
-                height: 70,
+                height: 80,
               child: Row(
                 children: [
                   //头像
-                  HeadView(
-                    avatar , 
-                    size:ImageSize.small,
-                    circle: 16,
-                    height: 55,
-                    width: 55,
+                  Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(5),
+                        child: HeadView(
+                          avatar , 
+                          size:ImageSize.small,
+                          circle: 16,
+                          height: 55,
+                          width: 55,
+                        ),
+                      ),
+                      sessionUnreadCountWidget(recentSession)
+                    ],
                   ),
                   const SizedBox(width: 10,),
                   Expanded(
@@ -214,6 +227,32 @@ class RecentSessionListState extends State<RecentSessionListWidget> {
           ],
         ), 
       ),
+    );
+  }
+
+  Widget sessionUnreadCountWidget(RecentSession recentSession){
+    int unreadCount = recentSession.unreadCount;
+    if(unreadCount > 99){
+      unreadCount = 99;
+    }
+    return Positioned(
+      child: AnimatedContainer(
+        duration:const Duration(milliseconds: 100),
+        width: unreadCount >0?25:0,
+        height: unreadCount >0?25:0,
+        decoration: const BoxDecoration(
+          color: Colors.red,
+          shape: BoxShape.circle
+        ),
+        child: Center(
+          child: Text(
+            unreadCount.toString(), 
+            style: const TextStyle(color: Colors.white , fontSize: 16)
+          )
+        ),
+      ),
+      top: 0,
+      right: 0,
     );
   }
 
