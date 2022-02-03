@@ -68,7 +68,7 @@ class _MainPageState extends State<MainPage>
               text: "聊天",
               icon: Icon(Icons.chat),
               height: tabSize,
-              iconMargin: tabMargin
+              iconMargin: tabMargin,
             ),
             Tab(
               text: "通讯录",

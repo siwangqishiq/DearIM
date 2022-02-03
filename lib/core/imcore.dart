@@ -348,10 +348,14 @@ class IMClient {
   }
 
   //注册最近会话变化监听
-  bool registerRecentSessionObserver(
-      RecentSessionChangeCallback callback, bool register) {
-    return _sessionManager.registerRecentSessionObserver(callback, register);
-  }
+  bool registerRecentSessionObserver(RecentSessionChangeCallback callback, bool register) 
+    => _sessionManager.registerRecentSessionObserver(callback, register);
+
+  ///
+  /// 注册未读消息数量改变监听
+  ///
+  bool registerUnreadCountObserver(UnreadCountChangeCallback callback ,bool register)
+    => _sessionManager.registerUnreadChangeObserver(callback, register);
 
   //注册 或 解绑 透传消息事件监听
   bool registerTransMessageObserver(

@@ -62,6 +62,9 @@ class UnreadSession {
 
 typedef RecentSessionChangeCallback = Function(List<RecentSession> sessionList);
 
+//未读数量改变回调
+typedef UnreadCountChangeCallback = Function(int oldUnreadCunt , int currentUnreadCount);
+
 // 会话管理
 class SessionManager {
   int _uid = -1;
@@ -69,6 +72,8 @@ class SessionManager {
   int get uid => _uid;
 
   final List<RecentSession> _recentSessionList = <RecentSession>[];
+
+  final List<UnreadCountChangeCallback> _unreadCountChangeCallbackList = <UnreadCountChangeCallback>[];
 
   final Map<String, RecentSession> _recentSessionMap =
       <String, RecentSession>{};
@@ -79,6 +84,9 @@ class SessionManager {
   //EasyStore? _store;
 
   IMDatabase? imDb;
+
+  //总未读数
+  int totalUnreadCount = 0;
 
   final Map<String , UnreadSession> unreadSessionData = <String , UnreadSession>{};
 
@@ -115,6 +123,9 @@ class SessionManager {
 
     //
     _rebuildRecentSession(msgList);
+
+    //
+    _updateAndFireCbUnreadSessionData();
   }
 
   //打开本地数据库
@@ -182,6 +193,26 @@ class SessionManager {
     return result;
   }
 
+  ///
+  /// 注册/解绑未读消息改变 观察者
+  ///
+  bool registerUnreadChangeObserver(UnreadCountChangeCallback callback , bool register){
+    if (register) {
+      //注册
+      if (!Utils.listContainObj(_unreadCountChangeCallbackList, callback)) {
+        _unreadCountChangeCallbackList.add(callback);
+        return true;
+      }
+    } else {
+      //解绑
+      if (Utils.listContainObj(_unreadCountChangeCallbackList, callback)) {
+        _unreadCountChangeCallbackList.remove(callback);
+        return true;
+      }
+    }
+    return false;
+  }
+
   //注册 或 解绑 状态改变事件监听
   bool registerRecentSessionObserver(
       RecentSessionChangeCallback callback, bool register) {
@@ -245,6 +276,8 @@ class SessionManager {
     }
   }
 
+  
+
   ///
   /// 根据会话类型 清理未读消息
   ///
@@ -258,6 +291,7 @@ class SessionManager {
 
     //此会话下的未读消息 清空为0
     unreadRecord.unreadCount = 0;
+    _updateAndFireCbUnreadSessionData();
 
     //更新最近会话列表
     final String sessionKey = "${sessionType}_$sessionId";
@@ -282,6 +316,29 @@ class SessionManager {
     //保存消息到本地
     // _store?.save(msg);
     imDb?.saveIMMessage(msg);
+
+    _updateAndFireCbUnreadSessionData();
+  }
+
+  ///
+  /// 更新未读数量 触发回调
+  ///
+  void _updateAndFireCbUnreadSessionData(){
+    //统计未读总数量
+    int total = 0;
+    for(var key in _recentSessionMap.keys){
+      RecentSession recentSession = _recentSessionMap[key]!;
+      total += recentSession.unreadCount;
+    }//end for each
+
+    LogUtil.log("未读数修改: old = $totalUnreadCount new = $total");
+    int oldUnreadCount = totalUnreadCount;
+    totalUnreadCount = total;
+    if(totalUnreadCount != oldUnreadCount){
+      for(var cb in _unreadCountChangeCallbackList){
+        cb.call(oldUnreadCount , totalUnreadCount);
+      }//end for each
+    }
   }
 
   //发送新IM消息

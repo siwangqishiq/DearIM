@@ -98,9 +98,13 @@ class ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-      // LogUtil.log("一帧渲染完成后回调 $timeStamp");
+      LogUtil.log("一帧渲染完成后回调 $timeStamp");
       scrollToBottom();
     });
+
+    // Future.delayed(const Duration(milliseconds: 1000),(){
+    //   scrollToBottom();
+    // });
 
     return Scaffold(
       appBar: AppBar(title: titleWidget),
