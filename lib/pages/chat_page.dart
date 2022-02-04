@@ -61,8 +61,10 @@ class ChatPageState extends State<ChatPage> {
     var imMsgList = IMClient.getInstance()
         .queryIMMessageList(IMMessageSessionType.P2P, widget.model.userId);
     for (IMMessage imMsg in imMsgList) {
-      result.add(ChatMessageModel.fromIMMessage(imMsg));
+      // result.add(ChatMessageModel.fromIMMessage(imMsg));
+      result.insert(0, ChatMessageModel.fromIMMessage(imMsg));
     } //end for each
+    
     return result;
   }
 
@@ -83,10 +85,12 @@ class ChatPageState extends State<ChatPage> {
         receiveText = incomingIMMessageList.last.content;
         LogUtil.log(receiveText!);
         ChatMessageModel incomingMsgModel =
-            ChatMessageModel.fromIMMessage(incomingIMMessageList.last);
-        msgModels.add(incomingMsgModel);
+          ChatMessageModel.fromIMMessage(incomingIMMessageList.last);
+        // msgModels.add(incomingMsgModel);
+        msgModels.insert(0, incomingMsgModel);
       });
     };
+
     TCPManager().registerMessageCommingCallbck(_msgIncomingCallback!);
 
     // scrollToBottom();
@@ -97,10 +101,12 @@ class ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-      LogUtil.log("一帧渲染完成后回调 $timeStamp");
-      scrollToBottom();
-    });
+    // SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+    //   LogUtil.log("一帧渲染完成后回调 $timeStamp");
+    //   //scrollToBottom();
+    // });
+
+    LogUtil.log("ChatPageState build!!");
 
     // Future.delayed(const Duration(milliseconds: 1000),(){
     //   scrollToBottom();
@@ -118,6 +124,7 @@ class ChatPageState extends State<ChatPage> {
                 constraints:
                     BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
                 child: ListView.builder(
+                  reverse: true,
                   controller: _listViewController,
                   itemCount: msgModels.length,
                   itemBuilder: (BuildContext context, int index) {
@@ -125,6 +132,7 @@ class ChatPageState extends State<ChatPage> {
                     return ChatView(
                       msgModel,
                       preMsgModel: index - 1 >= 0 ? msgModels[index - 1] : null,
+                      key: UniqueKey(),
                     );
                   },
                 ),
@@ -148,11 +156,11 @@ class ChatPageState extends State<ChatPage> {
     // Timer(Duration(microseconds: microseconds), () {
     //   _listViewController.jumpTo(_listViewController.position.maxScrollExtent);
     // });
-    //_listViewController.jumpTo(_listViewController.position.maxScrollExtent);
+    // _listViewController.jumpTo(_listViewController.position.maxScrollExtent);
 
     final double bottomOffset = _listViewController.position.maxScrollExtent;
     _listViewController.animateTo(
-      bottomOffset,
+      0,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
@@ -654,13 +662,18 @@ class InputPanelState extends State<InputPanelWidget> {
 
   //添加新IM消息到消息列表中
   void _addIMMessageToList(IMMessage msg) {
-    var msgList = widget.chatPageContext.msgModels;
-    msgList.add(ChatMessageModel.fromIMMessage(msg));
-    widget.chatPageContext.setState(() {});
+  var msgList = widget.chatPageContext.msgModels;
+    // msgList.add(ChatMessageModel.fromIMMessage(msg));
+    msgList.insert(0, ChatMessageModel.fromIMMessage(msg));
 
-    Future.delayed(const Duration(milliseconds: 500), () {
-      widget.chatPageContext.scrollToBottom();
+    widget.chatPageContext.setState(() {
     });
+    widget.chatPageContext.scrollToBottom();
+
+    // Future.delayed(const Duration(milliseconds: 300), () {
+    // });
+
+    //LogUtil.log("总消息数量: ${msgList.length}");
   }
 
   //发送文本消息
