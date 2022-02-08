@@ -131,7 +131,7 @@ class ChatPageState extends State<ChatPage> {
                     ChatMessageModel msgModel = msgModels[index];
                     return ChatView(
                       msgModel,
-                      preMsgModel: index - 1 >= 0 ? msgModels[index - 1] : null,
+                      preMsgModel: index + 1 < msgModels.length ? msgModels[index + 1] : null,
                       key: UniqueKey(),
                     );
                   },
