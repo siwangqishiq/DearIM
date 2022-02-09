@@ -175,10 +175,13 @@ class ChatPageState extends State<ChatPage> {
   }
 }
 
+///
+/// 头部标题
+///
 class ChatTitleWidget extends StatefulWidget {
   final ChatPageState chatContext;
 
-  const ChatTitleWidget(this.chatContext);
+  const ChatTitleWidget(this.chatContext , {Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => ChatTitleState();
