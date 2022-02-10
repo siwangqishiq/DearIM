@@ -19,7 +19,6 @@ import 'package:dearim/widget/emoji.dart';
 import 'package:dearim/widget/more_action.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 ///
 /// P2P聊天页
@@ -46,13 +45,17 @@ class ChatPageState extends State<ChatPage> {
 
   late ChatTitleWidget titleWidget;
 
+  late GlobalKey inputKey;
+
   @override
   void initState() {
     super.initState();
     initMessageList();
 
     titleWidget = ChatTitleWidget(this);
-    inputPanelWidget = InputPanelWidget(this);
+
+    inputKey = GlobalKey();
+    inputPanelWidget = InputPanelWidget(this , key : inputKey);
   }
 
   //查询历史消息
@@ -119,24 +122,33 @@ class ChatPageState extends State<ChatPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Expanded(
-              child: Container(
-                color: ColorThemes.grayColor,
-                constraints:
-                    BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
-                child: ListView.builder(
-                  reverse: true,
-                  controller: _listViewController,
-                  itemCount: msgModels.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    ChatMessageModel msgModel = msgModels[index];
-                    return ChatView(
-                      msgModel,
-                      preMsgModel: index + 1 < msgModels.length ? msgModels[index + 1] : null,
-                      key: UniqueKey(),
-                    );
-                  },
+              child: NotificationListener<ScrollUpdateNotification>(
+                onNotification: (notification) {
+                  // LogUtil.log("滑动 ${notification.scrollDelta}");
+                  if(notification.scrollDelta!.abs() > 4.0){//向上滑动
+                    (inputKey.currentState as InputPanelState).closeAllInputPanel();
+                  }
+                  return false;
+                },
+                child: Container(
+                  color: ColorThemes.grayColor,
+                  constraints:
+                      BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
+                  child: ListView.builder(
+                    reverse: true,
+                    controller: _listViewController,
+                    itemCount: msgModels.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      ChatMessageModel msgModel = msgModels[index];
+                      return ChatView(
+                        msgModel,
+                        preMsgModel: index + 1 < msgModels.length ? msgModels[index + 1] : null,
+                        key: UniqueKey(),
+                      );
+                    },
+                  ),
                 ),
-              ),
+              )
             ),
             const SizedBox(
               height: 16,
@@ -725,5 +737,20 @@ class InputPanelState extends State<InputPanelWidget> {
       LogUtil.log("图片消息 发送成功! ${imMessage.url}");
       widget.chatPageContext.setState(() {});
     });
+  }
+
+  ///
+  /// 关闭所有键盘 表情 输入
+  ///
+  void closeAllInputPanel(){
+    // LogUtil.log("hello closeAllInputPanel");
+    
+    if(_showMoreActionsVisible || _showEmojiGridPanel || _inputFocusNode.hasFocus){
+      setState(() {
+        _showMoreActionsVisible = false;
+        _showEmojiGridPanel = false;
+        _inputFocusNode.unfocus();
+      });
+    }
   }
 }//end class input_panel_state
