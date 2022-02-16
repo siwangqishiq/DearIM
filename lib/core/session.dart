@@ -326,9 +326,9 @@ class SessionManager {
   void _updateAndFireCbUnreadSessionData(){
     //统计未读总数量
     int total = 0;
-    for(var key in _recentSessionMap.keys){
-      RecentSession recentSession = _recentSessionMap[key]!;
-      total += recentSession.unreadCount;
+    for(var key in unreadSessionData.keys){
+      UnreadSession unreadRecord = unreadSessionData[key]!;
+      total += unreadRecord.unreadCount;
     }//end for each
 
     LogUtil.log("未读数修改: old = $totalUnreadCount new = $total");

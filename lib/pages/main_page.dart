@@ -36,9 +36,12 @@ class _MainPageState extends State<MainPage>
 
     _unreadCountCallback = (int oldUnreadCunt , int currentUnreadCount){
       //LogUtil.log("更新未读数量 $oldUnreadCunt   $currentUnreadCount");
-      setState(() {
-        sessionUnreadCount = currentUnreadCount;
+      Future.delayed(const Duration(milliseconds: 200)).then((e){
+        setState(() {
+          sessionUnreadCount = currentUnreadCount;
+        });
       });
+      
     }; 
     IMClient.getInstance().registerUnreadCountObserver(_unreadCountCallback! , true);
     sessionUnreadCount = IMClient.getInstance().sessionUnreadCount;
@@ -52,6 +55,7 @@ class _MainPageState extends State<MainPage>
 
   @override
   void dispose() {
+    LogUtil.log("main page dispose");
     IMClient.getInstance().registerUnreadCountObserver(_unreadCountCallback! , false);
     IMClient.getInstance().dispose();
     controller.dispose();
