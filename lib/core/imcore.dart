@@ -121,6 +121,8 @@ class IMClient {
   Map<String, SendTransMessageCallback> get sendTransMessageCallbackMap =>
       _sendTransMessageCallbackMap;
 
+  int get sessionUnreadCount => _sessionManager.totalUnreadCount;
+
   //用户id
   int _uid = -1;
 

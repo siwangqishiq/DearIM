@@ -1,6 +1,7 @@
 import 'package:dearim/config.dart';
 import 'package:dearim/core/imcore.dart';
 import 'package:dearim/core/log.dart';
+import 'package:dearim/core/session.dart';
 import 'package:dearim/user/contacts.dart';
 import 'package:dearim/views/color_utils.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,9 @@ class _MainPageState extends State<MainPage>
     with SingleTickerProviderStateMixin {
   late TabController controller;
 
+  UnreadCountChangeCallback? _unreadCountCallback;
+  int sessionUnreadCount = 0;
+
   @override
   void initState() {
     super.initState();
@@ -29,6 +33,15 @@ class _MainPageState extends State<MainPage>
       setState(() {
       });
     });
+
+    _unreadCountCallback = (int oldUnreadCunt , int currentUnreadCount){
+      //LogUtil.log("更新未读数量 $oldUnreadCunt   $currentUnreadCount");
+      setState(() {
+        sessionUnreadCount = currentUnreadCount;
+      });
+    }; 
+    IMClient.getInstance().registerUnreadCountObserver(_unreadCountCallback! , true);
+    sessionUnreadCount = IMClient.getInstance().sessionUnreadCount;
     _fetchContacts();
   }
 
@@ -39,6 +52,7 @@ class _MainPageState extends State<MainPage>
 
   @override
   void dispose() {
+    IMClient.getInstance().registerUnreadCountObserver(_unreadCountCallback! , false);
     IMClient.getInstance().dispose();
     controller.dispose();
     super.dispose();
@@ -46,7 +60,7 @@ class _MainPageState extends State<MainPage>
 
   @override
   Widget build(BuildContext context) {
-    const double tabSize = 26;
+    const double tabSize = 36;
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -70,16 +84,40 @@ class _MainPageState extends State<MainPage>
         },
         iconSize: tabSize,
         currentIndex: controller.index,
-        items:const [
+        items:[
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
+            icon: Stack(
+              children: [
+                const Icon(Icons.chat),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: AnimatedContainer(
+                    padding: const EdgeInsets.all(2),
+                    duration:const Duration(milliseconds: 100),
+                    width: sessionUnreadCount >0?20:0,
+                    height: sessionUnreadCount >0?20:0,
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle
+                    ),
+                    child: Center(
+                      child: Text(
+                        sessionUnreadCount.toString() , 
+                        style: const TextStyle(color: Colors.white , fontSize: 10),
+                      ),
+                    ),
+                  )
+                )
+              ],
+            ),
             label: "聊天",
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.contact_mail),
             label: "通讯录",
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             label: "我的",
           ),
