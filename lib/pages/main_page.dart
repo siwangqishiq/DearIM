@@ -28,22 +28,21 @@ class _MainPageState extends State<MainPage>
   void initState() {
     super.initState();
     controller = TabController(length: 3, vsync: this);
-    controller.addListener((){
+    controller.addListener(() {
       // LogUtil.log("cur ${controller.index}");
-      setState(() {
-      });
+      setState(() {});
     });
 
-    _unreadCountCallback = (int oldUnreadCunt , int currentUnreadCount){
+    _unreadCountCallback = (int oldUnreadCunt, int currentUnreadCount) {
       //LogUtil.log("更新未读数量 $oldUnreadCunt   $currentUnreadCount");
-      Future.delayed(const Duration(milliseconds: 200)).then((e){
+      Future.delayed(const Duration(milliseconds: 200)).then((e) {
         setState(() {
           sessionUnreadCount = currentUnreadCount;
         });
       });
-      
-    }; 
-    IMClient.getInstance().registerUnreadCountObserver(_unreadCountCallback! , true);
+    };
+    IMClient.getInstance()
+        .registerUnreadCountObserver(_unreadCountCallback!, true);
     sessionUnreadCount = IMClient.getInstance().sessionUnreadCount;
     _fetchContacts();
   }
@@ -55,8 +54,9 @@ class _MainPageState extends State<MainPage>
 
   @override
   void dispose() {
-    LogUtil.log("main page dispose");
-    IMClient.getInstance().registerUnreadCountObserver(_unreadCountCallback! , false);
+    // LogUtil.log("main page dispose");
+    IMClient.getInstance()
+        .registerUnreadCountObserver(_unreadCountCallback!, false);
     IMClient.getInstance().dispose();
     controller.dispose();
     super.dispose();
@@ -72,47 +72,42 @@ class _MainPageState extends State<MainPage>
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: TabBarView(
-        controller: controller, 
-        children:const [
-          SessionPage(),
-          ContactPage(),
-          ProfilePage(),
-        ]
-      ),
+      body: TabBarView(controller: controller, children: const [
+        SessionPage(),
+        ContactPage(),
+        ProfilePage(),
+      ]),
       bottomNavigationBar: BottomNavigationBar(
-        onTap: (index){
+        onTap: (index) {
           setState(() {
             controller.index = index;
           });
         },
         iconSize: tabSize,
         currentIndex: controller.index,
-        items:[
+        items: [
           BottomNavigationBarItem(
             icon: Stack(
               children: [
                 const Icon(Icons.chat),
                 Positioned(
-                  right: 0,
-                  top: 0,
-                  child: AnimatedContainer(
-                    padding: const EdgeInsets.all(2),
-                    duration:const Duration(milliseconds: 100),
-                    width: sessionUnreadCount >0?20:0,
-                    height: sessionUnreadCount >0?20:0,
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle
-                    ),
-                    child: Center(
-                      child: Text(
-                        sessionUnreadCount.toString() , 
-                        style: const TextStyle(color: Colors.white , fontSize: 10),
+                    right: 0,
+                    top: 0,
+                    child: AnimatedContainer(
+                      padding: const EdgeInsets.all(2),
+                      duration: const Duration(milliseconds: 100),
+                      width: sessionUnreadCount > 0 ? 20 : 0,
+                      height: sessionUnreadCount > 0 ? 20 : 0,
+                      decoration: const BoxDecoration(
+                          color: Colors.red, shape: BoxShape.circle),
+                      child: Center(
+                        child: Text(
+                          sessionUnreadCount.toString(),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 10),
+                        ),
                       ),
-                    ),
-                  )
-                )
+                    ))
               ],
             ),
             label: "聊天",

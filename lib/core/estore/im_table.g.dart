@@ -877,6 +877,10 @@ class $IMMessageDataTable extends IMMessageData
   $IMMessageDataTable createAlias(String alias) {
     return $IMMessageDataTable(_db, alias);
   }
+
+  @override
+  // TODO: implement attachedDatabase
+  DatabaseConnectionUser get attachedDatabase => throw UnimplementedError();
 }
 
 class SessionUnreadItemData extends DataClass
@@ -1173,6 +1177,10 @@ class $SessionUnreadItemTable extends SessionUnreadItem
   $SessionUnreadItemTable createAlias(String alias) {
     return $SessionUnreadItemTable(_db, alias);
   }
+
+  @override
+  // TODO: implement attachedDatabase
+  DatabaseConnectionUser get attachedDatabase => throw UnimplementedError();
 }
 
 abstract class _$IMDatabase extends GeneratedDatabase {
