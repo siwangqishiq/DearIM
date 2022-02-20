@@ -164,6 +164,10 @@ class RecentSessionListState extends State<RecentSessionListWidget> {
     final String avatar = contact?.avatar??"";
     final String content = recentSession.lastIMMessage?.content??"";
     final int sessionTime = recentSession.time;
+    int unreadCount =  recentSession.unreadCount;
+    if(unreadCount > 99){
+      unreadCount = 99;
+    }
 
     return InkWell(
       onTap: () async{

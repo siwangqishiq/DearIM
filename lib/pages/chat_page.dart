@@ -709,6 +709,9 @@ class InputPanelState extends State<InputPanelWidget> {
       _textFieldController.clear();
       inputTextSelection = _textFieldController.selection;
       //_textFieldController.text = "";
+
+      //发送文本后保留焦点 以方便下次输入
+      _inputFocusNode.requestFocus();
     });
 
     //refresh message list
