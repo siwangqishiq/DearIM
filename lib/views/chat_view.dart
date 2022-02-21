@@ -155,12 +155,12 @@ class _ChatViewState extends State<ChatView> {
       borderRadius: BorderRadius.circular(6),
       child: Container(
         constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 200),
-        color: ColorThemes.themeColor,
+        color: msgModel.isReceived?ColorThemes.whiteColor:ColorThemes.themeColor,
         child: Padding(
           padding: EdgeInsets.all(innerSpace),
           child: EmojiText(
             msgModel.content,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+            style: TextStyle(color: msgModel.isReceived?Colors.black:Colors.white, fontSize: 16),
           ),
         ),
       )
