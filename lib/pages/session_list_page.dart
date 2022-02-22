@@ -1,6 +1,7 @@
 import 'package:dearim/core/imcore.dart';
 import 'package:dearim/core/log.dart';
 import 'package:dearim/core/session.dart';
+import 'package:dearim/core/utils.dart';
 import 'package:dearim/models/contact_model.dart';
 import 'package:dearim/user/contacts.dart';
 import 'package:dearim/utils/timer_utils.dart';
@@ -206,7 +207,8 @@ class RecentSessionListState extends State<RecentSessionListWidget> {
                           width: 55,
                         ),
                       ),
-                      sessionUnreadCountWidget(recentSession)
+                      sessionUnreadCountWidget(recentSession),
+                      platformIcon(recentSession)
                     ],
                   ),
                   const SizedBox(width: 10,),
@@ -232,6 +234,56 @@ class RecentSessionListState extends State<RecentSessionListWidget> {
         ), 
       ),
     );
+  }
+
+  ///
+  /// 显示会话最近未读消息的发送平台
+  ///
+  Widget platformIcon(RecentSession recentSession){
+    int clientType = recentSession.lastIMMessage?.fromClient??ClientType.Android;
+    return Positioned(
+      right: 0,
+      bottom: 0,
+      child: Visibility(
+        child: Image.asset(_findPlatformIcon(clientType) , width: 20, height: 20),
+        maintainSize: true, 
+        maintainAnimation: true,
+        maintainState: true,
+        visible: recentSession.unreadCount > 0, 
+      )
+    );
+  }
+
+  ///
+  /// 根据类型 获得平台操作系统文件名
+  ///
+  String _findPlatformIcon(int type){
+    String filename = "";
+    switch(type){
+      case ClientType.Android:
+        filename = "ic_android.png";
+        break;
+      case ClientType.Ios:
+        filename = "ic_ios.png";
+        break;
+      case ClientType.Web:
+        filename = "ic_server.png";
+        break;
+      case ClientType.Linux:
+        filename = "ic_linux.png";
+        break;
+      case ClientType.Macos:
+        filename = "ic_mac.png";
+        break;
+      case ClientType.Windows:
+        filename = "ic_windows.png";
+        break;
+       default:
+        filename = "ic_server.png";
+        break;
+    }//end switch
+
+    return filename;
   }
 
   Widget sessionUnreadCountWidget(RecentSession recentSession){

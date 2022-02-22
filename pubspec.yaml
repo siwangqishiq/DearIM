@@ -74,10 +74,15 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/emoji/
     - assets/emojis/
     - avatar_loading.png
     - ic_photo.png
+    - ic_ios.png
+    - ic_windows.png
+    - ic_mac.png
+    - ic_linux.png
+    - ic_android.png
+    - ic_server.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
