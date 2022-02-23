@@ -638,7 +638,7 @@ class InputPanelState extends State<InputPanelWidget> {
   }
 
   void onInputTextChange(String _text) {
-    text = _text;
+    text = _text.trim();
     // String text2 = _textFieldController.text;
     // TextSelection textSelection = _textFieldController.selection;
     // LogUtil.log(
@@ -677,7 +677,7 @@ class InputPanelState extends State<InputPanelWidget> {
 
   //添加新IM消息到消息列表中
   void _addIMMessageToList(IMMessage msg) {
-  var msgList = widget.chatPageContext.msgModels;
+    var msgList = widget.chatPageContext.msgModels;
     // msgList.add(ChatMessageModel.fromIMMessage(msg));
     msgList.insert(0, ChatMessageModel.fromIMMessage(msg));
 
@@ -693,9 +693,13 @@ class InputPanelState extends State<InputPanelWidget> {
 
   //发送文本消息
   void sendTextIMMsg(String content) async {
+    content = content.trim();
+
     var model = widget.chatPageContext.widget.model;
 
     if (_textFieldController.text.isEmpty) {
+      _textFieldController.clear();
+      _inputFocusNode.requestFocus();
       return;
     }
 
@@ -709,6 +713,11 @@ class InputPanelState extends State<InputPanelWidget> {
       _textFieldController.clear();
       inputTextSelection = _textFieldController.selection;
       //_textFieldController.text = "";
+
+      //表情输入框 或 更多面板已经打开了 不需要再弹键盘
+      if(_showEmojiGridPanel || _showMoreActionsVisible){
+        return;
+      }
 
       //发送文本后保留焦点 以方便下次输入
       _inputFocusNode.requestFocus();

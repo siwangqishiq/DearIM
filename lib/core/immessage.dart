@@ -209,8 +209,8 @@ class IMMessageBuilder {
       return null;
     }
 
-    if (content.length >= TEXT_MAX_LENGHT) {
-      LogUtil.errorLog("content too long for text immessage");
+    if (content.length >= TEXT_MAX_LENGHT || Utils.isTextEmpty(content)) {
+      LogUtil.errorLog("content too long or empty for text immessage");
       return null;
     }
 
